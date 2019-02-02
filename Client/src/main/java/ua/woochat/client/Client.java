@@ -1,3 +1,4 @@
+package ua.woochat.client;
 
 public class Client {
     public void sayHello() {
