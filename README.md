@@ -8,5 +8,4 @@ Instant Messenger
 =====================
 A server-client application for real-time messaging.
 
-
 ![screenshot of sample](https://i.imgur.com/HaF8Fgp.png)

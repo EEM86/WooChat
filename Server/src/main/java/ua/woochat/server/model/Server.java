@@ -1,4 +1,4 @@
-package ua.woochat.server;
+package ua.woochat.server.model;
 
 public class Server {
     public void sayHello() {
