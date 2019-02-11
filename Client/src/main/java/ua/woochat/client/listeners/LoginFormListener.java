@@ -29,7 +29,8 @@ public class LoginFormListener implements ActionListener {
          * event handling associated with pressing the button singInButton
          */
         if (e.getActionCommand().equals("signInButton")) {
-            System.out.println("signInButton was pressed");
+            loginForm.getConnectionModele().userRequest(loginForm.getUserName().getText(),
+                    loginForm.getUserPassword().getText());
         }
 
         /**
@@ -49,7 +50,26 @@ public class LoginFormListener implements ActionListener {
          */
 
         if (e.getActionCommand().equals("create")) {
-            System.out.println("create was pressed");
+            String account = loginForm.getNewLogin().getText();
+            String password = loginForm.getNewPassword().getText();
+            String passwordConfirm = loginForm.getNewConfirmPassword().getText();
+
+            if (account.equals("")){
+                System.out.println("Please enter account name!");
+            }
+            else{
+                if (password.equals("") | passwordConfirm.equals("")){
+                    System.out.println("Password must not be empty");
+                }
+                else {
+                    if (!password.equals(passwordConfirm)){
+                        System.out.println("Passwords do not match");
+                    }
+                    else{
+                        loginForm.getConnectionModele().registrationRequest(account,password);
+                    }
+                }
+            }
         }
 
         /**
