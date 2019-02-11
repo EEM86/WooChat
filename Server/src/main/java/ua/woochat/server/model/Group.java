@@ -4,12 +4,12 @@ import java.util.ArrayList;
 
 public class Group {
 
-    private ArrayList<User> userList = new ArrayList();
+    private ArrayList<User> usersList = new ArrayList();
     private User adminGroup;
     private int idGroup;
 
     {
-        idGroup ++;
+        idGroup ++; // я не понял зачем это
     }
 
     public Group(User adminGroup, int idGroup) {
@@ -19,10 +19,10 @@ public class Group {
     }
 
     public void addUser (User user){
-        userList.add(user);
+        usersList.add(user);
     }
 
-    public ArrayList<User> getUserList() {
-        return userList;
+    public ArrayList<User> getUsersList() {
+        return usersList;
     }
 }

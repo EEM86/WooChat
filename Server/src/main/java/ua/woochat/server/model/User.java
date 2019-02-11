@@ -52,7 +52,7 @@ public class User {
 
     public void setAdmin(boolean admin) {
         this.admin = admin;
-    }
+    } //admin по умолчанию false, помоему здесь надо присвоить true
 
     public boolean isBan() {
         return ban;
@@ -61,5 +61,4 @@ public class User {
     public void setBan(boolean ban) {
         this.ban = ban;
     }
-
 }
