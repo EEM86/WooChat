@@ -1,6 +1,7 @@
 package ua.woochat.client.view;
 
 import ua.woochat.client.listeners.LoginFormListener;
+import ua.woochat.client.model.ServerConnection;
 
 import javax.swing.*;
 import java.awt.*;
@@ -30,10 +31,12 @@ public class LoginForm {
     private WindowProperties properties;
     private WindowImages images;
     private LoginFormListener loginFormListener;
+    private ServerConnection connectionModele;
 
-    public LoginForm(WindowProperties properties, WindowImages images){
+    public LoginForm(WindowProperties properties, WindowImages images, ServerConnection connectionModele){
         this.properties = properties;
         this.images = images;
+        this.connectionModele = connectionModele;
 
         createWindow();
     }
@@ -172,23 +175,35 @@ public class LoginForm {
         return loginWindow;
     }
 
-    public void setLoginWindow(JFrame loginWindow) {
-        this.loginWindow = loginWindow;
-    }
-
     public JPanel getLoginPanel() {
         return loginPanel;
-    }
-
-    public void setLoginPanel(JPanel loginPanel) {
-        this.loginPanel = loginPanel;
     }
 
     public JPanel getRegistrationPanel() {
         return registrationPanel;
     }
 
-    public void setRegistrationPanel(JPanel registrationPanel) {
-        this.registrationPanel = registrationPanel;
+    public ServerConnection getConnectionModele() {
+        return connectionModele;
+    }
+
+    public JTextField getUserName() {
+        return userName;
+    }
+
+    public JTextField getUserPassword() {
+        return userPassword;
+    }
+
+    public JTextField getNewLogin() {
+        return newLogin;
+    }
+
+    public JTextField getNewPassword() {
+        return newPassword;
+    }
+
+    public JTextField getNewConfirmPassword() {
+        return newConfirmPassword;
     }
 }
