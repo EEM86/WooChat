@@ -1,4 +1,4 @@
-package ua.woochat.server.model;
+package ua.woochat.app;
 
 import java.util.ArrayList;
 
@@ -11,15 +11,15 @@ public class User {
     }
     private Gender gender;
     private boolean admin;
-    private boolean ban;
+    private boolean isBanned;
     private ArrayList group = null;
 
-    public User(String login, String password, Gender gender, boolean admin, boolean ban) {
+    public User(String login, String password) {
         this.login = login;
         this.password = password;
-        this.gender = gender;
-        this.admin = admin;
-        this.ban = ban;
+//        this.gender = gender;
+//        this.admin = admin;
+//        this.isBanned = isBanned;
     }
 
     public String getLogin() {
@@ -52,13 +52,14 @@ public class User {
 
     public void setAdmin(boolean admin) {
         this.admin = admin;
-    } //admin по умолчанию false, помоему здесь надо присвоить true
+        admin = true;  //admin по умолчанию false, помоему здесь надо присвоить true
+    }
 
     public boolean isBan() {
-        return ban;
+        return isBanned;
     }
 
     public void setBan(boolean ban) {
-        this.ban = ban;
+        this.isBanned = isBanned;
     }
 }

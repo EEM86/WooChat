@@ -1,4 +1,4 @@
-package ua.woochat.server.model;
+package ua.woochat.app;
 
 import java.util.ArrayList;
 

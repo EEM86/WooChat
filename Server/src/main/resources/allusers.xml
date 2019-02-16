@@ -1,0 +1,14 @@
+<users>
+    <user type="guest">
+        <login>Vasya</login>
+        <password>12345</password>
+        <login>Kolya</login>
+        <password>1111</password>
+        <login>Lena</login>
+        <password>3333</password>
+    </user>
+    <user type="admin">
+        <login>Zhenya</login>
+        <password>222</password>
+    </user>
+</users>
