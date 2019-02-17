@@ -1,5 +1,7 @@
 package ua.woochat.client.view;
 
+import ua.woochat.client.listeners.ChatFormListener;
+
 import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
@@ -22,14 +24,20 @@ public class ChatForm {
     private JPanel chatContainer;
     private JPanel listContainer;
     private JPanel messageContainer;
+    private JPanel functionalPanel;
 
     private DefaultListModel<String> model = new DefaultListModel();
     private JScrollPane scrollPane;
     private JList userList;
 
     private JLabel userOnlineLabel;
+    private JButton sendButton;
 
     private JTabbedPane conversationPanel;
+
+    private JTextField messageField;
+
+    private JPanel tempTabPanel;
 
     private String[] users = {"UserAnatoliy", "Bodik", "Shaurma", "Gnom", "Jon Snow (2)", "MARTIN", "Daywalker", "NEITRINO", "ЛЯПOTA", "-ZAUR", "DeHWeT", "NELLY", "Лacкoвaя_пaнтepa", "-CIQAN", "DeLi", "NELLY_FURTADO", "Лacкoвый_Бaкинeц", "-NeMo", "DeaD_GirL", "NEQATI", "Лacтoчкa", "-UREK", "Deart-Wolf", "NERGIZ_132", "Лaпyля"};
 
@@ -44,7 +52,7 @@ public class ChatForm {
 
         chatForm = new JFrame("Woo Chat");
         chatForm.getContentPane().setBackground(properties.getBgColor());
-        chatForm.setBounds(700, 500, 700, 500);
+        chatForm.setBounds(700, 500, 700, 482);
         chatForm.setLocationRelativeTo(null);
         chatForm.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         chatForm.setResizable(false);
@@ -65,14 +73,37 @@ public class ChatForm {
         chatForm.setVisible(true);
     }
 
-
     /**
      * method create a message container
      */
     private void createMessageContainer() {
+
+        ChatFormListener chatListener = new ChatFormListener(this);
+
         messageContainer = new JPanel();
         messageContainer.setBackground(properties.getChatBackColor());
-        messageContainer.setPreferredSize(new Dimension(687,58));
+        messageContainer.setPreferredSize(new Dimension(687,40));
+
+        messageField = new JTextField();
+        messageField.setPreferredSize(new Dimension(405,30));
+        messageField.setActionCommand("enterPressed");
+        messageField.addActionListener(chatListener);
+
+        sendButton = new JButton("Send");
+        sendButton.setPreferredSize(new Dimension(80,30));
+        sendButton.setActionCommand("sendButton");
+        sendButton.addActionListener(chatListener);
+
+        functionalPanel = new JPanel();
+        functionalPanel.setLayout(new FlowLayout());
+
+        functionalPanel.setBackground(new Color(97, 73, 150));
+        functionalPanel.setPreferredSize(new Dimension(182,30));
+
+        messageContainer.add(messageField);
+        messageContainer.add(sendButton);
+        messageContainer.add(functionalPanel);
+
     }
 
     /**
@@ -81,6 +112,7 @@ public class ChatForm {
     private void createChatContainer() {
 
         chatContainer = new JPanel();
+
         chatContainer.setBackground(properties.getChatBackColor());
         chatContainer.setPreferredSize(new Dimension(500,400));
 
@@ -90,23 +122,42 @@ public class ChatForm {
         conversationPanel.setForeground(properties.getTextColor());
         conversationPanel.setBorder(new EmptyBorder(3, 3, 3, 3));
 
-        JPanel testPanel_1 = new JPanel();
-        JPanel testPanel_2 = new JPanel();
-        JPanel testPanel_3 = new JPanel();
 
-        testPanel_1.setBackground(properties.getChatBackColor());
-        testPanel_2.setBackground(properties.getChatBackColor());
-        testPanel_3.setBackground(new Color(0, 31, 150));
+        conversationPanel.addTab("Generated", createNewTab());
+        conversationPanel.addTab("Jon Snow", createNewTab());
+        conversationPanel.addTab("Shaurma", createNewTab());
+        conversationPanel.addTab("Daywalker, Roy Amber", createNewTab());
 
-        conversationPanel.addTab("Jon Snow", testPanel_1);
-        conversationPanel.addTab("Shaurma", testPanel_2);
-        conversationPanel.addTab("Daywalker, Roy Amber", testPanel_3);
+
         chatContainer.add(conversationPanel);
+    }
+
+    private JPanel createNewTab() {
+
+        JPanel newTab = new JPanel();
+        newTab.setBackground(properties.getChatBackColor());
+
+        JTextArea chatArea = new JTextArea();
+        chatArea.setCaretPosition(chatArea.getDocument().getLength());
+        chatArea.setBackground(properties.getChatBackColor());
+        chatArea.setForeground(properties.getTextColor());
+        chatArea.setTabSize(10);
+        chatArea.setEditable(false);
+        chatArea.setLineWrap(true);
+
+        JScrollPane jsp = new JScrollPane(chatArea);
+        jsp.setPreferredSize(new Dimension(475,342));
+        jsp.setBorder(border());
+
+        newTab.add(jsp);
+
+        return newTab;
     }
 
     /**
      * method create a user list container
      */
+
     private void createListContainer() {
 
         listContainer = new JPanel();
@@ -132,7 +183,14 @@ public class ChatForm {
 
         listContainer.add(userOnlineLabel);
         listContainer.add(scrollPane);
+    }
 
+    public JTabbedPane getConversationPanel() {
+        return conversationPanel;
+    }
+
+    public JTextField getMessageField() {
+        return messageField;
     }
 
     private Border border() {
