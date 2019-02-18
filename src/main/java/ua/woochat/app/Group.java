@@ -9,7 +9,7 @@ public class Group {
     private int idGroup;
 
     {
-        idGroup ++; // я не понял зачем это
+        idGroup++;
     }
 
     public Group(User adminGroup, int idGroup) {

@@ -54,25 +54,6 @@ public class Server implements ConnectionAgent {
 
         for (Connection entry : connections) {
             entry.sendToOutStream(text);
-            logger.debug(text);
         }
     }
-
-/*
-    public boolean authorize(User user) {
-        boolean result = false;
-        try (FileInputStream fis = new FileInputStream("Server/src/main/resources/allusers.xml")) {
-            Properties properties = new Properties();
-            properties.loadFromXML(fis);
-            if (user.getLogin().equals(properties.getProperty("name"))) {
-                result =  true;
-            }
-        } catch (FileNotFoundException e) {
-            logger.error("File not found " + e);
-        } catch (IOException ioe) {
-            logger.error("Error with inputstream " + ioe);
-        }
-        return result;
-    }
-*/
 }

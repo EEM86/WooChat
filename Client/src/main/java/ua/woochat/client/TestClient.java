@@ -1,15 +1,12 @@
 package ua.woochat.client;
 
 import org.apache.log4j.Logger;
-
 import ua.woochat.app.Connection;
 import ua.woochat.app.ConnectionAgent;
-
 import ua.woochat.client.model.ConfigClient;
 
 import java.io.*;
 import java.net.Socket;
-
 
 public class TestClient implements ConnectionAgent {
     private final static Logger logger = Logger.getLogger(TestClient.class);
@@ -23,7 +20,6 @@ public class TestClient implements ConnectionAgent {
             reader = new BufferedReader(new InputStreamReader(System.in));
             this.connection = new Connection(this, socket);
             connectionCreated(connection);
-
 
             while (true) {
                 try {

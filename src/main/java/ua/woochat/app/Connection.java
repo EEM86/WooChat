@@ -10,16 +10,16 @@ public class Connection implements Connect, Runnable {
 
     private final Socket socket;
     private final Thread thread;
-    private final BufferedReader in;
-    private final BufferedWriter out;
+    private final BufferedReader socketIn;
+    private final BufferedWriter socketOut;
     private final ConnectionAgent connectionAgent;
     final static Logger logger = Logger.getLogger(Connection.class);
 
     public Connection(ConnectionAgent connectionAgent, Socket socket) throws IOException {
         this.connectionAgent = connectionAgent;
         this.socket = socket;
-        in = new BufferedReader(new InputStreamReader(socket.getInputStream(), Charset.forName("UTF-8")));
-        out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), Charset.forName("UTF-8")));
+        socketIn = new BufferedReader(new InputStreamReader(socket.getInputStream(), Charset.forName("UTF-8")));
+        socketOut = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), Charset.forName("UTF-8")));
         thread = new Thread(this);
         thread.start();
     }
@@ -31,8 +31,8 @@ public class Connection implements Connect, Runnable {
     public void run() {
         while(true) {
             try {
-                if (in.ready()) {
-                    String text = in.readLine();
+                if (socketIn.ready()) {
+                    String text = socketIn.readLine();
                     connectionAgent.receivedMessage(text.trim());
                 }
             } catch (IOException e) {
@@ -48,8 +48,8 @@ public class Connection implements Connect, Runnable {
     @Override
     public void sendToOutStream(String text) {
         try {
-            out.write(text + "\r\n");
-            out.flush();
+            socketOut.write(text + "\r\n");
+            socketOut.flush();
         } catch (IOException e) {
             logger.error("Error with socket output stream" + e);
             disconnect();
@@ -62,8 +62,8 @@ public class Connection implements Connect, Runnable {
         logger.debug("Thread was interrupted");
         try {
             socket.close();
-            in.close();
-            out.close();
+            socketIn.close();
+            socketOut.close();
             logger.debug("Client socket has closed");
         } catch (IOException e) {
             logger.error(Connection.this, e);
