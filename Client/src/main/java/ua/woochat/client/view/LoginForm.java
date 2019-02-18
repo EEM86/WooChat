@@ -33,7 +33,7 @@ public class LoginForm {
     private LoginFormListener loginFormListener;
     private ServerConnection connectionModele;
 
-    public LoginForm(WindowProperties properties, WindowImages images, ServerConnection connectionModele){
+    public LoginForm(WindowProperties properties, WindowImages images){
         this.properties = properties;
         this.images = images;
         this.connectionModele = connectionModele;

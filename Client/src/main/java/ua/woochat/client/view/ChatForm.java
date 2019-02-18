@@ -1,6 +1,8 @@
 package ua.woochat.client.view;
 
+import com.sun.security.ntlm.Server;
 import ua.woochat.client.listeners.ChatFormListener;
+import ua.woochat.client.model.ServerConnection;
 
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -38,10 +40,12 @@ public class ChatForm {
     private JTextField messageField;
 
     private JPanel tempTabPanel;
+    private ServerConnection serverConnection;
 
     private String[] users = {"UserAnatoliy", "Bodik", "Shaurma", "Gnom", "Jon Snow (2)", "MARTIN", "Daywalker", "NEITRINO", "ЛЯПOTA", "-ZAUR", "DeHWeT", "NELLY", "Лacкoвaя_пaнтepa", "-CIQAN", "DeLi", "NELLY_FURTADO", "Лacкoвый_Бaкинeц", "-NeMo", "DeaD_GirL", "NEQATI", "Лacтoчкa", "-UREK", "Deart-Wolf", "NERGIZ_132", "Лaпyля"};
 
     public ChatForm(WindowProperties properties, WindowImages images){
+        this.serverConnection = serverConnection;
         this.properties = properties;
         this.images = images;
 
@@ -127,7 +131,6 @@ public class ChatForm {
         conversationPanel.addTab("Jon Snow", createNewTab());
         conversationPanel.addTab("Shaurma", createNewTab());
         conversationPanel.addTab("Daywalker, Roy Amber", createNewTab());
-
 
         chatContainer.add(conversationPanel);
     }

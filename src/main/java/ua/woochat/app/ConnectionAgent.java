@@ -3,6 +3,5 @@ package ua.woochat.app;
 public interface ConnectionAgent {
     public void connectionCreated(Connection data);
     public void connectionDisconnect(Connection data);
-    public void sendAllConnections(String text);
-
+    public void receivedMessage(String text);
 }

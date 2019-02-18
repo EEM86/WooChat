@@ -3,16 +3,12 @@ package ua.woochat.server.controller;
 import org.apache.log4j.Logger;
 import ua.woochat.app.Connection;
 import ua.woochat.app.ConnectionAgent;
-import ua.woochat.app.User;
 import ua.woochat.server.model.ConfigServer;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.LinkedHashSet;
-import java.util.Properties;
 import java.util.Set;
 
 public class Server implements ConnectionAgent {
@@ -45,18 +41,20 @@ public class Server implements ConnectionAgent {
     @Override
     public synchronized void connectionCreated(Connection data) {
         connections.add(data);
-        sendAllConnections("Client connected " + data);
+        receivedMessage("Client connected " + data);
     }
     @Override
     public synchronized void connectionDisconnect(Connection data) {
         connections.remove(data);
-        sendAllConnections("Client disconnected " + data);
+        receivedMessage("Client disconnected " + data);
     }
 
     @Override
-    public void sendAllConnections(String text) {
+    public void receivedMessage(String text) {
+
         for (Connection entry : connections) {
             entry.sendToOutStream(text);
+            logger.debug(text);
         }
     }
 

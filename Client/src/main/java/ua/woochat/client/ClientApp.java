@@ -20,9 +20,7 @@ public class ClientApp {
         WindowProperties properties = new WindowProperties();
         WindowImages images = new WindowImages();
 
-        ServerConnection connectionModele = new ServerConnection();
-
-        LoginForm loginForm = new LoginForm(properties, images, connectionModele);
+        LoginForm loginForm = new LoginForm(properties, images);
         ChatForm chatForm = new ChatForm(properties,images);
 
     }

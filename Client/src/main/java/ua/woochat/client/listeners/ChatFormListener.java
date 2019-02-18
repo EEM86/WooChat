@@ -1,31 +1,37 @@
 package ua.woochat.client.listeners;
 
+import ua.woochat.client.model.ServerConnection;
 import ua.woochat.client.view.ChatForm;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+
 public class ChatFormListener implements ActionListener {
 
     private ChatForm chatForm;
+    private ServerConnection serverConnection;
 
-    public ChatFormListener(ChatForm chatForm){
+
+    public ChatFormListener(ChatForm chatForm) {
         this.chatForm = chatForm;
+        this.serverConnection = serverConnection;
+        serverConnection = new ServerConnection(this);
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getActionCommand().equals("sendButton")) {
-            sendMessage();
+            sendMessage(chatForm.getMessageField().getText());
         }
 
         if (e.getActionCommand().equals("enterPressed")) {
-            sendMessage();
+            sendMessage(chatForm.getMessageField().getText());
         }
     }
 
-    private void sendMessage() {
+    public void sendToChat(String message){
         JPanel temp;
         JScrollPane sp;
         JTextArea jta;
@@ -36,10 +42,11 @@ public class ChatFormListener implements ActionListener {
         jva = (JViewport) sp.getComponent(0);
         jta = (JTextArea)jva.getComponent(0);
 
-        jta.append("Jon: " + chatForm.getMessageField().getText() + "\n");
+        jta.append( message + "\n");
         chatForm.getMessageField().setText("");
-        chatForm.getMessageField().setFocusable(true);
     }
 
-
+    private void sendMessage(String message) {
+        serverConnection.sendToServer(message);
+    }
 }

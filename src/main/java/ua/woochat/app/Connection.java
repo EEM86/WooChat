@@ -33,7 +33,7 @@ public class Connection implements Connect, Runnable {
             try {
                 if (in.ready()) {
                     String text = in.readLine();
-                    connectionAgent.sendAllConnections(text.trim());
+                    connectionAgent.receivedMessage(text.trim());
                 }
             } catch (IOException e) {
                 logger.error("Error with connection creation" + e);

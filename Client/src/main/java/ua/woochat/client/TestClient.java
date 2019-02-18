@@ -1,22 +1,21 @@
 package ua.woochat.client;
 
 import org.apache.log4j.Logger;
-import ua.woochat.app.Connect;
+
 import ua.woochat.app.Connection;
 import ua.woochat.app.ConnectionAgent;
-import ua.woochat.app.User;
+
 import ua.woochat.client.model.ConfigClient;
 
 import java.io.*;
 import java.net.Socket;
-import java.util.Properties;
+
 
 public class TestClient implements ConnectionAgent {
     private final static Logger logger = Logger.getLogger(TestClient.class);
     private Socket socket;
     private BufferedReader reader;
     private Connection connection;
-    //private User user;
 
     public TestClient() throws IOException {
         try {
@@ -26,18 +25,18 @@ public class TestClient implements ConnectionAgent {
             connectionCreated(connection);
 
 
-                while (true) {
-                    try {
-                        if (reader.ready()) {
-                            String text = reader.readLine();
-                            if (!text.isEmpty()) {
-                                connection.sendToOutStream(text);
-                            }
+            while (true) {
+                try {
+                    if (reader.ready()) {
+                        String text = reader.readLine();
+                        if (!text.isEmpty()) {
+                            connection.sendToOutStream(text);
                         }
-                    } catch (IOException e) {
-                        logger.error("Connection exception " + e);
                     }
+                } catch (IOException e) {
+                    logger.error("Connection exception " + e);
                 }
+            }
         } catch (Exception e) {
             logger.error("Exception " + e);
         }
@@ -52,7 +51,7 @@ public class TestClient implements ConnectionAgent {
     public void connectionDisconnect(Connection data) {}
 
     @Override
-    public void sendAllConnections(String text) {
+    public void receivedMessage(String text) {
         logger.debug(text.trim());
     }
 

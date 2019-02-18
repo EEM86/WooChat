@@ -1,26 +1,48 @@
 package ua.woochat.client.model;
 
-public class ServerConnection {
+import ua.woochat.app.Connection;
+import ua.woochat.app.ConnectionAgent;
+import ua.woochat.client.listeners.ChatFormListener;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.Socket;
 
-    public ServerConnection(){}
+public class ServerConnection implements ConnectionAgent {
 
-    /**
-     * method checks the existence of the user account
-     * @param accountName user account name
-     * @param accountPassword user password
-     */
-    public void userRequest (String accountName, String accountPassword){
-        System.out.println("LoginForm user name: " + accountName);
-        System.out.println("LoginForm user password : " + accountPassword);
+    private Socket socket;
+    private BufferedReader reader;
+    private Connection connection;
+
+    private ChatFormListener chatFormListener;
+
+    public ServerConnection(ChatFormListener chatFormListener){
+
+        this.chatFormListener = chatFormListener;
+
+        try {
+            socket = new Socket(ConfigClient.getServerIP(), ConfigClient.getPortConnection());
+            reader = new BufferedReader(new InputStreamReader(System.in));
+            this.connection = new Connection(this, socket);
+            connectionCreated(connection);
+        } catch (Exception e) {
+
+        }
     }
 
-    /**
-     * method sends a request to register a new user
-     * @param accountName registration user name
-     * @param accountPassword registration user password
-     */
-    public void registrationRequest (String accountName, String accountPassword){
-        System.out.println("LoginForm registration user name: " + accountName);
-        System.out.println("LoginForm registration user password : " + accountPassword);
+    public void sendToServer(String text){
+        connection.sendToOutStream(text);
+    }
+
+    @Override
+    public void connectionCreated(Connection data) {
+    }
+
+    @Override
+    public void connectionDisconnect(Connection data) {
+    }
+
+    @Override
+    public void receivedMessage(String text) {
+        chatFormListener.sendToChat(text);
     }
 }

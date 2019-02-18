@@ -29,8 +29,7 @@ public class LoginFormListener implements ActionListener {
          * event handling associated with pressing the button singInButton
          */
         if (e.getActionCommand().equals("signInButton")) {
-            loginForm.getConnectionModele().userRequest(loginForm.getUserName().getText(),
-                    loginForm.getUserPassword().getText());
+
         }
 
         /**
@@ -66,7 +65,7 @@ public class LoginFormListener implements ActionListener {
                         System.out.println("Passwords do not match");
                     }
                     else{
-                        loginForm.getConnectionModele().registrationRequest(account,password);
+
                     }
                 }
             }
