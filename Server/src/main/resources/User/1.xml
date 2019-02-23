@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<user>
+    <id>1</id>
+    <login>firstUser</login>
+    <password>123</password>
+    <admin>false</admin>
+    <ban>false</ban>
+</user>

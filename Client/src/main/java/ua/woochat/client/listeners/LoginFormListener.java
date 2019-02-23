@@ -1,9 +1,15 @@
 package ua.woochat.client.listeners;
 
+import ua.woochat.app.Message;
+import ua.woochat.client.model.ServerConnection;
 import ua.woochat.client.view.LoginForm;
 
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.StringWriter;
 
 /**
  * class defines the functionality associated with the events of pressing the buttons
@@ -12,9 +18,12 @@ import java.awt.event.ActionListener;
 public class LoginFormListener implements ActionListener {
 
     LoginForm loginForm;
+    private ServerConnection serverConnection;
 
     public LoginFormListener(LoginForm loginForm){
         this.loginForm = loginForm;
+        this.serverConnection = serverConnection;
+        serverConnection = new ServerConnection(this);
     }
 
     /**
@@ -29,7 +38,9 @@ public class LoginFormListener implements ActionListener {
          * event handling associated with pressing the button singInButton
          */
         if (e.getActionCommand().equals("signInButton")) {
-
+            String account = loginForm.getNewLogin().getText();
+            String password = loginForm.getNewPassword().getText();
+            sendMessage(account, password, Message.SINGIN_TYPE);
         }
 
         /**
@@ -65,7 +76,7 @@ public class LoginFormListener implements ActionListener {
                         System.out.println("Passwords do not match");
                     }
                     else{
-
+                        sendMessage(account, password, Message.REGISTER_TYPE);
                     }
                 }
             }
@@ -83,4 +94,29 @@ public class LoginFormListener implements ActionListener {
             loginForm.getLoginWindow().setVisible(true);
         }
     }
+
+    private void sendMessage(String account, String password, int type) {
+        Message message = new Message(account, password, type);
+        try {
+            String str = marshalling(message);
+            serverConnection.sendToServer(str);
+        } catch (JAXBException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private String marshalling (Message message) throws JAXBException {
+        StringWriter writer = new StringWriter();
+        //создание объекта Marshaller, который выполняет сериализацию
+        JAXBContext context = JAXBContext.newInstance(Message.class);
+        Marshaller marshaller = context.createMarshaller();
+        // сама сериализация
+        marshaller.marshal(message, writer);
+
+        //преобразовываем в строку все записанное в StringWriter
+        String result = writer.toString();
+        System.out.println(result);
+        return result;
+    }
+
 }

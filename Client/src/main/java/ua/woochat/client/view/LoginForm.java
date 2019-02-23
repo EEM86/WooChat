@@ -156,7 +156,7 @@ public class LoginForm {
         newUserButton.addActionListener(loginFormListener);
         cancelNewUserButton.addActionListener(loginFormListener);
 
-        loginWindow.setVisible(false);
+        loginWindow.setVisible(true);
     }
 
     /**
