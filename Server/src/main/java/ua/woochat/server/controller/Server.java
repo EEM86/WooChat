@@ -4,16 +4,17 @@ import org.apache.log4j.Logger;
 import ua.woochat.app.Connection;
 import ua.woochat.app.ConnectionAgent;
 import ua.woochat.app.Message;
-import ua.woochat.app.User;
 import ua.woochat.server.model.ConfigServer;
+import ua.woochat.server.model.JaxbXml;
+import ua.woochat.server.model.User;
 
-import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -21,6 +22,10 @@ public class Server implements ConnectionAgent {
     final static Logger logger = Logger.getLogger(Server.class);
     private Set<Connection> connections = new LinkedHashSet<>();
     private Message message;
+    private ArrayList<User> listRegisteredUsers = new ArrayList<>();
+    private Set<File> listFilesUsers = new HashSet<>();
+    private JaxbXml jaxbXml = new JaxbXml();
+    User user;
     /**
      * Constructor creates Server socket which waits for connections.
      */
@@ -44,6 +49,7 @@ public class Server implements ConnectionAgent {
                 }
             }
         } catch (IOException e) {
+            System.out.println("ConfigServer.setUserId(user.getId());" + user.getId());
             logger.error("Server socket exception " + e);
         }
     }
@@ -55,7 +61,7 @@ public class Server implements ConnectionAgent {
     @Override
     public synchronized void connectionCreated(Connection data) {
         System.out.println("data" + data);
-        connections.add(data);
+       // connections.add(data);
        // receivedMessage("Client connected " + data);
     }
     @Override
@@ -66,62 +72,74 @@ public class Server implements ConnectionAgent {
 
     @Override
     public void receivedMessage(String text) {
-        System.out.println("receivedMessage " + text);
         try {
-            message = unMarshalling(text);
-            if (message.getType() == 0) {
-                if (verificationName(message.getLogin())) { // проверка не существует ли имя
-                    User user = new User(message.getLogin(), message.getPassword());
-                    saveUser(user);
-                } else {
-
-                    System.out.println("Пользователь с таким именем уже существует!");
-                }
-            }
+            message = jaxbXml.unMarshallingMessage(text);
         } catch (JAXBException e) {
-            e.printStackTrace();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            logger.error("unMarshallingMessage " + e);
         }
-        for (Connection entry : connections) {
-            entry.sendToOutStream(text);
+        // регистрация
+        if (message.getType() == 0) {
+            if (verificationName(message.getLogin())) { // проверка существует ли имя
+                User user = new User(message.getLogin(), message.getPassword());
+                user.saveUser();
+            } else {
+
+                System.out.println("Пользователь с таким именем уже существует!");
+            }
+        }
+
+        // вход
+        if (message.getType() == 1) {
+            if (verificationSingIn(message.getLogin(), message.getPassword())) { // проверка существует ли имя
+                User user = new User(message.getLogin(), message.getPassword());
+                //connectionCreated();
+                System.out.println("Соединение");
+            } else {
+
+                System.out.println("Неверно введен логин или пароль!");
+            }
+        }
+
+        // сообщение
+        if (message.getType() == 2) {
+            for (Connection entry : connections) {
+                entry.sendToOutStream(text);
+            }
         }
     }
 
     private boolean verificationName(String login) {
-        return true;
-
-    }
-
-    private void saveUser(User user) throws FileNotFoundException, JAXBException {
         String path = new File("").getAbsolutePath();
-        File file = new File(path + "/Server/src/main/resources/User/" + user.getId() + ".xml");
-        System.out.println("object file create");
-        try {
-            file.createNewFile();
-            System.out.println("file create");
-        } catch (IOException e) {
-            e.printStackTrace();
+        File file = new File(path + "/Server/src/main/resources/User/" + login.hashCode() + ".xml");
+        if (file.isFile()) {
+            return false;
         }
-        FileOutputStream stream = new FileOutputStream(file);
-        marshalling(User.class, user, stream);
+        return true;
     }
 
-    private void marshalling (Class marshClass, Object message, FileOutputStream stream) throws JAXBException {
-        //создание объекта Marshaller, который выполняет сериализацию
-        JAXBContext context = JAXBContext.newInstance(marshClass);
-        Marshaller marshaller = context.createMarshaller();
-        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-        // сама сериализация
-        marshaller.marshal(message, stream);
+    private boolean verificationSingIn(String login, String password) {
+        String path = new File("").getAbsolutePath();
+        File file = new File(path + "/Server/src/main/resources/User/" + login.hashCode() + ".xml");
+
+        if (file.isFile()) {
+            user = jaxbXml.unMarshalling(file);
+            if (password.equals(user.getPassword())) {
+                return true;
+            }
+        }
+        return false;
     }
 
-    private Message unMarshalling (String str) throws JAXBException {
-        StringReader reader = new StringReader(str);
-        JAXBContext context = JAXBContext.newInstance(Message.class);
-        Unmarshaller unmarshaller = context.createUnmarshaller();
-
-        message = (Message) unmarshaller.unmarshal(reader);
-        return message;
+    // files in folder
+    public Set<File> filesFromFolder() {
+        String path = new File("").getAbsolutePath();
+        File folder = new File(path + "/Server/src/main/resources/User");
+        File[] folderEntries = folder.listFiles();
+        for (File entry : folderEntries) {
+            listFilesUsers.add(entry);
+            //listRegisteredUsers.add(jaxbXml.unMarshalling(entry));
+        }
+        return listFilesUsers;
     }
+
 }

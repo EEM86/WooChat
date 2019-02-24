@@ -33,7 +33,6 @@ public class Connection implements Connect, Runnable {
             try {
                 if (socketIn.ready()) {
                     String text = socketIn.readLine();
-                    System.out.println("run" + text);
                     connectionAgent.receivedMessage(text.trim());
                 }
             } catch (IOException e) {
@@ -50,7 +49,6 @@ public class Connection implements Connect, Runnable {
     public void sendToOutStream(String text) {
         try {
             socketOut.write(text + "\r\n");
-            System.out.println("sendToOutStream" + text);
             socketOut.flush();
         } catch (IOException e) {
             logger.error("Error with socket output stream" + e);

@@ -1,22 +1,42 @@
-package ua.woochat.app;
+package ua.woochat.server.model;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 
 @XmlRootElement
 public class User {
     @XmlElement
-    private static int id = 0;
+    private int id;
     @XmlElement
     private String login;
     @XmlElement
     private String password;
 
-   /* @XmlAttribute
-    private int type;
-    public static int REGISTER_TYPE = 0;
-    public static int SINGIN_TYPE = 1;*/
+    public User() {
+    }
+
+    public void saveUser() {
+        JaxbXml jaxbXml = new JaxbXml();
+        String path = new File("").getAbsolutePath();
+        File file = new File(path + "/Server/src/main/resources/User/" + this.getId() + ".xml");
+        try {
+            file.createNewFile();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        try {
+            FileOutputStream stream = new FileOutputStream(file);
+            jaxbXml.marshalling(User.class, this, stream);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
+    }
 
     private enum Gender {
         MALE, FEMALE
@@ -26,15 +46,10 @@ public class User {
     private boolean isBanned;
     private ArrayList group = null;
 
-
-    public User() {
-
-    }
-
     public User(String login, String password) {
         this.login = login;
         this.password = password;
-        id++;
+        this.id = login.hashCode();
     }
 
     public int getId() {

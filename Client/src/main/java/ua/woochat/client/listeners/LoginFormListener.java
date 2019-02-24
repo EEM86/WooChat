@@ -38,8 +38,8 @@ public class LoginFormListener implements ActionListener {
          * event handling associated with pressing the button singInButton
          */
         if (e.getActionCommand().equals("signInButton")) {
-            String account = loginForm.getNewLogin().getText();
-            String password = loginForm.getNewPassword().getText();
+            String account = loginForm.getUserName().getText();
+            String password = loginForm.getUserPassword().getText();
             sendMessage(account, password, Message.SINGIN_TYPE);
         }
 
