@@ -16,11 +16,14 @@ import java.awt.event.ActionListener;
 public class LoginFormListener implements ActionListener {
 
     LoginForm loginForm;
+
     private ServerConnection serverConnection;
+
     private HandleXml handleXml = new HandleXml();
     public LoginFormListener(LoginForm loginForm){
-        this.loginForm = loginForm;
+
         serverConnection = new ServerConnection(this);
+        this.loginForm = loginForm;
     }
 
     /**
@@ -41,7 +44,6 @@ public class LoginFormListener implements ActionListener {
             if (account.equals("") | password.equals("")){
                 new MessageView("Login or password must not be empty", loginForm.getLoginWindow());
             }else{
-                //new MessageView("Trying to connect server ...", loginForm.getLoginWindow());
                 sendMessage(account, password, Message.SINGIN_TYPE);
             }
         }
@@ -79,6 +81,7 @@ public class LoginFormListener implements ActionListener {
                         new MessageView("Passwords do not match", loginForm.getLoginWindow());
                     }
                     else{
+
                         sendMessage(account, password, Message.REGISTER_TYPE);
                     }
                 }
@@ -99,8 +102,10 @@ public class LoginFormListener implements ActionListener {
     }
 
     private void sendMessage(String account, String password, int type) {
+
         Message message = new Message(account, password, type);
         String str = handleXml.marshalling1(Message.class, message);
+
         try {
             serverConnection.sendToServer(str);
         }catch (NullPointerException e){
@@ -108,4 +113,7 @@ public class LoginFormListener implements ActionListener {
         }
     }
 
+    public LoginForm getLoginForm() {
+        return loginForm;
+    }
 }

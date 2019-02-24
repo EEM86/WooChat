@@ -5,7 +5,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
 public class Message {
-    @XmlElement
     private String login;
     @XmlElement
     private String password;
@@ -38,6 +37,7 @@ public class Message {
         this.message = message;
     }
 
+    @XmlElement
     public String getLogin() {
         return login;
     }
@@ -62,5 +62,9 @@ public class Message {
 
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    public void setLogin(String login) {
+        this.login = login;
     }
 }

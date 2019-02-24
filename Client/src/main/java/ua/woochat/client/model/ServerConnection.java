@@ -5,6 +5,11 @@ import ua.woochat.app.Connection;
 import ua.woochat.app.ConnectionAgent;
 import ua.woochat.app.HandleXml;
 import ua.woochat.app.Message;
+import ua.woochat.client.listeners.LoginFormListener;
+import ua.woochat.client.view.ChatForm;
+import ua.woochat.client.view.MessageView;
+import ua.woochat.client.view.WindowImages;
+import ua.woochat.client.view.WindowProperties;
 
 import javax.xml.bind.JAXBException;
 import java.awt.event.ActionListener;
@@ -18,20 +23,27 @@ public class ServerConnection implements ConnectionAgent {
     private BufferedReader reader;
     private Connection connection;
 
-    private ActionListener chatFormListener;
+    private LoginFormListener loginFormListener;
     private Message message;
     final static Logger logger = Logger.getLogger(ServerConnection.class);
     private HandleXml handleXml = new HandleXml();
+    private WindowProperties windowProperties;
+    private WindowImages windowImages;
 
-    public ServerConnection(ActionListener chatFormListener){
+    private String[] testOnlineList = {"UserAnatoliy", "Bodik", "Shaurma", "Gnom", "Jon Snow (2)", "MARTIN", "Daywalker", "NEITRINO", "ЛЯПOTA", "-ZAUR", "DeHWeT", "NELLY", "Лacкoвaя_пaнтepa", "-CIQAN", "DeLi", "NELLY_FURTADO", "Лacкoвый_Бaкинeц", "-NeMo", "DeaD_GirL", "NEQATI", "Лacтoчкa", "-UREK", "Deart-Wolf", "NERGIZ_132", "Лaпyля"};
 
-        this.chatFormListener = chatFormListener;
+
+    public ServerConnection(LoginFormListener loginFormListener){
+
+        this.loginFormListener = loginFormListener;
 
         try {
+
             socket = new Socket(ConfigClient.getServerIP(), ConfigClient.getPortConnection());
             reader = new BufferedReader(new InputStreamReader(System.in));
             this.connection = new Connection(this, socket);
             connectionCreated(connection);
+
         } catch (Exception e) {
 
         }
@@ -57,21 +69,28 @@ public class ServerConnection implements ConnectionAgent {
         } catch (JAXBException e) {
             logger.error("unMarshallingMessage " + e);
         }
+
         // регистрация
         if (message.getType() == 0) {
             if (message.getMessage().equals("true")) {
-                System.out.println("Пользователь успешно создан! Получаем список пользователей. Вход.");
+                loginFormListener.getLoginForm().getLoginWindow().setVisible(false);
+                chatWindow(message.getLogin(), testOnlineList);
             } else {
-                System.out.println("Пользователь с таким именем уже существует!");
+                loginFormListener.getLoginForm().getLoginWindow().setEnabled(false);
+                new MessageView("Пользователь с таким именем уже существует!",
+                        loginFormListener.getLoginForm().getLoginWindow());
             }
         }
 
         // вход
         if (message.getType() == 1) {
             if (message.getMessage().equals("true")) {
-                System.out.println("Вход! Получаем список пользователей.");
+                loginFormListener.getLoginForm().getLoginWindow().setVisible(false);
+                chatWindow(message.getLogin(), testOnlineList);
             } else {
-                System.out.println("Неверно введен логин или пароль!");
+                loginFormListener.getLoginForm().getLoginWindow().setEnabled(false);
+                new MessageView("Неверно введен логин или пароль!",
+                        loginFormListener.getLoginForm().getLoginWindow());
             }
         }
 
@@ -80,6 +99,20 @@ public class ServerConnection implements ConnectionAgent {
             System.out.println("Получаем сообщению в соответствующую группу");
         }
         //chatFormListener.sendToChat(text);
+    }
+
+    //Окно чата после регистрации/логининга. Пока что сюда передается имя пользователя который вошел.
+    // А будет передаваться и список онлайн с айдишниками
+
+    /**
+     * Метод создает новое окно чата для авторизированного/зарегистрированного пользователя
+     * @param user пользователь который успешно авторизирован
+     * @param testOnlineList список онлайн пользователей, которых вернул сервер в ответ на авторизацию
+     */
+    private void chatWindow(String user, String[] testOnlineList) {
+        windowProperties = loginFormListener.getLoginForm().getProperties();
+        windowImages = loginFormListener.getLoginForm().getImages();
+        new ChatForm(windowProperties, windowImages,user, testOnlineList);
     }
 
 }

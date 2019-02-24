@@ -31,12 +31,10 @@ public class LoginForm {
     private WindowProperties properties;
     private WindowImages images;
     private LoginFormListener loginFormListener;
-    private ServerConnection connectionModele;
 
     public LoginForm(WindowProperties properties, WindowImages images){
         this.properties = properties;
         this.images = images;
-        this.connectionModele = connectionModele;
 
         createWindow();
     }
@@ -171,6 +169,14 @@ public class LoginForm {
         btn.addActionListener(loginFormListener);
     }
 
+    public WindowProperties getProperties() {
+        return properties;
+    }
+
+    public WindowImages getImages() {
+        return images;
+    }
+
     public JFrame getLoginWindow() {
         return loginWindow;
     }
@@ -181,10 +187,6 @@ public class LoginForm {
 
     public JPanel getRegistrationPanel() {
         return registrationPanel;
-    }
-
-    public ServerConnection getConnectionModele() {
-        return connectionModele;
     }
 
     public JTextField getUserName() {

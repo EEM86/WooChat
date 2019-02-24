@@ -39,20 +39,24 @@ public class ChatForm {
     private JTextField messageField;
 
     private ServerConnection serverConnection;
+    private String user;
 
-    private String[] users = {"UserAnatoliy", "Bodik", "Shaurma", "Gnom", "Jon Snow (2)", "MARTIN", "Daywalker", "NEITRINO", "ЛЯПOTA", "-ZAUR", "DeHWeT", "NELLY", "Лacкoвaя_пaнтepa", "-CIQAN", "DeLi", "NELLY_FURTADO", "Лacкoвый_Бaкинeц", "-NeMo", "DeaD_GirL", "NEQATI", "Лacтoчкa", "-UREK", "Deart-Wolf", "NERGIZ_132", "Лaпyля"};
+    private String[] onlineList;
 
-    public ChatForm(WindowProperties properties, WindowImages images){
+    public ChatForm(WindowProperties properties, WindowImages images, String user, String[] onlineList){
+
         this.serverConnection = serverConnection;
         this.properties = properties;
         this.images = images;
+        this.user = user;
+        this.onlineList = onlineList;
 
         createWindow();
     }
 
     private void createWindow() {
 
-        chatForm = new JFrame("Woo Chat");
+        chatForm = new JFrame("Woo Chat | " + user);
         chatForm.getContentPane().setBackground(properties.getBgColor());
         chatForm.setBounds(700, 500, 700, 482);
         chatForm.setLocationRelativeTo(null);
@@ -125,10 +129,7 @@ public class ChatForm {
         conversationPanel.setBorder(new EmptyBorder(3, 3, 3, 3));
 
 
-        conversationPanel.addTab("Generated", createNewTab());
-        conversationPanel.addTab("Jon Snow", createNewTab());
-        conversationPanel.addTab("Shaurma", createNewTab());
-        conversationPanel.addTab("Daywalker, Roy Amber", createNewTab());
+        conversationPanel.addTab("All users", createNewTab());
 
         chatContainer.add(conversationPanel);
     }
@@ -168,8 +169,8 @@ public class ChatForm {
         userOnlineLabel = new JLabel("Users online(25)");
         userOnlineLabel.setForeground(properties.getLabelTextColor());
 
-        for (int i = 0; i < users.length; i++){
-            model.add(i,users[i]);
+        for (int i = 0; i < onlineList.length; i++){
+            model.add(i, onlineList[i]);
         }
 
         userList = new JList(model);

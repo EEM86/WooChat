@@ -19,7 +19,5 @@ public class ClientApp {
         WindowImages images = new WindowImages();
 
         new LoginForm(properties, images);
-
-       // new ChatForm(properties,images);
     }
 }

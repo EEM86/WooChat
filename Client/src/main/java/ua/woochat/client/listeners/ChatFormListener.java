@@ -16,8 +16,6 @@ public class ChatFormListener implements ActionListener {
 
     public ChatFormListener(ChatForm chatForm) {
         this.chatForm = chatForm;
-        this.serverConnection = serverConnection;
-        serverConnection = new ServerConnection(this);
     }
 
     @Override

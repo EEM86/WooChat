@@ -85,6 +85,7 @@ public class Server implements ConnectionAgent {
             if (verificationName(message.getLogin())) { // проверка существует ли имя
                 User user = new User(message.getLogin(), message.getPassword());
                 user.saveUser();
+                messageSend.setLogin(message.getLogin());
                 messageSend.setMessage("true");
             }
             connection.sendToOutStream(handleXml.marshalling1(Message.class, messageSend));
@@ -96,6 +97,7 @@ public class Server implements ConnectionAgent {
             //messageSend.setType(1);
             if (verificationSingIn(message.getLogin(), message.getPassword())) { // проверка существует ли имя
                 User user = new User(message.getLogin(), message.getPassword());
+                messageSend.setLogin(message.getLogin());
                 messageSend.setMessage("true");
                 System.out.println("Соединение");
             }
