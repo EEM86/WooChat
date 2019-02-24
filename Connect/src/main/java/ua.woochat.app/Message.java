@@ -9,13 +9,13 @@ public class Message {
     private String login;
     @XmlElement
     private String password;
-    @XmlElement
+
     private int type;
     public static int REGISTER_TYPE = 0;
     public static int SINGIN_TYPE = 1;
     public static int MESSAGE_TYPE = 2;
-    @XmlElement
-    private String message = "";
+
+    private String message;
 
     public Message() {
     }
@@ -46,11 +46,21 @@ public class Message {
         return password;
     }
 
+    @XmlElement
     public int getType() {
         return type;
     }
 
+    @XmlElement
     public String getMessage() {
         return message;
+    }
+
+    public void setType(int type) {
+        this.type = type;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
     }
 }

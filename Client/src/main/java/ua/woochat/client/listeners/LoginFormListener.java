@@ -1,15 +1,12 @@
 package ua.woochat.client.listeners;
 
+import ua.woochat.app.HandleXml;
 import ua.woochat.app.Message;
 import ua.woochat.client.model.ServerConnection;
 import ua.woochat.client.view.LoginForm;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.StringWriter;
 
 /**
  * class defines the functionality associated with the events of pressing the buttons
@@ -19,7 +16,7 @@ public class LoginFormListener implements ActionListener {
 
     LoginForm loginForm;
     private ServerConnection serverConnection;
-
+    private HandleXml handleXml = new HandleXml();
     public LoginFormListener(LoginForm loginForm){
         this.loginForm = loginForm;
         this.serverConnection = serverConnection;
@@ -97,26 +94,8 @@ public class LoginFormListener implements ActionListener {
 
     private void sendMessage(String account, String password, int type) {
         Message message = new Message(account, password, type);
-        try {
-            String str = marshalling(message);
+            String str = handleXml.marshalling1(Message.class, message);
             serverConnection.sendToServer(str);
-        } catch (JAXBException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private String marshalling (Message message) throws JAXBException {
-        StringWriter writer = new StringWriter();
-        //создание объекта Marshaller, который выполняет сериализацию
-        JAXBContext context = JAXBContext.newInstance(Message.class);
-        Marshaller marshaller = context.createMarshaller();
-        // сама сериализация
-        marshaller.marshal(message, writer);
-
-        //преобразовываем в строку все записанное в StringWriter
-        String result = writer.toString();
-        System.out.println(result);
-        return result;
     }
 
 }

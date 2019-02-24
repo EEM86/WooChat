@@ -29,6 +29,7 @@ public class Server implements ConnectionAgent {
     /**
      * Constructor creates Server socket which waits for connections.
      */
+    HandleXml handleXml = new HandleXml();
     public Server() {
         logger.debug("Server is running");
         try (ServerSocket serverSocket = new ServerSocket(ConfigServer.getPortConnection())) {
@@ -73,37 +74,38 @@ public class Server implements ConnectionAgent {
     @Override
     public void receivedMessage(String text) {
         try {
-            message = HandleXml.unMarshallingMessage(text);
+            message = handleXml.unMarshallingMessage(text);
         } catch (JAXBException e) {
             logger.error("unMarshallingMessage " + e);
         }
         // регистрация
         if (message.getType() == 0) {
+            Message messageSend = new Message(0,"");
+            //        messageSend.setType(0);
             if (verificationName(message.getLogin())) { // проверка существует ли имя
                 User user = new User(message.getLogin(), message.getPassword());
                 user.saveUser();
-            } else {
-                Message message = new Message(2, "false");
-                String str;
-                connection.sendToOutStream(HandleXml.marshalling1(Message.class, message));
-                System.out.println("Пользователь с таким именем уже существует!");
+                messageSend.setMessage("true");
             }
+            connection.sendToOutStream(handleXml.marshalling1(Message.class, messageSend));
         }
 
         // вход
         if (message.getType() == 1) {
+            Message messageSend = new Message(1,"");
+            //messageSend.setType(1);
             if (verificationSingIn(message.getLogin(), message.getPassword())) { // проверка существует ли имя
                 User user = new User(message.getLogin(), message.getPassword());
-                //connectionCreated();
+                messageSend.setMessage("true");
                 System.out.println("Соединение");
-            } else {
-
-                System.out.println("Неверно введен логин или пароль!");
             }
+            connection.sendToOutStream(handleXml.marshalling1(Message.class, messageSend));
         }
 
         // сообщение
         if (message.getType() == 2) {
+            Message messageSend = new Message(2,"");
+            messageSend.setType(2);
             for (Connection entry : connections) {
                 entry.sendToOutStream(text);
             }
@@ -124,7 +126,7 @@ public class Server implements ConnectionAgent {
         File file = new File(path + "/Server/src/main/resources/User/" + login.hashCode() + ".xml");
 
         if (file.isFile()) {
-            user = (User) HandleXml.unMarshalling(file, User.class);
+            user = (User) handleXml.unMarshalling(file, User.class);
             if (password.equals(user.getPassword())) {
                 return true;
             }
