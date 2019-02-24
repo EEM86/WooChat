@@ -31,7 +31,7 @@ public class ServerConnection implements ConnectionAgent {
     }
 
     public void sendToServer(String text){
-        connection.sendToOutStream(text);
+            connection.sendToOutStream(text);
     }
 
     @Override
