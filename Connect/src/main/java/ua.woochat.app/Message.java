@@ -33,6 +33,11 @@ public class Message {
         this.message = message;
     }
 
+    public Message(int type, String message) {
+        this.type = type;
+        this.message = message;
+    }
+
     public String getLogin() {
         return login;
     }

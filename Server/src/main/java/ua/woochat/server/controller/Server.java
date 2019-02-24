@@ -5,7 +5,7 @@ import ua.woochat.app.Connection;
 import ua.woochat.app.ConnectionAgent;
 import ua.woochat.app.Message;
 import ua.woochat.server.model.ConfigServer;
-import ua.woochat.server.model.JaxbXml;
+import ua.woochat.app.HandleXml;
 import ua.woochat.server.model.User;
 
 import javax.xml.bind.JAXBException;
@@ -24,8 +24,8 @@ public class Server implements ConnectionAgent {
     private Message message;
     private ArrayList<User> listRegisteredUsers = new ArrayList<>();
     private Set<File> listFilesUsers = new HashSet<>();
-    private JaxbXml jaxbXml = new JaxbXml();
-    User user;
+    private User user;
+    private Connection connection;
     /**
      * Constructor creates Server socket which waits for connections.
      */
@@ -35,7 +35,7 @@ public class Server implements ConnectionAgent {
             while (true) {
                 try {
                     Socket clientSocket = serverSocket.accept();
-                    Connection connection = new Connection(this, clientSocket);
+                    connection = new Connection(this, clientSocket);
                     //где-то здесь надо проверить логин и пароль, после авторизации вызвать метод connectionCreated
                     // можно ли стартовать тред после проверки или всё же в конструкторе? connection.getThread().start();
 
@@ -73,7 +73,7 @@ public class Server implements ConnectionAgent {
     @Override
     public void receivedMessage(String text) {
         try {
-            message = jaxbXml.unMarshallingMessage(text);
+            message = HandleXml.unMarshallingMessage(text);
         } catch (JAXBException e) {
             logger.error("unMarshallingMessage " + e);
         }
@@ -83,7 +83,9 @@ public class Server implements ConnectionAgent {
                 User user = new User(message.getLogin(), message.getPassword());
                 user.saveUser();
             } else {
-
+                Message message = new Message(2, "false");
+                String str;
+                connection.sendToOutStream(HandleXml.marshalling1(Message.class, message));
                 System.out.println("Пользователь с таким именем уже существует!");
             }
         }
@@ -122,7 +124,7 @@ public class Server implements ConnectionAgent {
         File file = new File(path + "/Server/src/main/resources/User/" + login.hashCode() + ".xml");
 
         if (file.isFile()) {
-            user = jaxbXml.unMarshalling(file);
+            user = (User) HandleXml.unMarshalling(file, User.class);
             if (password.equals(user.getPassword())) {
                 return true;
             }
@@ -137,7 +139,7 @@ public class Server implements ConnectionAgent {
         File[] folderEntries = folder.listFiles();
         for (File entry : folderEntries) {
             listFilesUsers.add(entry);
-            //listRegisteredUsers.add(jaxbXml.unMarshalling(entry));
+            //listRegisteredUsers.add(handleXml.unMarshalling(entry));
         }
         return listFilesUsers;
     }

@@ -1,8 +1,10 @@
 package ua.woochat.server.model;
 
+import ua.woochat.app.UsersAndGroups;
+
 import java.util.ArrayList;
 
-public class Group {
+public class Group implements UsersAndGroups {
 
     private ArrayList<User> usersList = new ArrayList();
     private User adminGroup;

@@ -44,6 +44,7 @@ public class ServerConnection implements ConnectionAgent {
 
     @Override
     public void receivedMessage(String text) {
+        System.out.println("message " + text);
         //chatFormListener.sendToChat(text);
     }
 

@@ -1,5 +1,8 @@
 package ua.woochat.server.model;
 
+import ua.woochat.app.HandleXml;
+import ua.woochat.app.UsersAndGroups;
+
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.io.File;
@@ -9,7 +12,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 @XmlRootElement
-public class User {
+public class User implements UsersAndGroups {
     @XmlElement
     private int id;
     @XmlElement
@@ -17,30 +20,10 @@ public class User {
     @XmlElement
     private String password;
 
-    public User() {
-    }
-
-    public void saveUser() {
-        JaxbXml jaxbXml = new JaxbXml();
-        String path = new File("").getAbsolutePath();
-        File file = new File(path + "/Server/src/main/resources/User/" + this.getId() + ".xml");
-        try {
-            file.createNewFile();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        try {
-            FileOutputStream stream = new FileOutputStream(file);
-            jaxbXml.marshalling(User.class, this, stream);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-
-    }
-
     private enum Gender {
         MALE, FEMALE
     }
+
     private Gender gender;
     private boolean admin;
     private boolean isBanned;
@@ -52,6 +35,27 @@ public class User {
         this.id = login.hashCode();
     }
 
+
+    public User() {
+    }
+
+    public void saveUser() {
+        HandleXml handleXml = new HandleXml();
+        String path = new File("").getAbsolutePath();
+        File file = new File(path + "/Server/src/main/resources/User/" + this.getId() + ".xml");
+        try {
+            file.createNewFile();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        try {
+            FileOutputStream stream = new FileOutputStream(file);
+            handleXml.marshalling(User.class, this, stream);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
+    }
     public int getId() {
         return id;
     }
