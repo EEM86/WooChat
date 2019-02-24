@@ -100,9 +100,8 @@ public class LoginFormListener implements ActionListener {
 
     private void sendMessage(String account, String password, int type) {
         Message message = new Message(account, password, type);
-            String str = handleXml.marshalling1(Message.class, message);
+        String str = handleXml.marshalling1(Message.class, message);
         try {
-            String str = marshalling(message);
             serverConnection.sendToServer(str);
         }catch (NullPointerException e){
             new MessageView("Server is not available", loginForm.getLoginWindow());
