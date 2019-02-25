@@ -22,6 +22,7 @@ public class ConfigClient {
         }
         return Integer.parseInt(properties.getProperty("portconnection"));
     }
+
     public static String getServerIP() {
         try {
             properties.load(new FileInputStream(path));

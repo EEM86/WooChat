@@ -5,7 +5,7 @@ import java.io.*;
 
 public class HandleXml {
 
-    public void marshalling(Class marshalClass, Object user, FileOutputStream stream) {
+    public static void marshalling(Class marshalClass, Object user, FileOutputStream stream) {
         try {
             //создание объекта Marshaller, который выполняет сериализацию
             JAXBContext context = JAXBContext.newInstance(marshalClass);
@@ -20,7 +20,7 @@ public class HandleXml {
         }
     }
 
-    public String marshalling1(Class marshClass, Object user) {
+    public static String marshalling1(Class marshClass, Object user) {
         StringWriter writer = new StringWriter();
         try {
             //создание объекта Marshaller, который выполняет сериализацию
@@ -37,7 +37,7 @@ public class HandleXml {
         return writer.toString();
     }
 
-    public Message unMarshallingMessage (String str) throws JAXBException {
+    public static Message unMarshallingMessage (String str) throws JAXBException {
         StringReader reader = new StringReader(str);
         JAXBContext context = JAXBContext.newInstance(Message.class);
         Unmarshaller unmarshaller = context.createUnmarshaller();
@@ -46,7 +46,7 @@ public class HandleXml {
         return message;
     }
 
-    public UsersAndGroups unMarshalling(File file, Class unMarshalClas) {
+    public static UsersAndGroups unMarshalling(File file, Class unMarshalClas) {
         UsersAndGroups user = null;
         try {
             JAXBContext context = JAXBContext.newInstance(unMarshalClas);
@@ -58,6 +58,5 @@ public class HandleXml {
             e.printStackTrace();
         }
         return user;
-
     }
 }

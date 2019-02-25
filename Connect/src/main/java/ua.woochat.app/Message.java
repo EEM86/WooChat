@@ -2,9 +2,10 @@ package ua.woochat.app;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.io.Serializable;
 
 @XmlRootElement
-public class Message {
+public class Message implements Serializable {
     private String login;
     @XmlElement
     private String password;

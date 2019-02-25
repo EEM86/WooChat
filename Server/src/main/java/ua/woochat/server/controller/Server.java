@@ -26,24 +26,29 @@ public class Server implements ConnectionAgent {
     private Set<File> listFilesUsers = new HashSet<>();
     private User user;
     private Connection connection;
+    ServerSocket serverConnectSocket;
+    ServerSocket serverChattingSocket;
+
     /**
      * Constructor creates Server socket which waits for connections.
      */
-    HandleXml handleXml = new HandleXml();
     public Server() {
         logger.debug("Server is running");
-        try (ServerSocket serverSocket = new ServerSocket(ConfigServer.getPortConnection())) {
+        try {
+            serverConnectSocket = new ServerSocket(ConfigServer.getPortConnection());
+            serverChattingSocket = new ServerSocket(ConfigServer.getPortChatting());
             while (true) {
                 try {
-                    Socket clientSocket = serverSocket.accept();
-                    connection = new Connection(this, clientSocket);
+                    Socket clientConnectionSocket = serverConnectSocket.accept();
+                    connection = new Connection(this, clientConnectionSocket);
                     //где-то здесь надо проверить логин и пароль, после авторизации вызвать метод connectionCreated
                     // можно ли стартовать тред после проверки или всё же в конструкторе? connection.getThread().start();
 
                     //if (userCreated(connection)) {
+
                         connectionCreated(connection);
-                        logger.debug("Client's socket was accepted: [" + clientSocket.getInetAddress().getHostAddress()
-                                + ":" + clientSocket.getPort() + "]. Connection success.");
+                        logger.debug("Client's socket was accepted: [" + clientConnectionSocket.getInetAddress().getHostAddress()
+                                + ":" + clientConnectionSocket.getPort() + "]. Connection success.");
                     //}
                 } catch (IOException e) {
                     logger.error("Connection exception " + e);
@@ -74,7 +79,7 @@ public class Server implements ConnectionAgent {
     @Override
     public void receivedMessage(String text) {
         try {
-            message = handleXml.unMarshallingMessage(text);
+            message = HandleXml.unMarshallingMessage(text);
         } catch (JAXBException e) {
             logger.error("unMarshallingMessage " + e);
         }
@@ -86,9 +91,14 @@ public class Server implements ConnectionAgent {
                 User user = new User(message.getLogin(), message.getPassword());
                 user.saveUser();
                 messageSend.setLogin(message.getLogin());
-                messageSend.setMessage("true");
+                messageSend.setMessage("true, port=" + ConfigServer.getPortChatting());
+                connection.sendToOutStream(HandleXml.marshalling1(Message.class, messageSend));
+                moveToChattingSocket();
+            } else {
+                messageSend.setLogin(message.getLogin());
+                messageSend.setMessage("false");
+                connection.sendToOutStream(HandleXml.marshalling1(Message.class, messageSend));
             }
-            connection.sendToOutStream(handleXml.marshalling1(Message.class, messageSend));
         }
 
         // вход
@@ -98,10 +108,15 @@ public class Server implements ConnectionAgent {
             if (verificationSingIn(message.getLogin(), message.getPassword())) { // проверка существует ли имя
                 User user = new User(message.getLogin(), message.getPassword());
                 messageSend.setLogin(message.getLogin());
-                messageSend.setMessage("true");
+                messageSend.setMessage("true, port=" + ConfigServer.getPortChatting());
                 System.out.println("Соединение");
+                connection.sendToOutStream(HandleXml.marshalling1(Message.class, messageSend));
+                moveToChattingSocket();
+            } else {
+                messageSend.setLogin(message.getLogin());
+                messageSend.setMessage("false");
+                connection.sendToOutStream(HandleXml.marshalling1(Message.class, messageSend));
             }
-            connection.sendToOutStream(handleXml.marshalling1(Message.class, messageSend));
         }
 
         // сообщение
@@ -128,7 +143,7 @@ public class Server implements ConnectionAgent {
         File file = new File(path + "/Server/src/main/resources/User/" + login.hashCode() + ".xml");
 
         if (file.isFile()) {
-            user = (User) handleXml.unMarshalling(file, User.class);
+            user = (User) HandleXml.unMarshalling(file, User.class);
             if (password.equals(user.getPassword())) {
                 return true;
             }
@@ -148,4 +163,13 @@ public class Server implements ConnectionAgent {
         return listFilesUsers;
     }
 
+    private void moveToChattingSocket() {
+        try {
+            Socket clientChatSocket = serverChattingSocket.accept();
+            logger.debug("Connection has moved to new socket for chatting: " + clientChatSocket.getInetAddress() + " " +clientChatSocket.getLocalPort());
+            connection.setSocket(clientChatSocket);
+        } catch (IOException e) {
+            logger.error("Error socket creation" + e);
+        }
+    }
 }

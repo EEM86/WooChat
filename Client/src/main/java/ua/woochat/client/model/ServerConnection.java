@@ -12,23 +12,21 @@ import ua.woochat.client.view.WindowImages;
 import ua.woochat.client.view.WindowProperties;
 
 import javax.xml.bind.JAXBException;
-import java.awt.event.ActionListener;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
+import java.io.IOException;
 import java.net.Socket;
 
 public class ServerConnection implements ConnectionAgent {
 
     private Socket socket;
-    private BufferedReader reader;
-    private Connection connection;
+    private Socket socketChatting;
+    public Connection connection; //change later
 
     private LoginFormListener loginFormListener;
     private Message message;
-    final static Logger logger = Logger.getLogger(ServerConnection.class);
-    private HandleXml handleXml = new HandleXml();
     private WindowProperties windowProperties;
     private WindowImages windowImages;
+
+    final static Logger logger = Logger.getLogger(ServerConnection.class);
 
     private String[] testOnlineList = {"UserAnatoliy", "Bodik", "Shaurma", "Gnom", "Jon Snow (2)", "MARTIN", "Daywalker", "NEITRINO", "ЛЯПOTA", "-ZAUR", "DeHWeT", "NELLY", "Лacкoвaя_пaнтepa", "-CIQAN", "DeLi", "NELLY_FURTADO", "Лacкoвый_Бaкинeц", "-NeMo", "DeaD_GirL", "NEQATI", "Лacтoчкa", "-UREK", "Deart-Wolf", "NERGIZ_132", "Лaпyля"};
 
@@ -38,9 +36,7 @@ public class ServerConnection implements ConnectionAgent {
         this.loginFormListener = loginFormListener;
 
         try {
-
             socket = new Socket(ConfigClient.getServerIP(), ConfigClient.getPortConnection());
-            reader = new BufferedReader(new InputStreamReader(System.in));
             this.connection = new Connection(this, socket);
             connectionCreated(connection);
 
@@ -63,16 +59,17 @@ public class ServerConnection implements ConnectionAgent {
 
     @Override
     public void receivedMessage(String text) {
-
         try {
-            message = handleXml.unMarshallingMessage(text);
+            message = HandleXml.unMarshallingMessage(text);
         } catch (JAXBException e) {
             logger.error("unMarshallingMessage " + e);
         }
 
         // регистрация
         if (message.getType() == 0) {
-            if (message.getMessage().equals("true")) {
+            if (message.getMessage().startsWith("true")) {
+                int chattingPort = Integer.parseInt(message.getMessage().substring(message.getMessage().indexOf('=')+1));
+                moveToChattingSocket(chattingPort);
                 loginFormListener.getLoginForm().getLoginWindow().setVisible(false);
                 chatWindow(message.getLogin(), testOnlineList);
             } else {
@@ -84,7 +81,9 @@ public class ServerConnection implements ConnectionAgent {
 
         // вход
         if (message.getType() == 1) {
-            if (message.getMessage().equals("true")) {
+            if (message.getMessage().startsWith("true")) {
+                int chattingPort = Integer.parseInt(message.getMessage().substring(message.getMessage().indexOf('=')+1));
+                moveToChattingSocket(chattingPort);
                 loginFormListener.getLoginForm().getLoginWindow().setVisible(false);
                 chatWindow(message.getLogin(), testOnlineList);
             } else {
@@ -115,4 +114,13 @@ public class ServerConnection implements ConnectionAgent {
         new ChatForm(windowProperties, windowImages,user, testOnlineList);
     }
 
+    private void moveToChattingSocket(int chattingPort) {
+        try {
+            socketChatting = new Socket(ConfigClient.getServerIP(), chattingPort);
+            connection.setSocket(socketChatting);
+            logger.debug("Client has changed connection socket to chatting socket:" + socketChatting.getInetAddress() + ":" + socketChatting.getPort());
+        } catch (IOException e) {
+            logger.error("Error client socket creation" + e);
+        }
+    }
 }

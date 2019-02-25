@@ -8,12 +8,12 @@ import java.nio.charset.Charset;
 
 public class Connection implements Connect, Runnable {
 
-    private final Socket socket;
+    private Socket socket;
+    private BufferedReader socketIn;
+    private BufferedWriter socketOut;
     private final Thread thread;
-    private final BufferedReader socketIn;
-    private final BufferedWriter socketOut;
     private final ConnectionAgent connectionAgent;
-    final static Logger logger = Logger.getLogger(Connection.class);
+    private static final Logger logger = Logger.getLogger(Connection.class);
 
     public Connection(ConnectionAgent connectionAgent, Socket socket) throws IOException {
         this.connectionAgent = connectionAgent;
@@ -22,6 +22,19 @@ public class Connection implements Connect, Runnable {
         socketOut = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), Charset.forName("UTF-8")));
         thread = new Thread(this);
         thread.start();
+    }
+
+    public void setSocket(Socket newSocket) {
+        try {
+            socket.close();
+            socketIn.close();
+            socketOut.close();
+            socket = newSocket;
+            socketIn = new BufferedReader(new InputStreamReader(socket.getInputStream(), Charset.forName("UTF-8")));
+            socketOut = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), Charset.forName("UTF-8")));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -33,6 +46,7 @@ public class Connection implements Connect, Runnable {
             try {
                 if (socketIn.ready()) {
                     String text = socketIn.readLine();
+                    logger.debug("Test" + socket.getInetAddress() + " " + socket.getPort() + " " + socket.getLocalPort());
                     connectionAgent.receivedMessage(text.trim());
                 }
             } catch (IOException e) {

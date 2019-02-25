@@ -23,4 +23,13 @@ public class ConfigServer {
         }
         return Integer.parseInt(properties.getProperty("portconnection"));
     }
+
+    public static int getPortChatting() {
+        try {
+            properties.load(new FileInputStream(path));
+        } catch (IOException e) {
+            logger.error("IOException error " + e);
+        }
+        return Integer.parseInt(properties.getProperty("portchatting"));
+    }
 }
