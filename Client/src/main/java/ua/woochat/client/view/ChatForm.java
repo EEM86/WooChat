@@ -7,6 +7,8 @@ import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.Set;
 
 /**
  * Class describes the main window of WooChat application
@@ -41,9 +43,9 @@ public class ChatForm {
     private ServerConnection serverConnection;
     private String user;
 
-    private String[] onlineList;
+    private ArrayList<String> onlineList;
 
-    public ChatForm(WindowProperties properties, WindowImages images, String user, String[] onlineList){
+    public ChatForm(WindowProperties properties, WindowImages images, String user, ArrayList<String> onlineList){
 
         this.serverConnection = serverConnection;
         this.properties = properties;
@@ -169,8 +171,9 @@ public class ChatForm {
         userOnlineLabel = new JLabel("Users online(25)");
         userOnlineLabel.setForeground(properties.getLabelTextColor());
 
-        for (int i = 0; i < onlineList.length; i++){
-            model.add(i, onlineList[i]);
+        for (String entry: onlineList) {
+            int i = 0;
+            model.add(i++, entry);
         }
 
         userList = new JList(model);

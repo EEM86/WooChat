@@ -9,9 +9,10 @@ public class Message implements Serializable {
     private String login;
     @XmlElement
     private String password;
+    private String onlineUsers;
 
     private int type;
-    public static int REGISTER_TYPE = 0;
+    public static int REGISTER_TYPE = 0;  // сделать через enum?
     public static int SINGIN_TYPE = 1;
     public static int MESSAGE_TYPE = 2;
 
@@ -59,6 +60,15 @@ public class Message implements Serializable {
 
     public void setType(int type) {
         this.type = type;
+    }
+
+    @XmlElement
+    public String getOnlineUsers() {
+        return onlineUsers;
+    }
+
+    public void setOnlineUsers(String onlineUsers) {
+        this.onlineUsers = onlineUsers;
     }
 
     public void setMessage(String message) {

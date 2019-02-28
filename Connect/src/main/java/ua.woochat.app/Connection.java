@@ -8,6 +8,7 @@ import java.nio.charset.Charset;
 
 public class Connection implements Connect, Runnable {
 
+    public User user;
     private Socket socket;
     private BufferedReader socketIn;
     private BufferedWriter socketOut;
@@ -47,7 +48,7 @@ public class Connection implements Connect, Runnable {
                 if (socketIn.ready()) {
                     String text = socketIn.readLine();
                     logger.debug("Test" + socket.getInetAddress() + " " + socket.getPort() + " " + socket.getLocalPort());
-                    connectionAgent.receivedMessage(text.trim());
+                    connectionAgent.receivedMessage(Connection.this, text.trim());
                 }
             } catch (IOException e) {
                 logger.error("Error with connection creation" + e);

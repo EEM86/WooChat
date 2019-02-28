@@ -5,6 +5,8 @@ import ua.woochat.app.Connection;
 import ua.woochat.app.ConnectionAgent;
 import ua.woochat.app.HandleXml;
 import ua.woochat.app.Message;
+import ua.woochat.app.User;
+import ua.woochat.client.listeners.ChatFormListener;
 import ua.woochat.client.listeners.LoginFormListener;
 import ua.woochat.client.view.ChatForm;
 import ua.woochat.client.view.MessageView;
@@ -14,6 +16,7 @@ import ua.woochat.client.view.WindowProperties;
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.*;
 
 public class ServerConnection implements ConnectionAgent {
 
@@ -22,14 +25,15 @@ public class ServerConnection implements ConnectionAgent {
     public Connection connection; //change later
 
     private LoginFormListener loginFormListener;
+    private ChatFormListener chatFormListener;
+    private ChatForm chatForm;
     private Message message;
     private WindowProperties windowProperties;
     private WindowImages windowImages;
 
     final static Logger logger = Logger.getLogger(ServerConnection.class);
 
-    private String[] testOnlineList = {"UserAnatoliy", "Bodik", "Shaurma", "Gnom", "Jon Snow (2)", "MARTIN", "Daywalker", "NEITRINO", "ЛЯПOTA", "-ZAUR", "DeHWeT", "NELLY", "Лacкoвaя_пaнтepa", "-CIQAN", "DeLi", "NELLY_FURTADO", "Лacкoвый_Бaкинeц", "-NeMo", "DeaD_GirL", "NEQATI", "Лacтoчкa", "-UREK", "Deart-Wolf", "NERGIZ_132", "Лaпyля"};
-
+    private ArrayList<String> testOnlineList;
 
     public ServerConnection(LoginFormListener loginFormListener){
 
@@ -38,7 +42,7 @@ public class ServerConnection implements ConnectionAgent {
         try {
             socket = new Socket(ConfigClient.getServerIP(), ConfigClient.getPortConnection());
             this.connection = new Connection(this, socket);
-            connectionCreated(connection);
+            //connectionCreated(connection);
 
         } catch (Exception e) {
 
@@ -46,11 +50,14 @@ public class ServerConnection implements ConnectionAgent {
     }
 
     public void sendToServer(String text){
-            connection.sendToOutStream(text);
+        connection.sendToOutStream(text);
     }
 
     @Override
     public void connectionCreated(Connection data) {
+        logger.debug("User connected " + data.user.getLogin());
+        logger.debug("users in chat: " + testOnlineList.size());
+        testOnlineList.add(connection.user.getLogin());
     }
 
     @Override
@@ -58,7 +65,8 @@ public class ServerConnection implements ConnectionAgent {
     }
 
     @Override
-    public void receivedMessage(String text) {
+    public void receivedMessage(Connection data, String text) {
+        connection = data;
         try {
             message = HandleXml.unMarshallingMessage(text);
         } catch (JAXBException e) {
@@ -84,6 +92,9 @@ public class ServerConnection implements ConnectionAgent {
             if (message.getMessage().startsWith("true")) {
                 int chattingPort = Integer.parseInt(message.getMessage().substring(message.getMessage().indexOf('=')+1));
                 moveToChattingSocket(chattingPort);
+                connection.user =  new User(message.getLogin(), message.getPassword());
+                testOnlineList = new ArrayList(Arrays.asList(message.getOnlineUsers().split("\\s")));
+                //connectionCreated(connection);
                 loginFormListener.getLoginForm().getLoginWindow().setVisible(false);
                 chatWindow(message.getLogin(), testOnlineList);
             } else {
@@ -95,9 +106,12 @@ public class ServerConnection implements ConnectionAgent {
 
         // сообщение
         if (message.getType() == 2) {
-            System.out.println("Получаем сообщению в соответствующую группу");
+            //chatFormListener.sendToChat(message.getMessage());
         }
         //chatFormListener.sendToChat(text);
+
+        if (message.getType() == 3) {                 //обновляет список юзеров онлайн
+        }
     }
 
     //Окно чата после регистрации/логининга. Пока что сюда передается имя пользователя который вошел.
@@ -108,7 +122,7 @@ public class ServerConnection implements ConnectionAgent {
      * @param user пользователь который успешно авторизирован
      * @param testOnlineList список онлайн пользователей, которых вернул сервер в ответ на авторизацию
      */
-    private void chatWindow(String user, String[] testOnlineList) {
+    private void chatWindow(String user, ArrayList<String> testOnlineList) {
         windowProperties = loginFormListener.getLoginForm().getProperties();
         windowImages = loginFormListener.getLoginForm().getImages();
         new ChatForm(windowProperties, windowImages,user, testOnlineList);

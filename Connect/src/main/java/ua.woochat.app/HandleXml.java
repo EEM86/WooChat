@@ -37,7 +37,7 @@ public class HandleXml {
         return writer.toString();
     }
 
-    public static Message unMarshallingMessage (String str) throws JAXBException {
+    public static Message unMarshallingMessage(String str) throws JAXBException {
         StringReader reader = new StringReader(str);
         JAXBContext context = JAXBContext.newInstance(Message.class);
         Unmarshaller unmarshaller = context.createUnmarshaller();

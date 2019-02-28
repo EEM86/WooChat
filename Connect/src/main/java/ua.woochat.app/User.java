@@ -1,7 +1,4 @@
-package ua.woochat.server.model;
-
-import ua.woochat.app.HandleXml;
-import ua.woochat.app.UsersAndGroups;
+package ua.woochat.app;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -16,7 +13,7 @@ public class User implements UsersAndGroups {
     @XmlElement
     private int id;
     @XmlElement
-    private String login;
+    public String login; //change to private later
     @XmlElement
     private String password;
 
@@ -59,6 +56,7 @@ public class User implements UsersAndGroups {
     public int getId() {
         return id;
     }
+
 
     public String getLogin() {
         return login;

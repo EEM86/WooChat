@@ -44,7 +44,7 @@ public class ChatFormListener implements ActionListener {
         chatForm.getMessageField().setText("");
     }
 
-    private void sendMessage(String message) {
+    public void sendMessage(String message) {
         serverConnection.sendToServer(message);
     }
 }

@@ -6,37 +6,37 @@ import ua.woochat.app.ConnectionAgent;
 import ua.woochat.app.Message;
 import ua.woochat.server.model.ConfigServer;
 import ua.woochat.app.HandleXml;
-import ua.woochat.server.model.User;
+import ua.woochat.app.User;
 
 import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.*;
 
-public class Server implements ConnectionAgent {
+public final class Server implements ConnectionAgent {
     final static Logger logger = Logger.getLogger(Server.class);
+    private static Server server;
     private Set<Connection> connections = new LinkedHashSet<>();
     private Message message;
     private ArrayList<User> listRegisteredUsers = new ArrayList<>();
     private Set<File> listFilesUsers = new HashSet<>();
     private User user;
     private Connection connection;
+    private Map<Integer, ArrayList<String>> onlineUsers = new HashMap<>();
     ServerSocket serverConnectSocket;
     ServerSocket serverChattingSocket;
 
     /**
      * Constructor creates Server socket which waits for connections.
      */
-    public Server() {
+    private Server() {
+        ConfigServer.getConfigServer();
         logger.debug("Server is running");
         try {
-            serverConnectSocket = new ServerSocket(ConfigServer.getPortConnection());
-            serverChattingSocket = new ServerSocket(ConfigServer.getPortChatting());
+            serverConnectSocket = new ServerSocket(ConfigServer.getPort("portconnection"));
+            serverChattingSocket = new ServerSocket(ConfigServer.getPort("portchatting"));
             while (true) {
                 try {
                     Socket clientConnectionSocket = serverConnectSocket.accept();
@@ -60,24 +60,31 @@ public class Server implements ConnectionAgent {
         }
     }
 
+    public static Server startServer() {
+        if (server == null) {
+            server = new Server();
+        }
+        return server;
+    }
+
     public synchronized boolean userCreated(Connection data) {
         return true;
     }
 
     @Override
     public synchronized void connectionCreated(Connection data) {
-        System.out.println("data" + data);
-       // connections.add(data);
-       // receivedMessage("Client connected " + data);
+       connections.add(data);
+       //receivedMessage("Client connected " + data);
     }
     @Override
     public synchronized void connectionDisconnect(Connection data) {
         connections.remove(data);
-        receivedMessage("Client disconnected " + data);
+        //receivedMessage("Client disconnected " + data);
     }
 
     @Override
-    public void receivedMessage(String text) {
+    public void receivedMessage(Connection data, String text) {
+        connection = data;
         try {
             message = HandleXml.unMarshallingMessage(text);
         } catch (JAXBException e) {
@@ -89,9 +96,10 @@ public class Server implements ConnectionAgent {
             //        messageSend.setType(0);
             if (verificationName(message.getLogin())) { // проверка существует ли имя
                 User user = new User(message.getLogin(), message.getPassword());
+                connection.user = user;
                 user.saveUser();
                 messageSend.setLogin(message.getLogin());
-                messageSend.setMessage("true, port=" + ConfigServer.getPortChatting());
+                messageSend.setMessage("true, port=" + ConfigServer.getPort("portchatting"));
                 connection.sendToOutStream(HandleXml.marshalling1(Message.class, messageSend));
                 moveToChattingSocket();
             } else {
@@ -107,8 +115,10 @@ public class Server implements ConnectionAgent {
             //messageSend.setType(1);
             if (verificationSingIn(message.getLogin(), message.getPassword())) { // проверка существует ли имя
                 User user = new User(message.getLogin(), message.getPassword());
+                connection.user = user;
                 messageSend.setLogin(message.getLogin());
-                messageSend.setMessage("true, port=" + ConfigServer.getPortChatting());
+                messageSend.setMessage("true, port=" + ConfigServer.getPort("portchatting"));
+                messageSend.setOnlineUsers(getOnlineUsers());
                 System.out.println("Соединение");
                 connection.sendToOutStream(HandleXml.marshalling1(Message.class, messageSend));
                 moveToChattingSocket();
@@ -121,7 +131,7 @@ public class Server implements ConnectionAgent {
 
         // сообщение
         if (message.getType() == 2) {
-            Message messageSend = new Message(2,"");
+            Message messageSend = new Message(2,message.getMessage());
             messageSend.setType(2);
             for (Connection entry : connections) {
                 entry.sendToOutStream(text);
@@ -171,5 +181,16 @@ public class Server implements ConnectionAgent {
         } catch (IOException e) {
             logger.error("Error socket creation" + e);
         }
+    }
+
+    public String getOnlineUsers() {
+        String result = "";
+//        Integer kee = 1;
+//        ArrayList<String> val = new ArrayList<>();
+        for (Connection entry : connections) {
+            result += (entry.user.getLogin()) + " ";
+        }
+        //onlineUsers.put(kee, val);
+        return result;
     }
 }

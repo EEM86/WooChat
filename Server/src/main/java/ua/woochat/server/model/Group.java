@@ -1,5 +1,6 @@
 package ua.woochat.server.model;
 
+import ua.woochat.app.User;
 import ua.woochat.app.UsersAndGroups;
 
 import java.util.ArrayList;
