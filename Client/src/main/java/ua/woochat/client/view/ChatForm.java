@@ -46,14 +46,13 @@ public class ChatForm {
     private ArrayList<String> onlineList;
 
 
-    public ChatForm(WindowProperties properties, WindowImages images, String user, ArrayList<String> onlineList, ServerConnection serverConnection){
+    public ChatForm(WindowProperties properties, WindowImages images, String user, ServerConnection serverConnection){
 
         this.serverConnection = serverConnection;
         this.properties = properties;
         this.images = images;
         this.user = user;
-        this.onlineList = onlineList;
-        this.serverConnection = serverConnection;
+
 
         createWindow();
     }
@@ -82,7 +81,6 @@ public class ChatForm {
 
         chatForm.setVisible(true);
     }
-
     /**
      * method create a message container
      */
@@ -172,12 +170,12 @@ public class ChatForm {
 
         userOnlineLabel = new JLabel("Users online(25)");
         userOnlineLabel.setForeground(properties.getLabelTextColor());
-
+        /*
         for (String entry: onlineList) {
             int i = 0;
             model.add(i++, entry);
         }
-
+*/
         userList = new JList(model);
         userList.setForeground(properties.getUserListColor());
 
@@ -190,6 +188,26 @@ public class ChatForm {
 
         listContainer.add(userOnlineLabel);
         listContainer.add(scrollPane);
+    }
+
+    public JFrame getChatForm() {
+        return chatForm;
+    }
+
+    public String getUser() {
+        return user;
+    }
+
+    public ArrayList<String> getOnlineList() {
+        return onlineList;
+    }
+
+    public DefaultListModel<String> getModel() {
+        return model;
+    }
+
+    public JList getUserList() {
+        return userList;
     }
 
     public ServerConnection getServerConnection() {

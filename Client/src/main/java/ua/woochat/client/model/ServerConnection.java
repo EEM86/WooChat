@@ -15,6 +15,7 @@ import ua.woochat.client.view.WindowProperties;
 
 import javax.swing.*;
 import javax.xml.bind.JAXBException;
+import java.awt.*;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.*;
@@ -31,6 +32,7 @@ public class ServerConnection implements ConnectionAgent {
     private WindowProperties windowProperties;
     private WindowImages windowImages;
     private ServerConnection serverConnection;
+    private String currentUser;
 
     final static Logger logger = Logger.getLogger(ServerConnection.class);
 
@@ -39,6 +41,7 @@ public class ServerConnection implements ConnectionAgent {
     public ServerConnection(LoginFormListener loginFormListener){
 
         this.loginFormListener = loginFormListener;
+
 
         try {
             socket = new Socket(ConfigClient.getServerIP(), ConfigClient.getPortConnection());
@@ -80,7 +83,9 @@ public class ServerConnection implements ConnectionAgent {
                 int chattingPort = Integer.parseInt(message.getMessage().substring(message.getMessage().indexOf('=')+1));
                 moveToChattingSocket(chattingPort);
                 loginFormListener.getLoginForm().getLoginWindow().setVisible(false);
-                chatWindow(message.getLogin(), testOnlineList, serverConnection);
+                currentUser = message.getLogin();
+                chatForm.getChatForm().setVisible(true);
+                chatWindow(currentUser, serverConnection);
             } else {
                 loginFormListener.getLoginForm().getLoginWindow().setEnabled(false);
                 new MessageView("Пользователь с таким именем уже существует!",
@@ -100,7 +105,9 @@ public class ServerConnection implements ConnectionAgent {
                 testOnlineList = new ArrayList(Arrays.asList(message.getOnlineUsers().split("\\s")));
                 //connectionCreated(connection);
                 loginFormListener.getLoginForm().getLoginWindow().setVisible(false);
-                chatWindow(message.getLogin(), testOnlineList, this);
+                currentUser = message.getLogin();
+
+                chatWindow(currentUser,this);
             } else {
                 loginFormListener.getLoginForm().getLoginWindow().setEnabled(false);
                 new MessageView("Неверно введен логин или пароль!",
@@ -110,15 +117,17 @@ public class ServerConnection implements ConnectionAgent {
 
         // сообщение
         if (message.getType() == 2) {
-            System.out.println("Type:" + message.getType() + " Message:" + message.getMessage());
-            sendToChat(message.getMessage());
+            sendToChat(currentUser,message.getMessage());
         }
-        //chatFormListener.sendToChat(text);
 
-        if (message.getType() == 3) {   //обновляет список юзеров онлайн
+        if (message.getType() == 3) {//обновляет список юзеров онлайн
+            System.out.println("Сработал: " + currentUser);
             testOnlineList = new ArrayList(Arrays.asList(message.getOnlineUsers().split("\\s")));
+            reNewOnlineList(testOnlineList);
         }
     }
+
+
 
     //Окно чата после регистрации/логининга. Пока что сюда передается имя пользователя который вошел.
     // А будет передаваться и список онлайн с айдишниками
@@ -126,12 +135,11 @@ public class ServerConnection implements ConnectionAgent {
     /**
      * Метод создает новое окно чата для авторизированного/зарегистрированного пользователя
      * @param user пользователь который успешно авторизирован
-     * @param testOnlineList список онлайн пользователей, которых вернул сервер в ответ на авторизацию
      */
-    private void chatWindow(String user, ArrayList<String> testOnlineList, ServerConnection serverConnection) {
+    private void chatWindow(String user, ServerConnection serverConnection) {
         windowProperties = loginFormListener.getLoginForm().getProperties();
         windowImages = loginFormListener.getLoginForm().getImages();
-        chatForm = new ChatForm(windowProperties, windowImages, user, testOnlineList, serverConnection);
+        chatForm = new ChatForm(windowProperties, windowImages, user, serverConnection);
     }
 
     private void moveToChattingSocket(int chattingPort) {
@@ -144,7 +152,8 @@ public class ServerConnection implements ConnectionAgent {
         }
     }
 
-    public void sendToChat(String message){
+    public void sendToChat(String login, String message){
+
         JPanel temp;
         JScrollPane sp;
         JTextArea jta;
@@ -155,7 +164,20 @@ public class ServerConnection implements ConnectionAgent {
         jva = (JViewport) sp.getComponent(0);
         jta = (JTextArea)jva.getComponent(0);
 
-        jta.append( message + "\n");
+        jta.append(login + ": " + message + "\n");
         chatForm.getMessageField().setText("");
+    }
+
+    private void reNewOnlineList(ArrayList<String> tOl) {
+        // Тут вылетает NullPointerException  так как этот метож вызывается тогда, когда окно еще не успело прорисоваться
+        //DefaultListModel dlm = chatForm.getModel();   -- тут попытка обатиться к елементу формы которого еще нет
+                int i=0;
+        /*
+        for (String entry: tOl) {
+            System.out.println("Inside: " + entry);
+            chatForm.getModel().add(i, entry);
+            i++;
+        }
+*/
     }
 }

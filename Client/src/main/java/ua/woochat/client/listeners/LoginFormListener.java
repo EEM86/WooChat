@@ -25,6 +25,7 @@ public class LoginFormListener implements ActionListener {
     public LoginFormListener(LoginForm loginForm){
 
         serverConnection = new ServerConnection(this);
+
         this.loginForm = loginForm;
     }
 

@@ -134,13 +134,15 @@ public final class Server implements ConnectionAgent {
         // сообщение
         if (message.getType() == 2) {
             Message messageSend = new Message(2, message.getMessage());
+            messageSend.setLogin(message.getLogin());
             sendToAll(HandleXml.marshalling1(Message.class, messageSend));
         }
 
         if (message.getType() == 3) {
             Message messageToSend = new Message(3, message.getMessage());
             messageToSend.setOnlineUsers(getOnlineUsers());
-            connection.sendToOutStream(HandleXml.marshalling1(Message.class, messageToSend));
+            //connection.sendToOutStream(HandleXml.marshalling1(Message.class, messageToSend));
+           sendToAll(HandleXml.marshalling1(Message.class, messageToSend));
         }
     }
 
