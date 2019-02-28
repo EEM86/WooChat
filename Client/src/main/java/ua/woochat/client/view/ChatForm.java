@@ -45,13 +45,15 @@ public class ChatForm {
 
     private ArrayList<String> onlineList;
 
-    public ChatForm(WindowProperties properties, WindowImages images, String user, ArrayList<String> onlineList){
+
+    public ChatForm(WindowProperties properties, WindowImages images, String user, Set<String> onlineList, ServerConnection serverConnection){
 
         this.serverConnection = serverConnection;
         this.properties = properties;
         this.images = images;
         this.user = user;
         this.onlineList = onlineList;
+        this.serverConnection = serverConnection;
 
         createWindow();
     }
@@ -188,6 +190,10 @@ public class ChatForm {
 
         listContainer.add(userOnlineLabel);
         listContainer.add(scrollPane);
+    }
+
+    public ServerConnection getServerConnection() {
+        return serverConnection;
     }
 
     public JTabbedPane getConversationPanel() {

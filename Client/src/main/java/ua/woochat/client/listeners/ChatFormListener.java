@@ -1,5 +1,7 @@
 package ua.woochat.client.listeners;
 
+import ua.woochat.app.HandleXml;
+import ua.woochat.app.Message;
 import ua.woochat.client.model.ServerConnection;
 import ua.woochat.client.view.ChatForm;
 
@@ -9,7 +11,7 @@ import java.awt.event.ActionListener;
 
 
 public class ChatFormListener implements ActionListener {
-
+    private HandleXml handleXml = new HandleXml();
     private ChatForm chatForm;
     private ServerConnection serverConnection;
 
@@ -29,22 +31,16 @@ public class ChatFormListener implements ActionListener {
         }
     }
 
-    public void sendToChat(String message){
-        JPanel temp;
-        JScrollPane sp;
-        JTextArea jta;
-        JViewport jva;
 
-        temp = (JPanel) chatForm.getConversationPanel().getSelectedComponent();
-        sp = (JScrollPane) temp.getComponent(0);
-        jva = (JViewport) sp.getComponent(0);
-        jta = (JTextArea)jva.getComponent(0);
 
-        jta.append( message + "\n");
-        chatForm.getMessageField().setText("");
-    }
-
-    public void sendMessage(String message) {
-        serverConnection.sendToServer(message);
+    public void sendMessage(String text) {
+        Message message = new Message(2,text);
+        String str = handleXml.marshalling1(Message.class, message);
+        try {
+            chatForm.getServerConnection().sendToServer(str);
+        }catch (NullPointerException e){
+            System.out.println("Сообщение не отправлено");
+        }
+        //chatForm.getServerConnection().sendToServer(message);
     }
 }

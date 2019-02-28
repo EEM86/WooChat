@@ -55,7 +55,6 @@ public class Connection implements Connect, Runnable {
             }
         }
     }
-
     /**
      * Sends data to socket's output stream.
      * @param text - data for send to output stream.

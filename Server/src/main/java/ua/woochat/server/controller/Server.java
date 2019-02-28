@@ -83,8 +83,7 @@ public final class Server implements ConnectionAgent {
     }
 
     @Override
-    public void receivedMessage(Connection data, String text) {
-        connection = data;
+    public void receivedMessage(String text) {
         try {
             message = HandleXml.unMarshallingMessage(text);
         } catch (JAXBException e) {

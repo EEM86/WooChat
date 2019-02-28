@@ -13,9 +13,12 @@ import ua.woochat.client.view.MessageView;
 import ua.woochat.client.view.WindowImages;
 import ua.woochat.client.view.WindowProperties;
 
+import javax.swing.*;
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.LinkedHashSet;
+import java.util.Set;
 import java.util.*;
 
 public class ServerConnection implements ConnectionAgent {
@@ -25,11 +28,11 @@ public class ServerConnection implements ConnectionAgent {
     public Connection connection; //change later
 
     private LoginFormListener loginFormListener;
-    private ChatFormListener chatFormListener;
     private ChatForm chatForm;
     private Message message;
     private WindowProperties windowProperties;
     private WindowImages windowImages;
+    private ServerConnection serverConnection;
 
     final static Logger logger = Logger.getLogger(ServerConnection.class);
 
@@ -79,7 +82,7 @@ public class ServerConnection implements ConnectionAgent {
                 int chattingPort = Integer.parseInt(message.getMessage().substring(message.getMessage().indexOf('=')+1));
                 moveToChattingSocket(chattingPort);
                 loginFormListener.getLoginForm().getLoginWindow().setVisible(false);
-                chatWindow(message.getLogin(), testOnlineList);
+                chatWindow(message.getLogin(), testOnlineList, serverConnection);
             } else {
                 loginFormListener.getLoginForm().getLoginWindow().setEnabled(false);
                 new MessageView("Пользователь с таким именем уже существует!",
@@ -90,13 +93,18 @@ public class ServerConnection implements ConnectionAgent {
         // вход
         if (message.getType() == 1) {
             if (message.getMessage().startsWith("true")) {
+
+                System.out.println("Постоянная авторизация");
+
                 int chattingPort = Integer.parseInt(message.getMessage().substring(message.getMessage().indexOf('=')+1));
                 moveToChattingSocket(chattingPort);
+                connection.user =  new User(message.getLogin(), message.getPassword());
+                connectionCreated(connection);
                 connection.user =  new User(message.getLogin(), message.getPassword());
                 testOnlineList = new ArrayList(Arrays.asList(message.getOnlineUsers().split("\\s")));
                 //connectionCreated(connection);
                 loginFormListener.getLoginForm().getLoginWindow().setVisible(false);
-                chatWindow(message.getLogin(), testOnlineList);
+                chatWindow(message.getLogin(), testOnlineList, this);
             } else {
                 loginFormListener.getLoginForm().getLoginWindow().setEnabled(false);
                 new MessageView("Неверно введен логин или пароль!",
@@ -106,7 +114,8 @@ public class ServerConnection implements ConnectionAgent {
 
         // сообщение
         if (message.getType() == 2) {
-            //chatFormListener.sendToChat(message.getMessage());
+            System.out.println("Type:" + message.getType() + " Message:" + message.getMessage());
+            sendToChat(message.getMessage());
         }
         //chatFormListener.sendToChat(text);
 
@@ -122,10 +131,10 @@ public class ServerConnection implements ConnectionAgent {
      * @param user пользователь который успешно авторизирован
      * @param testOnlineList список онлайн пользователей, которых вернул сервер в ответ на авторизацию
      */
-    private void chatWindow(String user, ArrayList<String> testOnlineList) {
+    private void chatWindow(String user, Set<String> testOnlineList, ServerConnection serverConnection) {
         windowProperties = loginFormListener.getLoginForm().getProperties();
         windowImages = loginFormListener.getLoginForm().getImages();
-        new ChatForm(windowProperties, windowImages,user, testOnlineList);
+        chatForm = new ChatForm(windowProperties, windowImages, user, testOnlineList, serverConnection);
     }
 
     private void moveToChattingSocket(int chattingPort) {
@@ -136,5 +145,20 @@ public class ServerConnection implements ConnectionAgent {
         } catch (IOException e) {
             logger.error("Error client socket creation" + e);
         }
+    }
+
+    public void sendToChat(String message){
+        JPanel temp;
+        JScrollPane sp;
+        JTextArea jta;
+        JViewport jva;
+
+        temp = (JPanel) chatForm.getConversationPanel().getSelectedComponent();
+        sp = (JScrollPane) temp.getComponent(0);
+        jva = (JViewport) sp.getComponent(0);
+        jta = (JTextArea)jva.getComponent(0);
+
+        jta.append( message + "\n");
+        chatForm.getMessageField().setText("");
     }
 }
