@@ -17,8 +17,6 @@ import javax.swing.*;
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.net.Socket;
-import java.util.LinkedHashSet;
-import java.util.Set;
 import java.util.*;
 
 public class ServerConnection implements ConnectionAgent {
@@ -58,9 +56,9 @@ public class ServerConnection implements ConnectionAgent {
 
     @Override
     public void connectionCreated(Connection data) {
-        logger.debug("User connected " + data.user.getLogin());
-        logger.debug("users in chat: " + testOnlineList.size());
-        testOnlineList.add(connection.user.getLogin());
+//        logger.debug("User connected " + data.user.getLogin());
+//        logger.debug("users in chat: " + testOnlineList.size());
+//        testOnlineList.add(connection.user.getLogin());
     }
 
     @Override
@@ -99,8 +97,6 @@ public class ServerConnection implements ConnectionAgent {
                 int chattingPort = Integer.parseInt(message.getMessage().substring(message.getMessage().indexOf('=')+1));
                 moveToChattingSocket(chattingPort);
                 connection.user =  new User(message.getLogin(), message.getPassword());
-                connectionCreated(connection);
-                connection.user =  new User(message.getLogin(), message.getPassword());
                 testOnlineList = new ArrayList(Arrays.asList(message.getOnlineUsers().split("\\s")));
                 //connectionCreated(connection);
                 loginFormListener.getLoginForm().getLoginWindow().setVisible(false);
@@ -119,7 +115,8 @@ public class ServerConnection implements ConnectionAgent {
         }
         //chatFormListener.sendToChat(text);
 
-        if (message.getType() == 3) {                 //обновляет список юзеров онлайн
+        if (message.getType() == 3) {   //обновляет список юзеров онлайн
+            testOnlineList = new ArrayList(Arrays.asList(message.getOnlineUsers().split("\\s")));
         }
     }
 
@@ -131,7 +128,7 @@ public class ServerConnection implements ConnectionAgent {
      * @param user пользователь который успешно авторизирован
      * @param testOnlineList список онлайн пользователей, которых вернул сервер в ответ на авторизацию
      */
-    private void chatWindow(String user, Set<String> testOnlineList, ServerConnection serverConnection) {
+    private void chatWindow(String user, ArrayList<String> testOnlineList, ServerConnection serverConnection) {
         windowProperties = loginFormListener.getLoginForm().getProperties();
         windowImages = loginFormListener.getLoginForm().getImages();
         chatForm = new ChatForm(windowProperties, windowImages, user, testOnlineList, serverConnection);

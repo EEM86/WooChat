@@ -46,7 +46,7 @@ public final class Server implements ConnectionAgent {
 
                     //if (userCreated(connection)) {
 
-                        connectionCreated(connection);
+                        //connectionCreated(connection);
                         logger.debug("Client's socket was accepted: [" + clientConnectionSocket.getInetAddress().getHostAddress()
                                 + ":" + clientConnectionSocket.getPort() + "]. Connection success.");
                     //}
@@ -74,7 +74,8 @@ public final class Server implements ConnectionAgent {
     @Override
     public synchronized void connectionCreated(Connection data) {
        connections.add(data);
-       //receivedMessage("Client connected " + data);
+       Message messageToSend = new Message(3, "Connection added " + data);
+       receivedMessage(connection, HandleXml.marshalling1(Message.class, messageToSend));
     }
     @Override
     public synchronized void connectionDisconnect(Connection data) {
@@ -83,7 +84,8 @@ public final class Server implements ConnectionAgent {
     }
 
     @Override
-    public void receivedMessage(String text) {
+    public void receivedMessage(Connection data, String text) {
+        connection = data;
         try {
             message = HandleXml.unMarshallingMessage(text);
         } catch (JAXBException e) {
@@ -117,9 +119,10 @@ public final class Server implements ConnectionAgent {
                 connection.user = user;
                 messageSend.setLogin(message.getLogin());
                 messageSend.setMessage("true, port=" + ConfigServer.getPort("portchatting"));
+                connectionCreated(connection);
                 messageSend.setOnlineUsers(getOnlineUsers());
                 System.out.println("Соединение");
-                connection.sendToOutStream(HandleXml.marshalling1(Message.class, messageSend));
+                connection.sendToOutStream(HandleXml.marshalling1(Message.class, messageSend)); // format of message: <?xml version="1.0" encoding="UTF-8" standalone="yes"?><message><password>1qa</password><login>Zhe</login><type>1</type></message>
                 moveToChattingSocket();
             } else {
                 messageSend.setLogin(message.getLogin());
@@ -130,11 +133,20 @@ public final class Server implements ConnectionAgent {
 
         // сообщение
         if (message.getType() == 2) {
-            Message messageSend = new Message(2,message.getMessage());
-            messageSend.setType(2);
-            for (Connection entry : connections) {
-                entry.sendToOutStream(text);
-            }
+            Message messageSend = new Message(2, message.getMessage());
+            sendToAll(HandleXml.marshalling1(Message.class, messageSend));
+        }
+
+        if (message.getType() == 3) {
+            Message messageToSend = new Message(3, message.getMessage());
+            messageToSend.setOnlineUsers(getOnlineUsers());
+            connection.sendToOutStream(HandleXml.marshalling1(Message.class, messageToSend));
+        }
+    }
+
+    public void sendToAll(String text) {
+        for (Connection entry:connections) {
+            entry.sendToOutStream(text);
         }
     }
 
@@ -181,7 +193,9 @@ public final class Server implements ConnectionAgent {
             logger.error("Error socket creation" + e);
         }
     }
-
+/*
+Временно сделал вывод строки, в дальнейшем хмл файл со списком надо будет передавать.
+ */
     public String getOnlineUsers() {
         String result = "";
 //        Integer kee = 1;

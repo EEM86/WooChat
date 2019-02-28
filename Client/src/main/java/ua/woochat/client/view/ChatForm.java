@@ -46,7 +46,7 @@ public class ChatForm {
     private ArrayList<String> onlineList;
 
 
-    public ChatForm(WindowProperties properties, WindowImages images, String user, Set<String> onlineList, ServerConnection serverConnection){
+    public ChatForm(WindowProperties properties, WindowImages images, String user, ArrayList<String> onlineList, ServerConnection serverConnection){
 
         this.serverConnection = serverConnection;
         this.properties = properties;
