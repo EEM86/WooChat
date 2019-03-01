@@ -94,7 +94,7 @@ public class ServerConnection implements ConnectionAgent {
         }
 
         // вход
-        if (message.getType() == 1) {
+        else if (message.getType() == 1) {
             if (message.getMessage().startsWith("true")) {
 
                 System.out.println("Постоянная авторизация");
@@ -117,12 +117,13 @@ public class ServerConnection implements ConnectionAgent {
         }
 
         // сообщение
-        if (message.getType() == 2) {
+        else if (message.getType() == 2) {
+            logger.debug("Who writes on client side: " + connection.user.getLogin());
             sendToChat(connection.user.getLogin(), message.getMessage());
         }
 
-        if (message.getType() == 3) { //обновляет список юзеров онлайн
-            System.out.println("Сработал: " + currentUser);
+        else if (message.getType() == 3) { //обновляет список юзеров онлайн
+            logger.debug("Сработал: " + connection.user.getLogin());
             testOnlineList = new ArrayList(Arrays.asList(message.getOnlineUsers().split("\\s")));
             reNewOnlineList(testOnlineList);
         }
@@ -174,7 +175,7 @@ public class ServerConnection implements ConnectionAgent {
         int i=0;
 
         for (String entry: tOl) {
-            System.out.println("Inside: " + entry);
+            logger.debug("Inside: " + entry);
             chatForm.getModel().add(i, entry);
             i++;
         }

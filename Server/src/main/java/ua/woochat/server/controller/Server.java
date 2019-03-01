@@ -111,7 +111,7 @@ public final class Server implements ConnectionAgent {
         }
 
         // вход
-        if (message.getType() == 1) {
+        else if (message.getType() == 1) {
             Message messageSend = new Message(1,"");
             //messageSend.setType(1);
             if (verificationSingIn(message.getLogin(), message.getPassword())) { // проверка существует ли имя
@@ -131,13 +131,14 @@ public final class Server implements ConnectionAgent {
         }
 
         // сообщение
-        if (message.getType() == 2) {
+        else if (message.getType() == 2) {
             Message messageSend = new Message(2, message.getMessage());
             messageSend.setLogin(message.getLogin());
+            logger.debug("Who writes from server side: " + connection.user.getLogin());
             sendToAll(HandleXml.marshalling1(Message.class, messageSend));
         }
 
-        if (message.getType() == 3) {
+        else if (message.getType() == 3) {
             //Message messageToSend = new Message(3, message.getMessage());
             message.setOnlineUsers(getOnlineUsers());
             //connection.sendToOutStream(HandleXml.marshalling1(Message.class, messageToSend));
