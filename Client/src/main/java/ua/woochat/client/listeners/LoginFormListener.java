@@ -44,7 +44,7 @@ public class LoginFormListener implements ActionListener {
             String account = loginForm.getUserName().getText();
             String password = loginForm.getUserPassword().getText();
 
-            if (account.equals("") | password.equals("")){
+            if (account.equals("") || password.equals("")){
                 new MessageView("Login or password must not be empty", loginForm.getLoginWindow());
             }else{
                 sendMessage(account, password, Message.SINGIN_TYPE);
@@ -84,7 +84,6 @@ public class LoginFormListener implements ActionListener {
                         new MessageView("Passwords do not match", loginForm.getLoginWindow());
                     }
                     else{
-
                         sendMessage(account, password, Message.REGISTER_TYPE);
                     }
                 }

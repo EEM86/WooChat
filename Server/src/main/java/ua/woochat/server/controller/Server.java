@@ -96,11 +96,12 @@ public final class Server implements ConnectionAgent {
             Message messageSend = new Message(0,"");
             //        messageSend.setType(0);
             if (verificationName(message.getLogin())) { // проверка существует ли имя
-                User user = new User(message.getLogin(), message.getPassword());
-                connection.user = user;
-                user.saveUser();
+                connection.user = new User(message.getLogin(), message.getPassword());
+                connection.user.saveUser();
+                connectionCreated(connection);
                 messageSend.setLogin(message.getLogin());
                 messageSend.setMessage("true, port=" + ConfigServer.getPort("portchatting"));
+                messageSend.setOnlineUsers(getOnlineUsers());
                 connection.sendToOutStream(HandleXml.marshalling1(Message.class, messageSend));
                 moveToChattingSocket();
             } else {
