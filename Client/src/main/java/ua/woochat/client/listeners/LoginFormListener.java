@@ -102,6 +102,7 @@ public class LoginFormListener implements ActionListener {
             loginForm.getLoginWindow().getContentPane().add(loginForm.getLoginPanel());
             loginForm.getLoginWindow().setVisible(true);
         }
+
     }
 
     private void sendMessage(String account, String password, int type) {

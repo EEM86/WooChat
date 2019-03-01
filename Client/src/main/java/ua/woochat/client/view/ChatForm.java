@@ -43,17 +43,12 @@ public class ChatForm {
     private ServerConnection serverConnection;
     private String user;
 
-    private ArrayList<String> onlineList;
-
-
     public ChatForm(WindowProperties properties, WindowImages images, String user, ServerConnection serverConnection){
 
         this.serverConnection = serverConnection;
         this.properties = properties;
         this.images = images;
         this.user = user;
-
-
         createWindow();
     }
 
@@ -111,7 +106,6 @@ public class ChatForm {
         messageContainer.add(messageField);
         messageContainer.add(sendButton);
         messageContainer.add(functionalPanel);
-
     }
 
     /**
@@ -142,6 +136,7 @@ public class ChatForm {
         newTab.setBackground(properties.getChatBackColor());
 
         JTextArea chatArea = new JTextArea();
+        chatArea.setFont(new Font(null, Font.BOLD, 15));
         chatArea.setCaretPosition(chatArea.getDocument().getLength());
         chatArea.setBackground(properties.getChatBackColor());
         chatArea.setForeground(properties.getTextColor());
@@ -152,9 +147,7 @@ public class ChatForm {
         JScrollPane jsp = new JScrollPane(chatArea);
         jsp.setPreferredSize(new Dimension(475,342));
         jsp.setBorder(border());
-
         newTab.add(jsp);
-
         return newTab;
     }
 
@@ -168,14 +161,9 @@ public class ChatForm {
         listContainer.setBackground(properties.getChatBackColor());
         listContainer.setPreferredSize(new Dimension(182,400));
 
-        userOnlineLabel = new JLabel("Users online(25)");
+        userOnlineLabel = new JLabel();
         userOnlineLabel.setForeground(properties.getLabelTextColor());
-        /*
-        for (String entry: onlineList) {
-            int i = 0;
-            model.add(i++, entry);
-        }
-*/
+
         userList = new JList(model);
         userList.setForeground(properties.getUserListColor());
 
@@ -194,20 +182,8 @@ public class ChatForm {
         return chatForm;
     }
 
-    public String getUser() {
-        return user;
-    }
-
-    public ArrayList<String> getOnlineList() {
-        return onlineList;
-    }
-
     public DefaultListModel<String> getModel() {
         return model;
-    }
-
-    public JList getUserList() {
-        return userList;
     }
 
     public ServerConnection getServerConnection() {
@@ -222,7 +198,13 @@ public class ChatForm {
         return messageField;
     }
 
+    public JScrollPane getScrollPane() {
+        return scrollPane;
+    }
 
+    public JLabel getUserOnlineLabel() {
+        return userOnlineLabel;
+    }
 
     private Border border() {
         return BorderFactory.createEmptyBorder(0, 0, 0, 0);

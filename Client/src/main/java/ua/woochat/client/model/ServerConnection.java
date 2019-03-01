@@ -153,7 +153,6 @@ public class ServerConnection implements ConnectionAgent {
     }
 
     public void sendToChat(String login, String message){
-
         JPanel temp;
         JScrollPane sp;
         JTextArea jta;
@@ -168,13 +167,12 @@ public class ServerConnection implements ConnectionAgent {
         Date date = new Date();
         sdf.format(date);
 
-        jta.append("[" + sdf.format(date) + "]" + "<" + login + ">: " + message + "\n");
+        jta.append("[" + sdf.format(date) + "]" + "<" + login + ">:" + message + "\n");
         chatForm.getMessageField().setText("");
     }
 
     private void reNewOnlineList(ArrayList<String> tOl) {
-        // Тут вылетает NullPointerException  так как этот метож вызывается тогда, когда окно еще не успело прорисоваться
-        //DefaultListModel dlm = chatForm.getModel();  // -- тут попытка обатиться к елементу формы которого еще нет
+        chatForm.getScrollPane().setVisible(false);
         chatForm.getModel().clear();
         int i=0;
 
@@ -183,5 +181,7 @@ public class ServerConnection implements ConnectionAgent {
             chatForm.getModel().add(i, entry);
             i++;
         }
+        chatForm.getScrollPane().setVisible(true);
+        chatForm.getUserOnlineLabel().setText("Online users: (" + Integer.toString(tOl.size()) + ")");
     }
 }

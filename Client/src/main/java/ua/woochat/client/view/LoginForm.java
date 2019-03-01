@@ -16,14 +16,12 @@ public class LoginForm {
     private JFrame loginWindow;
     private JTextField userName;
     private JTextField userPassword;
-
     private JLabel newLoginText;
     private JLabel newPasswordText;
     private JLabel newConfirmPasswordText;
     private JTextField newLogin;
     private JTextField newPassword;
     private JTextField newConfirmPassword;
-
     private JLabel dummyComponent;
     private JLabel newUserDummyComponent;
     private JPanel loginPanel;
@@ -80,11 +78,11 @@ public class LoginForm {
         JButton signInButton = new JButton("Sign in");
         JButton registerButton = new JButton("Register");
 
-        btnConfig(signInButton);
-        btnConfig(registerButton);
-
         signInButton.setActionCommand("signInButton");
         registerButton.setActionCommand("registerButton");
+
+        btnConfig(signInButton);
+        btnConfig(registerButton);
 
         loginPanel.add(logo);
         loginPanel.add(userNameText);
@@ -129,7 +127,6 @@ public class LoginForm {
         newUserButton.setActionCommand("create");
         cancelNewUserButton.setActionCommand("cancel");
 
-
         registrationPanel.add(newUserLogo);
         registrationPanel.add(newLoginText);
         registrationPanel.add(newLogin);
@@ -153,6 +150,7 @@ public class LoginForm {
         registerButton.addActionListener(loginFormListener);
         newUserButton.addActionListener(loginFormListener);
         cancelNewUserButton.addActionListener(loginFormListener);
+
 
         loginWindow.setVisible(true);
     }
