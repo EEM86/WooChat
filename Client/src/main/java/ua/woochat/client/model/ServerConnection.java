@@ -104,10 +104,11 @@ public class ServerConnection implements ConnectionAgent {
                 connection.user =  new User(message.getLogin(), message.getPassword());
                 testOnlineList = new ArrayList(Arrays.asList(message.getOnlineUsers().split("\\s")));
                 //connectionCreated(connection);
-                loginFormListener.getLoginForm().getLoginWindow().setVisible(false);
-                currentUser = message.getLogin();
+                loginFormListener.getLoginForm().getLoginWindow().setVisible(false); //закрывается окошко логин формы
 
-                chatWindow(currentUser,this);
+                chatWindow(connection.user.getLogin(),this);
+                message.setType(3);
+                sendToServer(HandleXml.marshalling1(Message.class, message));
             } else {
                 loginFormListener.getLoginForm().getLoginWindow().setEnabled(false);
                 new MessageView("Неверно введен логин или пароль!",
@@ -117,17 +118,15 @@ public class ServerConnection implements ConnectionAgent {
 
         // сообщение
         if (message.getType() == 2) {
-            sendToChat(currentUser,message.getMessage());
+            sendToChat(connection.user.getLogin(), message.getMessage());
         }
 
-        if (message.getType() == 3) {//обновляет список юзеров онлайн
+        if (message.getType() == 3) { //обновляет список юзеров онлайн
             System.out.println("Сработал: " + currentUser);
             testOnlineList = new ArrayList(Arrays.asList(message.getOnlineUsers().split("\\s")));
             reNewOnlineList(testOnlineList);
         }
     }
-
-
 
     //Окно чата после регистрации/логининга. Пока что сюда передается имя пользователя который вошел.
     // А будет передаваться и список онлайн с айдишниками
@@ -170,14 +169,14 @@ public class ServerConnection implements ConnectionAgent {
 
     private void reNewOnlineList(ArrayList<String> tOl) {
         // Тут вылетает NullPointerException  так как этот метож вызывается тогда, когда окно еще не успело прорисоваться
-        //DefaultListModel dlm = chatForm.getModel();   -- тут попытка обатиться к елементу формы которого еще нет
-                int i=0;
-        /*
+        //DefaultListModel dlm = chatForm.getModel();  // -- тут попытка обатиться к елементу формы которого еще нет
+        chatForm.getModel().clear();
+        int i=0;
+
         for (String entry: tOl) {
             System.out.println("Inside: " + entry);
             chatForm.getModel().add(i, entry);
             i++;
         }
-*/
     }
 }

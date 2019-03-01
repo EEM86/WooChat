@@ -74,8 +74,8 @@ public final class Server implements ConnectionAgent {
     @Override
     public synchronized void connectionCreated(Connection data) {
        connections.add(data);
-       Message messageToSend = new Message(3, "Connection added " + data);
-       receivedMessage(connection, HandleXml.marshalling1(Message.class, messageToSend));
+//       Message messageToSend = new Message(3, "Connection added " + data);
+//       receivedMessage(connection, HandleXml.marshalling1(Message.class, messageToSend));
     }
     @Override
     public synchronized void connectionDisconnect(Connection data) {
@@ -115,11 +115,10 @@ public final class Server implements ConnectionAgent {
             Message messageSend = new Message(1,"");
             //messageSend.setType(1);
             if (verificationSingIn(message.getLogin(), message.getPassword())) { // проверка существует ли имя
-                User user = new User(message.getLogin(), message.getPassword());
-                connection.user = user;
+                connection.user = new User(message.getLogin(), message.getPassword());
+                connectionCreated(connection);
                 messageSend.setLogin(message.getLogin());
                 messageSend.setMessage("true, port=" + ConfigServer.getPort("portchatting"));
-                connectionCreated(connection);
                 messageSend.setOnlineUsers(getOnlineUsers());
                 System.out.println("Соединение");
                 connection.sendToOutStream(HandleXml.marshalling1(Message.class, messageSend)); // format of message: <?xml version="1.0" encoding="UTF-8" standalone="yes"?><message><password>1qa</password><login>Zhe</login><type>1</type></message>
@@ -139,10 +138,10 @@ public final class Server implements ConnectionAgent {
         }
 
         if (message.getType() == 3) {
-            Message messageToSend = new Message(3, message.getMessage());
-            messageToSend.setOnlineUsers(getOnlineUsers());
+            //Message messageToSend = new Message(3, message.getMessage());
+            message.setOnlineUsers(getOnlineUsers());
             //connection.sendToOutStream(HandleXml.marshalling1(Message.class, messageToSend));
-           sendToAll(HandleXml.marshalling1(Message.class, messageToSend));
+           sendToAll(HandleXml.marshalling1(Message.class, message));
         }
     }
 
