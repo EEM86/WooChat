@@ -222,6 +222,8 @@ public class ChatForm {
         return messageField;
     }
 
+
+
     private Border border() {
         return BorderFactory.createEmptyBorder(0, 0, 0, 0);
     }

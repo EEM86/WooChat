@@ -10,6 +10,7 @@ public class Message implements Serializable {
     @XmlElement
     private String password;
     private String onlineUsers;
+    private int group;
 
     private int type;
     public static int REGISTER_TYPE = 0;  // сделать через enum?
@@ -35,6 +36,12 @@ public class Message implements Serializable {
     }
 
     public Message(int type, String message) {
+        this.type = type;
+        this.message = message;
+    }
+
+    public Message(String login, int type, String message) {
+        this.login = login;
         this.type = type;
         this.message = message;
     }

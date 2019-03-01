@@ -18,6 +18,7 @@ import javax.xml.bind.JAXBException;
 import java.awt.*;
 import java.io.IOException;
 import java.net.Socket;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class ServerConnection implements ConnectionAgent {
@@ -118,8 +119,7 @@ public class ServerConnection implements ConnectionAgent {
 
         // сообщение
         else if (message.getType() == 2) {
-            logger.debug("Who writes on client side: " + connection.user.getLogin());
-            sendToChat(connection.user.getLogin(), message.getMessage());
+            sendToChat(message.getLogin(), message.getMessage());
         }
 
         else if (message.getType() == 3) { //обновляет список юзеров онлайн
@@ -164,7 +164,11 @@ public class ServerConnection implements ConnectionAgent {
         jva = (JViewport) sp.getComponent(0);
         jta = (JTextArea)jva.getComponent(0);
 
-        jta.append(login + ": " + message + "\n");
+        SimpleDateFormat sdf = new SimpleDateFormat("hh:MM:ss");
+        Date date = new Date();
+        sdf.format(date);
+
+        jta.append("[" + sdf.format(date) + "]" + "<" + login + ">: " + message + "\n");
         chatForm.getMessageField().setText("");
     }
 

@@ -11,7 +11,6 @@ import java.awt.event.ActionListener;
 
 
 public class ChatFormListener implements ActionListener {
-    private HandleXml handleXml = new HandleXml();
     private ChatForm chatForm;
     private ServerConnection serverConnection;
 
@@ -34,8 +33,10 @@ public class ChatFormListener implements ActionListener {
 
 
     public void sendMessage(String text) {
+        String name = chatForm.getServerConnection().connection.user.getLogin();
         Message message = new Message(2,text);
-        String str = handleXml.marshalling1(Message.class, message);
+        message.setLogin(name);
+        String str = HandleXml.marshalling1(Message.class, message);
         try {
             chatForm.getServerConnection().sendToServer(str);
         }catch (NullPointerException e){

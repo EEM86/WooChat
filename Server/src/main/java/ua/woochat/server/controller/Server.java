@@ -148,6 +148,7 @@ public final class Server implements ConnectionAgent {
 
     public void sendToAll(String text) {
         for (Connection entry:connections) {
+            logger.info(entry.user.getLogin());
             entry.sendToOutStream(text);
         }
     }
