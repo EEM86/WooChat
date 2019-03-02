@@ -45,15 +45,8 @@ public final class Server implements ConnectionAgent {
                 try {
                     Socket clientConnectionSocket = serverConnectSocket.accept();
                     connection = new Connection(this, clientConnectionSocket);
-                    //где-то здесь надо проверить логин и пароль, после авторизации вызвать метод connectionCreated
-                    // можно ли стартовать тред после проверки или всё же в конструкторе? connection.getThread().start();
-
-                    //if (userCreated(connection)) {
-
-                        //connectionCreated(connection);
                         logger.debug("Client's socket was accepted: [" + clientConnectionSocket.getInetAddress().getHostAddress()
                                 + ":" + clientConnectionSocket.getPort() + "]. Connection success.");
-                    //}
                 } catch (IOException e) {
                     logger.error("Connection exception " + e);
                 }
@@ -173,7 +166,7 @@ public final class Server implements ConnectionAgent {
         }
 
         else if (message.getType() == 6) {   //сделать чтобы в файл User.xml записывался
-            Group group = new Group("group00" + groupsList.size());
+            Group group = new Group("group001");
             groupsList.add(group);
             ArrayList<String> tmp = message.getGroupList();
             for (String s: tmp) {
@@ -184,7 +177,10 @@ public final class Server implements ConnectionAgent {
                 }
             }
             message.setGroupID(group.getGroupID());
-            connection.sendToOutStream(HandleXml.marshalling1(Message.class, message));
+            //connection.sendToOutStream(HandleXml.marshalling1(Message.class, message));
+            for (Connection entry:connections) {
+                entry.sendToOutStream(HandleXml.marshalling1(Message.class, message));
+            }
         }
     }
 

@@ -46,6 +46,7 @@ public class ChatForm {
 
     private ServerConnection serverConnection;
     private String user;
+    private ChatFormListener chatListener;
 
     public ChatForm(WindowProperties properties, WindowImages images, String user, ServerConnection serverConnection){
 
@@ -75,17 +76,16 @@ public class ChatForm {
         container.add(chatContainer, BorderLayout.LINE_START);
         container.add(listContainer, BorderLayout.LINE_END);
         container.add(messageContainer, BorderLayout.PAGE_END);
-
         chatForm.add(container);
-
         chatForm.setVisible(true);
     }
+
     /**
      * method create a message container
      */
     private void createMessageContainer() {
 
-        ChatFormListener chatListener = new ChatFormListener(this);
+        chatListener = new ChatFormListener(this);
 
         messageContainer = new JPanel();
         messageContainer.setBackground(properties.getChatBackColor());
@@ -164,12 +164,15 @@ public class ChatForm {
                     conversationPanel.remove(conversationPanel.getSelectedComponent());
                 }
             });
-
             add(lbl, BorderLayout.CENTER);
             add(button, BorderLayout.EAST);
         }
     }
 
+    /**
+     *
+     * @return возвращает новую вкладку типа JPanel
+     */
     private JPanel createNewTab() {
 
         JPanel newTab = new JPanel();
@@ -216,7 +219,30 @@ public class ChatForm {
 
         listContainer.add(userOnlineLabel);
         listContainer.add(scrollPane);
+
+
+        /**
+         * Добавление слушателя для двойного щелчка по списку пользователей
+         */
+        userList.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent evt) {
+                JList list = (JList)evt.getSource();
+                if (evt.getClickCount() == 2) {
+                    int index = list.locationToIndex(evt.getPoint());
+                    String user1 = serverConnection.connection.user.getLogin();
+                    String user2 = model.get(index);
+
+                    if (user1.equals(user2)){
+                        new MessageView("Вы не можете создать диалог с собой",chatForm);
+                    }else {
+                        chatListener.requestGroup(user1,user2);
+                    }
+                }
+            }
+        });
     }
+
+
 
     public DefaultListModel<String> getModel() {
         return model;

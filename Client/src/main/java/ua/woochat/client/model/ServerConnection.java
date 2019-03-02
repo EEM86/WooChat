@@ -25,15 +25,13 @@ public class ServerConnection implements ConnectionAgent {
 
     private Socket socket;
     private Socket socketChatting;
-    public Connection connection; //change later
-
+    public Connection connection;
     private LoginFormListener loginFormListener;
     private ChatForm chatForm;
     private Message message;
     private WindowProperties windowProperties;
     private WindowImages windowImages;
-    private ServerConnection serverConnection;
-    private String currentUser;
+    private int tabCount;
 
     final static Logger logger = Logger.getLogger(ServerConnection.class);
 
@@ -43,12 +41,9 @@ public class ServerConnection implements ConnectionAgent {
 
         this.loginFormListener = loginFormListener;
 
-
         try {
             socket = new Socket(ConfigClient.getServerIP(), ConfigClient.getPortConnection());
             this.connection = new Connection(this, socket);
-            //connectionCreated(connection);
-
         } catch (Exception e) {
 
         }
@@ -60,9 +55,7 @@ public class ServerConnection implements ConnectionAgent {
 
     @Override
     public void connectionCreated(Connection data) {
-//        logger.debug("User connected " + data.user.getLogin());
-//        logger.debug("users in chat: " + testOnlineList.size());
-//        testOnlineList.add(connection.user.getLogin());
+
     }
 
     @Override
@@ -90,8 +83,6 @@ public class ServerConnection implements ConnectionAgent {
                 chatWindow(connection.user.getLogin(),this);
                 message.setType(3);
                 sendToServer(HandleXml.marshalling1(Message.class, message));
-//                chatForm.getChatForm().setVisible(true);
-//                chatWindow(currentUser, serverConnection);
             } else {
                 loginFormListener.getLoginForm().getLoginWindow().setEnabled(false);
                 new MessageView("Пользователь с таким именем уже существует!",
@@ -109,19 +100,16 @@ public class ServerConnection implements ConnectionAgent {
                 moveToChattingSocket(chattingPort);
                 connection.user =  new User(message.getLogin(), message.getPassword());
                 testOnlineList = new ArrayList(Arrays.asList(message.getOnlineUsers().split("\\s")));
-                //connectionCreated(connection);
+
 
                 loginFormListener.getLoginForm().getLoginWindow().setVisible(false); //закрывается окошко логин формы
 
                 chatWindow(connection.user.getLogin(),this);
 
-                chatForm.addNewTab(0,"All","group099"); //method create a new tab at index 0 with title
+                chatForm.addNewTab(0,"All","group099");
+                tabCount++;
                 chatForm.addNewTab(1,"rayvoid","group02222");
-
-                //chatForm.addNewTab(2,"Zhe","group003");
-
-                //System.out.println(chatForm.getConversationPanel().getTitleAt(0));
-                //System.out.println(chatForm.getConversationPanel().getTitleAt(1));
+                tabCount++;
 
                 message.setType(3);
                 sendToServer(HandleXml.marshalling1(Message.class, message));
@@ -134,11 +122,15 @@ public class ServerConnection implements ConnectionAgent {
 
         // сообщение
         else if (message.getType() == 2) {
-            //Тут должен быть цикл по которому мы пробегаем до соответствия groupID
-            //если соответствие есть то groupID для метода sendToChat() ,будет индекс цикла
-            int groupID = 1;
-            if (chatForm.getConversationPanel().getTitleAt(groupID).equals(message.getGroupID())) {
-                sendToChat(message.getLogin(), message.getMessage(), groupID);
+            for (int i = 0; i < tabCount-1; i++){
+                logger.debug("I= " + i);
+                logger.debug("То что пришло: " + message.getGroupID());
+                logger.debug("ID со вкладки: " + chatForm.getConversationPanel().getTitleAt(i));
+
+                if (chatForm.getConversationPanel().getTitleAt(i).equals(message.getGroupID())) {
+                    logger.debug("Нашли ID: " + message.getGroupID());
+                    sendToChat(message.getLogin(), message.getMessage(), i);
+                }
             }
         }
 
@@ -150,13 +142,12 @@ public class ServerConnection implements ConnectionAgent {
         }
 
         else if (message.getType() == 6) {   // только для приватного чата?
+            logger.debug("Сработало создание новой вкладки");
             ArrayList<String> currentGroupList = message.getGroupList();
-            chatForm.addNewTab(2, currentGroupList.get(currentGroupList.size() - 1), message.getGroupID());
+            chatForm.addNewTab(tabCount++, currentGroupList.get(currentGroupList.size() - 1), message.getGroupID());
+            tabCount++;
         }
     }
-
-    //Окно чата после регистрации/логининга. Пока что сюда передается имя пользователя который вошел.
-    // А будет передаваться и список онлайн с айдишниками
 
     /**
      * Метод создает новое окно чата для авторизированного/зарегистрированного пользователя
@@ -179,13 +170,13 @@ public class ServerConnection implements ConnectionAgent {
     }
 
     public void sendToChat(String login, String message, int tabNumber){
-
         JPanel temp;
         JScrollPane sp;
         JTextArea jta;
         JViewport jva;
-
+        logger.debug("Обновляю компонент по индексу: "+ tabNumber);
         temp = (JPanel) chatForm.getConversationPanel().getComponentAt(tabNumber);
+
         sp = (JScrollPane) temp.getComponent(0);
         jva = (JViewport) sp.getComponent(0);
         jta = (JTextArea)jva.getComponent(0);
@@ -198,6 +189,10 @@ public class ServerConnection implements ConnectionAgent {
         chatForm.getMessageField().setText("");
     }
 
+    /**
+     * Метод обновляет список онлайн пользователей
+     * @param tOl список пользователей
+     */
     private void reNewOnlineList(ArrayList<String> tOl) {
         chatForm.getScrollPane().setVisible(false);
         chatForm.getModel().clear();
@@ -208,6 +203,7 @@ public class ServerConnection implements ConnectionAgent {
             chatForm.getModel().add(i, entry);
             i++;
         }
+
         chatForm.getScrollPane().setVisible(true);
         chatForm.getUserOnlineLabel().setText("Online users: (" + Integer.toString(tOl.size()) + ")");
     }

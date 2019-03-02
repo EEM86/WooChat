@@ -2,19 +2,13 @@ package ua.woochat.client.listeners;
 
 import ua.woochat.app.HandleXml;
 import ua.woochat.app.Message;
-import ua.woochat.client.model.ServerConnection;
 import ua.woochat.client.view.ChatForm;
-
-import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
-
 public class ChatFormListener implements ActionListener {
     private ChatForm chatForm;
-    private ServerConnection serverConnection;
-
 
     public ChatFormListener(ChatForm chatForm) {
         this.chatForm = chatForm;
@@ -32,25 +26,32 @@ public class ChatFormListener implements ActionListener {
             String message = chatForm.getMessageField().getText();
             if (message.equals("")){}
             else sendMessage(message);
-            requestGroup();
         }
     }
 
-    public void requestGroup() {
+    /**
+     * Метод отправляет запрос на создание приватного чата с другим пользователем
+     * @param user1 имя текущего пользователя
+     * @param user2 имя пользователя с которым создается приватный чат
+     */
+    public void requestGroup(String user1, String user2) {
         Message message = new Message(6, "");
         ArrayList<String> listUsers = new ArrayList<>();
-        listUsers.add("q");
-        listUsers.add("Zhe");
+        listUsers.add(user1);
+        listUsers.add(user2);
         message.setGroupList(listUsers);
         chatForm.getServerConnection().sendToServer(HandleXml.marshalling1(Message.class, message));
     }
 
+    /**
+     * Метод отправляет текстовое сообщение на сервер
+     * @param text текст сообщения
+     */
     public void sendMessage(String text) {
         String name = chatForm.getServerConnection().connection.user.getLogin();
         Message message = new Message(2, text);
         message.setLogin(name);
-        //String groupID = hatForm.getConversationPanel().getSelectedComponent();
-        //message.setGroupID(groupID);
+        message.setGroupID(chatForm.getConversationPanel().getTitleAt(chatForm.getConversationPanel().getSelectedIndex()));
         String str = HandleXml.marshalling1(Message.class, message);
         try {
             chatForm.getServerConnection().sendToServer(str);
