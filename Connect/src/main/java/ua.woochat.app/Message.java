@@ -16,6 +16,7 @@ public class Message implements Serializable {
     public static int REGISTER_TYPE = 0;  // сделать через enum?
     public static int SINGIN_TYPE = 1;
     public static int MESSAGE_TYPE = 2;
+    public static int UPDATE_USERS = 3;
 
     private String message;
 

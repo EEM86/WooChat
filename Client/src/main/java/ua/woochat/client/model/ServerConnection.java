@@ -83,10 +83,15 @@ public class ServerConnection implements ConnectionAgent {
             if (message.getMessage().startsWith("true")) {
                 int chattingPort = Integer.parseInt(message.getMessage().substring(message.getMessage().indexOf('=')+1));
                 moveToChattingSocket(chattingPort);
+                connection.user =  new User(message.getLogin(), message.getPassword());
+                testOnlineList = new ArrayList(Arrays.asList(message.getOnlineUsers().split("\\s")));
                 loginFormListener.getLoginForm().getLoginWindow().setVisible(false);
-                currentUser = message.getLogin();
-                chatForm.getChatForm().setVisible(true);
-                chatWindow(currentUser, serverConnection);
+
+                chatWindow(connection.user.getLogin(),this);
+                message.setType(3);
+                sendToServer(HandleXml.marshalling1(Message.class, message));
+//                chatForm.getChatForm().setVisible(true);
+//                chatWindow(currentUser, serverConnection);
             } else {
                 loginFormListener.getLoginForm().getLoginWindow().setEnabled(false);
                 new MessageView("Пользователь с таким именем уже существует!",
@@ -131,6 +136,7 @@ public class ServerConnection implements ConnectionAgent {
             logger.debug("Сработал: " + connection.user.getLogin());
             testOnlineList = new ArrayList(Arrays.asList(message.getOnlineUsers().split("\\s")));
             reNewOnlineList(testOnlineList);
+            sendToChat("WooChat", message.getLogin() + " has joined to chat.");
         }
     }
 
@@ -168,11 +174,11 @@ public class ServerConnection implements ConnectionAgent {
         jva = (JViewport) sp.getComponent(0);
         jta = (JTextArea)jva.getComponent(0);
 
-        SimpleDateFormat sdf = new SimpleDateFormat("hh:MM:ss");
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:MM:ss");
         Date date = new Date();
         sdf.format(date);
 
-        jta.append("[" + sdf.format(date) + "]" + "<" + login + ">:" + message + "\n");
+        jta.append("[" + sdf.format(date) + "]" + "<" + login + ">: " + message + "\n");
         chatForm.getMessageField().setText("");
     }
 
