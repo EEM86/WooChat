@@ -8,6 +8,7 @@ import ua.woochat.client.view.ChatForm;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 
 
 public class ChatFormListener implements ActionListener {
@@ -31,13 +32,25 @@ public class ChatFormListener implements ActionListener {
             String message = chatForm.getMessageField().getText();
             if (message.equals("")){}
             else sendMessage(message);
+            requestGroup();
         }
+    }
+
+    public void requestGroup() {
+        Message message = new Message(6, "");
+        ArrayList<String> listUsers = new ArrayList<>();
+        listUsers.add("q");
+        listUsers.add("Zhe");
+        message.setGroupList(listUsers);
+        chatForm.getServerConnection().sendToServer(HandleXml.marshalling1(Message.class, message));
     }
 
     public void sendMessage(String text) {
         String name = chatForm.getServerConnection().connection.user.getLogin();
-        Message message = new Message(2,text);
+        Message message = new Message(2, text);
         message.setLogin(name);
+        //String groupID = hatForm.getConversationPanel().getSelectedComponent();
+        //message.setGroupID(groupID);
         String str = HandleXml.marshalling1(Message.class, message);
         try {
             chatForm.getServerConnection().sendToServer(str);

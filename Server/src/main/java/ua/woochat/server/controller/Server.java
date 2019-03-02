@@ -7,6 +7,7 @@ import ua.woochat.app.Message;
 import ua.woochat.server.model.ConfigServer;
 import ua.woochat.app.HandleXml;
 import ua.woochat.app.User;
+import ua.woochat.server.model.Group;
 
 import javax.xml.bind.JAXBException;
 import java.io.File;
@@ -27,6 +28,7 @@ public final class Server implements ConnectionAgent {
     private Map<Integer, ArrayList<String>> onlineUsers = new HashMap<>();
     ServerSocket serverConnectSocket;
     ServerSocket serverChattingSocket;
+    public Set<Group> groupsList = new LinkedHashSet<>();
 
     /**
      * Constructor creates Server socket which waits for connections.
@@ -37,6 +39,8 @@ public final class Server implements ConnectionAgent {
         try {
             serverConnectSocket = new ServerSocket(ConfigServer.getPort("portconnection"));
             serverChattingSocket = new ServerSocket(ConfigServer.getPort("portchatting"));
+            final Group groupMain = new Group("MainGroup", "group000");
+            groupsList.add(groupMain);
             while (true) {
                 try {
                     Socket clientConnectionSocket = serverConnectSocket.accept();
@@ -55,7 +59,7 @@ public final class Server implements ConnectionAgent {
                 }
             }
         } catch (IOException e) {
-            System.out.println("ConfigServer.setUserId(user.getId());" + user.getId());
+            //System.out.println("ConfigServer.setUserId(user.getId());" + user.getId());
             logger.error("Server socket exception " + e);
         }
     }
@@ -73,6 +77,17 @@ public final class Server implements ConnectionAgent {
 
     @Override
     public synchronized void connectionCreated(Connection data) {
+        Set<String> currentUserGroups = data.user.getGroups();
+        for (String entry: currentUserGroups) {
+            for (Group group : groupsList) {
+                if (entry.equalsIgnoreCase(group.getGroupName())) {
+                    group.usersList.add(data);
+                    group.addUser(data);
+                    logger.debug("Users in group \"" + group.getGroupName() + "\": ");
+                    group.getUsersList().stream().forEach(x -> System.out.println(x.user.getLogin())); //печатает в консоль список юзеров в группе
+                }
+            }
+        }
        connections.add(data);
 //       Message messageToSend = new Message(3, "Connection added " + data);
 //       receivedMessage(connection, HandleXml.marshalling1(Message.class, messageToSend));
@@ -117,6 +132,7 @@ public final class Server implements ConnectionAgent {
             //messageSend.setType(1);
             if (verificationSingIn(message.getLogin(), message.getPassword())) { // проверка существует ли имя
                 connection.user = new User(message.getLogin(), message.getPassword());
+                connection.user.addGroup("MainChat");                 // сэтим юзеру главный чат как группу
                 connectionCreated(connection);
                 messageSend.setLogin(message.getLogin());
                 messageSend.setMessage("true, port=" + ConfigServer.getPort("portchatting"));
@@ -133,10 +149,20 @@ public final class Server implements ConnectionAgent {
 
         // сообщение
         else if (message.getType() == 2) {
-            Message messageSend = new Message(2, message.getMessage());
-            messageSend.setLogin(message.getLogin());
+//            Message messageSend = new Message(2, message.getMessage());
+//            messageSend.setLogin(message.getLogin());
+            String groupID = message.getGroupID();
+            Set<Connection> result = null;
+            for (Group entry: groupsList) {
+                if (entry.getGroupID().equalsIgnoreCase(groupID)) {
+                    result = entry.getUsersList();
+                    for (Connection c: result) {
+                        c.sendToOutStream(HandleXml.marshalling1(Message.class, message));
+                    }
+                }
+            }
             logger.debug("Who writes from server side: " + connection.user.getLogin());
-            sendToAll(HandleXml.marshalling1(Message.class, messageSend));
+            sendToAll(HandleXml.marshalling1(Message.class, message));
         }
 
         else if (message.getType() == 3) {
@@ -144,6 +170,21 @@ public final class Server implements ConnectionAgent {
             message.setOnlineUsers(getOnlineUsers());
             //connection.sendToOutStream(HandleXml.marshalling1(Message.class, messageToSend));
            sendToAll(HandleXml.marshalling1(Message.class, message));
+        }
+
+        else if (message.getType() == 6) {   //сделать чтобы в файл User.xml записывался
+            Group group = new Group("group00" + groupsList.size());
+            groupsList.add(group);
+            ArrayList<String> tmp = message.getGroupList();
+            for (String s: tmp) {
+                for (Connection entry: connections) {
+                    if (entry.user.getLogin().equals(s)) {
+                        entry.user.groups.add(group.getGroupID());
+                    }
+                }
+            }
+            message.setGroupID(group.getGroupID());
+            connection.sendToOutStream(HandleXml.marshalling1(Message.class, message));
         }
     }
 

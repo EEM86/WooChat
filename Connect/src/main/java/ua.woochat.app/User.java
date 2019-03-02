@@ -7,6 +7,8 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 @XmlRootElement
 public class User implements UsersAndGroups {
@@ -24,7 +26,7 @@ public class User implements UsersAndGroups {
     private Gender gender;
     private boolean admin;
     private boolean isBanned;
-    private ArrayList group = null;
+    public Set<String> groups = new LinkedHashSet<>();
 
     public User(String login, String password) {
         this.login = login;
@@ -89,5 +91,13 @@ public class User implements UsersAndGroups {
 
     public void setBan(boolean ban) {
         this.isBanned = isBanned;
+    }
+
+    public void addGroup(String groupName) {
+        groups.add(groupName);
+    }
+
+    public Set getGroups() {
+        return groups;
     }
 }

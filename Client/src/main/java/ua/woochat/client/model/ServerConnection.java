@@ -115,9 +115,10 @@ public class ServerConnection implements ConnectionAgent {
 
                 chatWindow(connection.user.getLogin(),this);
 
-                chatForm.addNewTab(0,"All","group001"); //method create a new tab at index 0 with title
-                chatForm.addNewTab(1,"rayvoid","group002");
-                chatForm.addNewTab(2,"Zhe","group003");
+                chatForm.addNewTab(0,"All","group099"); //method create a new tab at index 0 with title
+                chatForm.addNewTab(1,"rayvoid","group02222");
+
+                //chatForm.addNewTab(2,"Zhe","group003");
 
                 //System.out.println(chatForm.getConversationPanel().getTitleAt(0));
                 //System.out.println(chatForm.getConversationPanel().getTitleAt(1));
@@ -136,7 +137,7 @@ public class ServerConnection implements ConnectionAgent {
             //Тут должен быть цикл по которому мы пробегаем до соответствия groupID
             //если соответствие есть то groupID для метода sendToChat() ,будет индекс цикла
             int groupID = 1;
-            if (chatForm.getConversationPanel().getTitleAt(groupID).equals("group002")) {
+            if (chatForm.getConversationPanel().getTitleAt(groupID).equals(message.getGroupID())) {
                 sendToChat(message.getLogin(), message.getMessage(), groupID);
             }
         }
@@ -146,6 +147,11 @@ public class ServerConnection implements ConnectionAgent {
             testOnlineList = new ArrayList(Arrays.asList(message.getOnlineUsers().split("\\s")));
             reNewOnlineList(testOnlineList);
             //sendToChat("WooChat", message.getLogin() + " has joined to chat.", groupID);
+        }
+
+        else if (message.getType() == 6) {   // только для приватного чата?
+            ArrayList<String> currentGroupList = message.getGroupList();
+            chatForm.addNewTab(2, currentGroupList.get(currentGroupList.size() - 1), message.getGroupID());
         }
     }
 

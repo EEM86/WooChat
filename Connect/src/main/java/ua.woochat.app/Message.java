@@ -3,6 +3,7 @@ package ua.woochat.app;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
+import java.util.ArrayList;
 
 @XmlRootElement
 public class Message implements Serializable {
@@ -10,7 +11,7 @@ public class Message implements Serializable {
     @XmlElement
     private String password;
     private String onlineUsers;
-    private int group;
+    private String groupID;
 
     private int type;
     public static int REGISTER_TYPE = 0;  // сделать через enum?
@@ -19,6 +20,7 @@ public class Message implements Serializable {
     public static int UPDATE_USERS = 3;
 
     private String message;
+    private ArrayList<String> groupList = new ArrayList<>();
 
     public Message() {
     }
@@ -85,5 +87,23 @@ public class Message implements Serializable {
 
     public void setLogin(String login) {
         this.login = login;
+    }
+
+    @XmlElement
+    public String getGroupID() {
+        return groupID;
+    }
+
+    public void setGroupID(String groupID) {
+        this.groupID = groupID;
+    }
+
+    @XmlElement
+    public ArrayList<String> getGroupList() {
+        return groupList;
+    }
+
+    public void setGroupList(ArrayList<String> groupList) {
+        this.groupList = groupList;
     }
 }
