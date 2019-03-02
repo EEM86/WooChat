@@ -1,5 +1,6 @@
 package ua.woochat.client;
 
+import ua.woochat.client.view.ChatForm;
 import ua.woochat.client.view.LoginForm;
 import ua.woochat.client.view.WindowImages;
 import ua.woochat.client.view.WindowProperties;
@@ -17,7 +18,6 @@ public class ClientApp {
 
         WindowProperties properties = new WindowProperties();
         WindowImages images = new WindowImages();
-
         new LoginForm(properties, images);
     }
 }

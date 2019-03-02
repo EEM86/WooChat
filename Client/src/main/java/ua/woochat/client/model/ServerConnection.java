@@ -105,9 +105,14 @@ public class ServerConnection implements ConnectionAgent {
                 connection.user =  new User(message.getLogin(), message.getPassword());
                 testOnlineList = new ArrayList(Arrays.asList(message.getOnlineUsers().split("\\s")));
                 //connectionCreated(connection);
+
                 loginFormListener.getLoginForm().getLoginWindow().setVisible(false); //закрывается окошко логин формы
 
                 chatWindow(connection.user.getLogin(),this);
+
+                chatForm.addNewTab(0,"All"); //method create a new tab at index 0 with title
+                chatForm.addNewTab(1,"rayvoid");
+
                 message.setType(3);
                 sendToServer(HandleXml.marshalling1(Message.class, message));
             } else {

@@ -7,6 +7,10 @@ import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Set;
 
@@ -108,6 +112,27 @@ public class ChatForm {
         messageContainer.add(functionalPanel);
     }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     /**
      * method create a chat container
      */
@@ -119,15 +144,40 @@ public class ChatForm {
         chatContainer.setPreferredSize(new Dimension(500,400));
 
         conversationPanel = new JTabbedPane();
+
         conversationPanel.setPreferredSize(new Dimension(500,390));
         conversationPanel.setBackground(properties.getChatBackColor());
         conversationPanel.setForeground(properties.getTextColor());
         conversationPanel.setBorder(new EmptyBorder(3, 3, 3, 3));
 
-
-        conversationPanel.addTab("All users", createNewTab());
-
         chatContainer.add(conversationPanel);
+    }
+
+    public void addNewTab(int index, String tabTitle) {
+        conversationPanel.addTab(null, createNewTab());
+        conversationPanel.setTabComponentAt(index,new TabTitle(tabTitle,index));
+    }
+
+    private class TabTitle extends JPanel{
+        private TabTitle(final String title, final int index){
+            setOpaque(false);
+            JLabel lbl = new JLabel(title);
+            JButton button = new JButton();
+            button.setPreferredSize(new Dimension(10, 10));
+            button.setIcon(images.getCloseTabIcon());
+
+            button.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e)
+                {
+                    conversationPanel.remove(index);
+                    System.out.println("Tab at index: " + index + " removed");
+                }
+            });
+
+            add(lbl, BorderLayout.CENTER);
+            add(button, BorderLayout.EAST);
+        }
     }
 
     private JPanel createNewTab() {
@@ -150,6 +200,35 @@ public class ChatForm {
         newTab.add(jsp);
         return newTab;
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     /**
      * method create a user list container
@@ -177,6 +256,7 @@ public class ChatForm {
         listContainer.add(userOnlineLabel);
         listContainer.add(scrollPane);
     }
+
 
     public JFrame getChatForm() {
         return chatForm;
