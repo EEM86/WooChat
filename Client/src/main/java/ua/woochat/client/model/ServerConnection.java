@@ -115,8 +115,12 @@ public class ServerConnection implements ConnectionAgent {
 
                 chatWindow(connection.user.getLogin(),this);
 
-                chatForm.addNewTab(0,"All"); //method create a new tab at index 0 with title
-                chatForm.addNewTab(1,"rayvoid");
+                chatForm.addNewTab(0,"All","group001"); //method create a new tab at index 0 with title
+                chatForm.addNewTab(1,"rayvoid","group002");
+                chatForm.addNewTab(2,"Zhe","group003");
+
+                //System.out.println(chatForm.getConversationPanel().getTitleAt(0));
+                //System.out.println(chatForm.getConversationPanel().getTitleAt(1));
 
                 message.setType(3);
                 sendToServer(HandleXml.marshalling1(Message.class, message));
@@ -129,14 +133,19 @@ public class ServerConnection implements ConnectionAgent {
 
         // сообщение
         else if (message.getType() == 2) {
-            sendToChat(message.getLogin(), message.getMessage());
+            //Тут должен быть цикл по которому мы пробегаем до соответствия groupID
+            //если соответствие есть то groupID для метода sendToChat() ,будет индекс цикла
+            int groupID = 1;
+            if (chatForm.getConversationPanel().getTitleAt(groupID).equals("group002")) {
+                sendToChat(message.getLogin(), message.getMessage(), groupID);
+            }
         }
 
         else if (message.getType() == 3) { //обновляет список юзеров онлайн
             logger.debug("Сработал: " + connection.user.getLogin());
             testOnlineList = new ArrayList(Arrays.asList(message.getOnlineUsers().split("\\s")));
             reNewOnlineList(testOnlineList);
-            sendToChat("WooChat", message.getLogin() + " has joined to chat.");
+            //sendToChat("WooChat", message.getLogin() + " has joined to chat.", groupID);
         }
     }
 
@@ -163,13 +172,14 @@ public class ServerConnection implements ConnectionAgent {
         }
     }
 
-    public void sendToChat(String login, String message){
+    public void sendToChat(String login, String message, int tabNumber){
+
         JPanel temp;
         JScrollPane sp;
         JTextArea jta;
         JViewport jva;
 
-        temp = (JPanel) chatForm.getConversationPanel().getSelectedComponent();
+        temp = (JPanel) chatForm.getConversationPanel().getComponentAt(tabNumber);
         sp = (JScrollPane) temp.getComponent(0);
         jva = (JViewport) sp.getComponent(0);
         jta = (JTextArea)jva.getComponent(0);

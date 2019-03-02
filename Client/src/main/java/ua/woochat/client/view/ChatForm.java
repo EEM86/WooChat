@@ -112,27 +112,6 @@ public class ChatForm {
         messageContainer.add(functionalPanel);
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     /**
      * method create a chat container
      */
@@ -153,13 +132,24 @@ public class ChatForm {
         chatContainer.add(conversationPanel);
     }
 
-    public void addNewTab(int index, String tabTitle) {
+    /**
+     * Метод добавляет новую вкладку в окно чата. Все вкладки индексируются как в массивах
+     * @param index индекс вкладки.
+     * @param tabTitle Имя чата
+     * @param tabID id вкладки, который аналогичен groupID. По нему мы будем определять в какую вкладку
+     * отправлять ссобщение
+     */
+    public void addNewTab(int index, String tabTitle, String tabID) {
         conversationPanel.addTab(null, createNewTab());
         conversationPanel.setTabComponentAt(index,new TabTitle(tabTitle,index));
+        conversationPanel.setTitleAt(index,tabID);
     }
 
     private class TabTitle extends JPanel{
+        private String title;
+
         private TabTitle(final String title, final int index){
+            this.title = title;
             setOpaque(false);
             JLabel lbl = new JLabel(title);
             JButton button = new JButton();
@@ -170,8 +160,8 @@ public class ChatForm {
                 @Override
                 public void actionPerformed(ActionEvent e)
                 {
-                    conversationPanel.remove(index);
                     System.out.println("Tab at index: " + index + " removed");
+                    conversationPanel.remove(conversationPanel.getSelectedComponent());
                 }
             });
 
@@ -201,35 +191,6 @@ public class ChatForm {
         return newTab;
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     /**
      * method create a user list container
      */
@@ -255,11 +216,6 @@ public class ChatForm {
 
         listContainer.add(userOnlineLabel);
         listContainer.add(scrollPane);
-    }
-
-
-    public JFrame getChatForm() {
-        return chatForm;
     }
 
     public DefaultListModel<String> getModel() {

@@ -22,15 +22,17 @@ public class ChatFormListener implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getActionCommand().equals("sendButton")) {
-            sendMessage(chatForm.getMessageField().getText());
+            String message = chatForm.getMessageField().getText();
+            if (message.equals("")){}
+            else sendMessage(message);
         }
 
         if (e.getActionCommand().equals("enterPressed")) {
-            sendMessage(chatForm.getMessageField().getText());
+            String message = chatForm.getMessageField().getText();
+            if (message.equals("")){}
+            else sendMessage(message);
         }
     }
-
-
 
     public void sendMessage(String text) {
         String name = chatForm.getServerConnection().connection.user.getLogin();
@@ -42,6 +44,5 @@ public class ChatFormListener implements ActionListener {
         }catch (NullPointerException e){
             System.out.println("Сообщение не отправлено");
         }
-        //chatForm.getServerConnection().sendToServer(message);
     }
 }
