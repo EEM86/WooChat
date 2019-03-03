@@ -1,7 +1,9 @@
 package ua.woochat.client.listeners;
 
+import org.apache.log4j.Logger;
 import ua.woochat.app.HandleXml;
 import ua.woochat.app.Message;
+import ua.woochat.client.model.ServerConnection;
 import ua.woochat.client.view.ChatForm;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -9,6 +11,7 @@ import java.util.ArrayList;
 
 public class ChatFormListener implements ActionListener {
     private ChatForm chatForm;
+    final static Logger logger = Logger.getLogger(ServerConnection.class);
 
     public ChatFormListener(ChatForm chatForm) {
         this.chatForm = chatForm;
@@ -19,7 +22,10 @@ public class ChatFormListener implements ActionListener {
         if (e.getActionCommand().equals("sendButton")) {
             String message = chatForm.getMessageField().getText();
             if (message.equals("")){}
-            else sendMessage(message);
+            else {
+                logger.debug("Сработала кнопка по нажатию мышкой");
+                sendMessage(message);
+            }
         }
 
         if (e.getActionCommand().equals("enterPressed")) {
@@ -27,8 +33,9 @@ public class ChatFormListener implements ActionListener {
             if (message.equals("")){}
             else {
                 if (message.equals("adduser")) {
-                    addUserToCurrentGroup("Z1", "group001");
+                    addUserToCurrentGroup("Zhe", "group001");
                 }
+                logger.debug("Сработала кнопка по нажатию Enter");
                 sendMessage(message);
             }
         }
@@ -63,6 +70,8 @@ public class ChatFormListener implements ActionListener {
         String name = chatForm.getServerConnection().connection.user.getLogin();
         Message message = new Message(2, text);
         message.setLogin(name);
+        logger.debug("Забираю ID вкладки перед отправкой сообщения: " +
+                chatForm.getConversationPanel().getTitleAt(chatForm.getConversationPanel().getSelectedIndex()));
         message.setGroupID(chatForm.getConversationPanel().getTitleAt(chatForm.getConversationPanel().getSelectedIndex()));
         String str = HandleXml.marshalling1(Message.class, message);
         try {

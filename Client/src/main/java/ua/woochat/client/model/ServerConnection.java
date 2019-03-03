@@ -106,11 +106,6 @@ public class ServerConnection implements ConnectionAgent {
 
                 chatWindow(connection.user.getLogin(),this);
 
-                chatForm.addNewTab(0,"All","group099");
-                tabCount++;
-                chatForm.addNewTab(1,"rayvoid","group02222");
-                tabCount++;
-
                 message.setType(3);
                 sendToServer(HandleXml.marshalling1(Message.class, message));
             } else {
@@ -153,6 +148,7 @@ public class ServerConnection implements ConnectionAgent {
         }
 
         else if (message.getType() == 7) {
+            logger.debug("делаю setID для вкладки: " + message.getGroupID());
             chatForm.addNewTab(tabCount++, message.getGroupID(), message.getGroupID());
         }
 

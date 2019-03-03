@@ -187,7 +187,11 @@ public final class Server implements ConnectionAgent {
         else if (message.getType() == 7) {
             for (Connection entry : connections) {
                 if (entry.user.getLogin().equals(message.getLogin())) {
+                    //тут мы не добавили (некорректно добавили) юзара для рассылки ему сообщений
+                    //на его стороне не срабатыввает "==2". Он может отправлять, а ему нет
                     entry.user.groups.add(message.getGroupID());
+
+
                     logger.debug("Group: " + message.getGroupID());
                     message.setType(7);
                     entry.sendToOutStream(HandleXml.marshalling1(Message.class, message));
