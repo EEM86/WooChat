@@ -141,7 +141,7 @@ public final class Server implements ConnectionAgent {
         }
 
         // сообщение
-        else if (message.getType() == 2) {
+        else if (message.getType() == 2)  {
 //            Message messageSend = new Message(2, message.getMessage());
 //            messageSend.setLogin(message.getLogin());
             String groupID = message.getGroupID();
@@ -166,20 +166,32 @@ public final class Server implements ConnectionAgent {
         }
 
         else if (message.getType() == 6) {   //сделать чтобы в файл User.xml записывался
-            Group group = new Group("group001");
+            Group group = new Group("group00" + groupsList.size());
             groupsList.add(group);
+            message.setGroupID(group.getGroupID());
             ArrayList<String> tmp = message.getGroupList();
             for (String s: tmp) {
                 for (Connection entry: connections) {
                     if (entry.user.getLogin().equals(s)) {
                         entry.user.groups.add(group.getGroupID());
+                        entry.sendToOutStream(HandleXml.marshalling1(Message.class, message));
+//                        Message msg = new Message(2, "You are connected to private chat "
+//                                + group.getGroupName() + " " + group.getGroupID());
+//                        msg.setLogin(entry.user.getLogin());
+//                        entry.sendToOutStream(HandleXml.marshalling1(Message.class, msg));
                     }
                 }
             }
-            message.setGroupID(group.getGroupID());
-            //connection.sendToOutStream(HandleXml.marshalling1(Message.class, message));
-            for (Connection entry:connections) {
-                entry.sendToOutStream(HandleXml.marshalling1(Message.class, message));
+        }
+
+        else if (message.getType() == 7) {
+            for (Connection entry : connections) {
+                if (entry.user.getLogin().equals(message.getLogin())) {
+                    entry.user.groups.add(message.getGroupID());
+                    logger.debug("Group: " + message.getGroupID());
+                    message.setType(7);
+                    entry.sendToOutStream(HandleXml.marshalling1(Message.class, message));
+                }
             }
         }
     }

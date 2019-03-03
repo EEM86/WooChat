@@ -25,7 +25,12 @@ public class ChatFormListener implements ActionListener {
         if (e.getActionCommand().equals("enterPressed")) {
             String message = chatForm.getMessageField().getText();
             if (message.equals("")){}
-            else sendMessage(message);
+            else {
+                if (message.equals("adduser")) {
+                    addUserToCurrentGroup("Z1", "group001");
+                }
+                sendMessage(message);
+            }
         }
     }
 
@@ -34,13 +39,20 @@ public class ChatFormListener implements ActionListener {
      * @param user1 имя текущего пользователя
      * @param user2 имя пользователя с которым создается приватный чат
      */
-    public void requestGroup(String user1, String user2) {
+    public void privateGroupCreate(String user1, String user2) {
         Message message = new Message(6, "");
         ArrayList<String> listUsers = new ArrayList<>();
         listUsers.add(user1);
         listUsers.add(user2);
         message.setGroupList(listUsers);
         chatForm.getServerConnection().sendToServer(HandleXml.marshalling1(Message.class, message));
+    }
+
+    public void addUserToCurrentGroup(String name, String groupID) {
+        Message msg = new Message(7, "Connected" + name + " to " + groupID);
+        msg.setLogin(name);
+        msg.setGroupID(groupID);
+        chatForm.getServerConnection().sendToServer(HandleXml.marshalling1(Message.class, msg));
     }
 
     /**

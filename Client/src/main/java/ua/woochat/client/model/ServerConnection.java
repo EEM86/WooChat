@@ -141,12 +141,21 @@ public class ServerConnection implements ConnectionAgent {
             //sendToChat("WooChat", message.getLogin() + " has joined to chat.", groupID);
         }
 
-        else if (message.getType() == 6) {   // только для приватного чата?
-            logger.debug("Сработало создание новой вкладки");
+        else if (message.getType() == 6) {   // работает только для приватного чата, когда пользователей 2!!!
             ArrayList<String> currentGroupList = message.getGroupList();
-            chatForm.addNewTab(tabCount++, currentGroupList.get(currentGroupList.size() - 1), message.getGroupID());
+            String result = currentGroupList.get(currentGroupList.size() - 1);
+            if (result.equals(connection.user.getLogin())) {
+                chatForm.addNewTab(tabCount++, currentGroupList.get(0), message.getGroupID());
+            } else {
+                chatForm.addNewTab(tabCount++, currentGroupList.get(1), message.getGroupID());
+            }
             tabCount++;
         }
+
+        else if (message.getType() == 7) {
+            chatForm.addNewTab(tabCount++, message.getGroupID(), message.getGroupID());
+        }
+
     }
 
     /**

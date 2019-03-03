@@ -11,8 +11,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.ArrayList;
-import java.util.Set;
 
 /**
  * Class describes the main window of WooChat application
@@ -233,9 +231,9 @@ public class ChatForm {
                     String user2 = model.get(index);
 
                     if (user1.equals(user2)){
-                        new MessageView("Вы не можете создать диалог с собой",chatForm);
+                        new MessageView("Вы не можете создать диалог с собой", chatForm);
                     }else {
-                        chatListener.requestGroup(user1,user2);
+                        chatListener.privateGroupCreate(user1,user2);
                     }
                 }
             }
