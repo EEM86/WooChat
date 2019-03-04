@@ -5,6 +5,7 @@ import ua.woochat.app.HandleXml;
 import ua.woochat.app.Message;
 import ua.woochat.client.model.ServerConnection;
 import ua.woochat.client.view.ChatForm;
+import ua.woochat.client.view.MessageView;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -16,6 +17,8 @@ public class ChatFormListener implements ActionListener {
     public ChatFormListener(ChatForm chatForm) {
         this.chatForm = chatForm;
     }
+
+    private String[] virtualUserList = {"Zhe","Jon Snow", "Vasya", "Christopher"};
 
     @Override
     public void actionPerformed(ActionEvent e) {
@@ -33,12 +36,57 @@ public class ChatFormListener implements ActionListener {
             if (message.equals("")){}
             else {
                 if (message.equals("adduser")) {
-                    addUserToCurrentGroup("Zhe", "group001");
                 }
                 logger.debug("Сработала кнопка по нажатию Enter");
                 sendMessage(message);
             }
         }
+
+        if (e.getActionCommand().equals("addUserBtn")) {
+            /*
+            Запрашивает у сервера по команде (==8) список пользователей, которые есть онлайн,
+            но их нету в группе
+             */
+
+            reNewAddList(virtualUserList);
+            chatForm.getChatForm().setEnabled(false);
+            chatForm.getAddUserListForm().setVisible(true);
+        }
+
+        if (e.getActionCommand().equals("leaveGroupBtn")) {
+            logger.debug("Нажата кнопка leaveGroupBtn");
+        }
+
+        if (e.getActionCommand().equals("addUser")) {
+            int idx = chatForm.getAddUserList().getSelectedIndex();
+            if (idx == -1){
+                logger.info("task to edit not selected or missing");
+                new MessageView("Выберите пользователя", chatForm.getAddUserListForm());
+            }else{
+                String user2 = chatForm.getAddUserModel().get(idx);
+                if(user2.equals("Zhe")){
+                    addUserToCurrentGroup(user2, "group001");
+                    chatForm.getChatForm().setEnabled(true);
+                    chatForm.getAddUserListForm().setVisible(false);
+                }
+            }
+        }
+    }
+
+    /**
+     * Метод обновляет список доступных для добавления пользователей
+     * @param virtualUserList спикок пользователей доступных для добавления
+     */
+    private void reNewAddList(String[] virtualUserList) {
+
+        chatForm.getAddUserScrollPane().setVisible(false);
+        chatForm.getAddUserModel().clear();
+        int i=0;
+        for (String entry: virtualUserList) {
+            chatForm.getAddUserModel().add(i, entry);
+            i++;
+        }
+        chatForm.getAddUserScrollPane().setVisible(true);
     }
 
     /**

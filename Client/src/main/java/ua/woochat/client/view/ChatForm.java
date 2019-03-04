@@ -7,10 +7,7 @@ import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 
 /**
  * Class describes the main window of WooChat application
@@ -24,19 +21,29 @@ public class ChatForm {
     private WindowProperties properties;
     private WindowImages images;
     private JFrame chatForm;
+    private JFrame addUserListForm;
 
     private JPanel container;
     private JPanel chatContainer;
     private JPanel listContainer;
     private JPanel messageContainer;
-    private JPanel functionalPanel;
+    private JPanel addUserListPanel;
+
 
     private DefaultListModel<String> model = new DefaultListModel();
+    private DefaultListModel<String> addUserModel = new DefaultListModel();
+
     private JScrollPane scrollPane;
+    private JScrollPane addUserScrollPane;
     private JList userList;
+    private JList addUserList;
 
     private JLabel userOnlineLabel;
+    private JLabel addUserOnlineLabel;
     private JButton sendButton;
+    private JButton addUserBtn;
+    private JButton leaveGroupBtn;
+    private JButton addUser;
 
     private JTabbedPane conversationPanel;
 
@@ -70,12 +77,87 @@ public class ChatForm {
         createChatContainer();
         createListContainer();
         createMessageContainer();
+        createAddUserListForm();
 
         container.add(chatContainer, BorderLayout.LINE_START);
         container.add(listContainer, BorderLayout.LINE_END);
         container.add(messageContainer, BorderLayout.PAGE_END);
         chatForm.add(container);
         chatForm.setVisible(true);
+    }
+
+    private void createAddUserListForm() {
+
+        addUserListForm = new JFrame("Add user");
+        addUserListForm.getContentPane().setBackground(properties.getBgColor());
+        addUserListForm.setBounds(700, 500, 170, 370);
+        addUserListForm.setLocationRelativeTo(null);
+        addUserListForm.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        addUserListForm.setResizable(false);
+
+        addUserListPanel = new JPanel();
+        addUserListPanel.setLayout(new FlowLayout());
+        addUserListPanel.setBackground(properties.getChatBackColor());
+        addUserListPanel.setPreferredSize(new Dimension(182,400));
+
+        addUserOnlineLabel = new JLabel("USERS:");
+        addUserOnlineLabel.setForeground(properties.getLabelTextColor());
+
+        addUserModel = new DefaultListModel<>();
+
+        addUserList = new JList(addUserModel);
+        addUserList.setForeground(properties.getUserListColor());
+        addUserList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        addUserList.setBackground(properties.getChatBackColor());
+
+        addUserScrollPane = new JScrollPane(addUserList);
+
+        addUserScrollPane.setPreferredSize(new Dimension(150, 275));
+        addUserScrollPane.setPreferredSize(new Dimension(150, 275));
+        addUserScrollPane.setBorder(border());
+
+        addUser = new JButton("Add");
+        addUser.setActionCommand("addUser");
+
+        btnConfig(addUser);
+
+        addUser.setPreferredSize(new Dimension(150,30));
+
+        addUserListPanel.add(addUserOnlineLabel);
+        addUserListPanel.add(addUserScrollPane);
+        addUserListPanel.add(addUser);
+
+        addUserListForm.getContentPane().add(addUserListPanel);
+        addUserListForm.setVisible(false);
+
+        /**
+         * Метод добавляет слушателя по нажатию кнопки закрытия в окно выбора пользователя
+         */
+        addUserListForm.addWindowListener( new WindowAdapter()
+        {
+            @Override
+            public void windowClosing( WindowEvent e )
+            {
+                chatForm.setEnabled(true);
+                addUserListForm.setVisible(false);
+                chatForm.toFront();
+            }
+        } );
+
+        /**
+         * Метод добавляет слушателя по нажатию кнопки ESC в окно выбора пользователя
+         */
+        KeyStroke escapeKeyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0, false);
+        Action escapeAction = new AbstractAction() {
+            public void actionPerformed(ActionEvent e) {
+                chatForm.setEnabled(true);
+                addUserListForm.setVisible(false);
+                chatForm.toFront();
+            }
+        };
+        addUserListForm.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
+                escapeKeyStroke, "ESCAPE");
+        addUserListForm.getRootPane().getActionMap().put("ESCAPE", escapeAction);
     }
 
     /**
@@ -99,15 +181,30 @@ public class ChatForm {
         sendButton.setActionCommand("sendButton");
         sendButton.addActionListener(chatListener);
 
-        functionalPanel = new JPanel();
-        functionalPanel.setLayout(new FlowLayout());
+        addUserBtn = new JButton("Add");
+        leaveGroupBtn = new JButton("Leave");
+        addUserBtn.setActionCommand("addUserBtn");
+        leaveGroupBtn.setActionCommand("leaveGroupBtn");
 
-        functionalPanel.setBackground(new Color(97, 73, 150));
-        functionalPanel.setPreferredSize(new Dimension(182,30));
+        btnConfig(addUserBtn);
+        btnConfig(leaveGroupBtn);
 
         messageContainer.add(messageField);
         messageContainer.add(sendButton);
-        messageContainer.add(functionalPanel);
+        messageContainer.add(addUserBtn);
+        messageContainer.add(leaveGroupBtn);
+    }
+
+    /**
+     * Method configure the appearance of buttons
+     * @param btn JButton component
+     */
+    private void btnConfig(JButton btn) {
+        btn.setForeground(properties.getLabelTextColor());
+        btn.setPreferredSize(new Dimension(88,30));
+        btn.setBackground(properties.getBgColor());
+        btn.addActionListener(chatListener);
+        btn.setBorderPainted(false);
     }
 
     /**
@@ -240,7 +337,45 @@ public class ChatForm {
         });
     }
 
+    public JList getAddUserList() {
+        return addUserList;
+    }
 
+    public DefaultListModel<String> getAddUserModel() {
+        return addUserModel;
+    }
+
+    public JScrollPane getAddUserScrollPane() {
+        return addUserScrollPane;
+    }
+
+    public JFrame getAddUserListForm() {
+        return addUserListForm;
+    }
+
+    public JFrame getChatForm() {
+        return chatForm;
+    }
+
+    public JButton getSendButton() {
+        return sendButton;
+    }
+
+    public JPanel getChatContainer() {
+        return chatContainer;
+    }
+
+    public JPanel getListContainer() {
+        return listContainer;
+    }
+
+    public JPanel getMessageContainer() {
+        return messageContainer;
+    }
+
+    public JPanel getContainer() {
+        return container;
+    }
 
     public DefaultListModel<String> getModel() {
         return model;

@@ -74,13 +74,13 @@ public class ServerConnection implements ConnectionAgent {
         // регистрация
         if (message.getType() == 0) {
             if (message.getMessage().startsWith("true")) {
-                int chattingPort = Integer.parseInt(message.getMessage().substring(message.getMessage().indexOf('=')+1));
+                int chattingPort = Integer.parseInt(message.getMessage().substring(message.getMessage().indexOf('=') + 1));
                 moveToChattingSocket(chattingPort);
-                connection.user =  new User(message.getLogin(), message.getPassword());
+                connection.user = new User(message.getLogin(), message.getPassword());
                 testOnlineList = new ArrayList(Arrays.asList(message.getOnlineUsers().split("\\s")));
                 loginFormListener.getLoginForm().getLoginWindow().setVisible(false);
 
-                chatWindow(connection.user.getLogin(),this);
+                chatWindow(connection.user.getLogin(), this);
                 message.setType(3);
                 sendToServer(HandleXml.marshalling1(Message.class, message));
             } else {
@@ -96,15 +96,15 @@ public class ServerConnection implements ConnectionAgent {
 
                 System.out.println("Постоянная авторизация");
 
-                int chattingPort = Integer.parseInt(message.getMessage().substring(message.getMessage().indexOf('=')+1));
+                int chattingPort = Integer.parseInt(message.getMessage().substring(message.getMessage().indexOf('=') + 1));
                 moveToChattingSocket(chattingPort);
-                connection.user =  new User(message.getLogin(), message.getPassword());
+                connection.user = new User(message.getLogin(), message.getPassword());
                 testOnlineList = new ArrayList(Arrays.asList(message.getOnlineUsers().split("\\s")));
 
 
                 loginFormListener.getLoginForm().getLoginWindow().setVisible(false); //закрывается окошко логин формы
 
-                chatWindow(connection.user.getLogin(),this);
+                chatWindow(connection.user.getLogin(), this);
 
                 message.setType(3);
                 sendToServer(HandleXml.marshalling1(Message.class, message));
@@ -117,7 +117,7 @@ public class ServerConnection implements ConnectionAgent {
 
         // сообщение
         else if (message.getType() == 2) {
-            for (int i = 0; i < tabCount-1; i++){
+            for (int i = 0; i < tabCount - 1; i++) {
                 logger.debug("I= " + i);
                 logger.debug("То что пришло: " + message.getGroupID());
                 logger.debug("ID со вкладки: " + chatForm.getConversationPanel().getTitleAt(i));
@@ -127,16 +127,12 @@ public class ServerConnection implements ConnectionAgent {
                     sendToChat(message.getLogin(), message.getMessage(), i);
                 }
             }
-        }
-
-        else if (message.getType() == 3) { //обновляет список юзеров онлайн
+        } else if (message.getType() == 3) { //обновляет список юзеров онлайн
             logger.debug("Сработал: " + connection.user.getLogin());
             testOnlineList = new ArrayList(Arrays.asList(message.getOnlineUsers().split("\\s")));
             reNewOnlineList(testOnlineList);
             //sendToChat("WooChat", message.getLogin() + " has joined to chat.", groupID);
-        }
-
-        else if (message.getType() == 6) {   // работает только для приватного чата, когда пользователей 2!!!
+        } else if (message.getType() == 6) {   // работает только для приватного чата, когда пользователей 2!!!
             ArrayList<String> currentGroupList = message.getGroupList();
             String result = currentGroupList.get(currentGroupList.size() - 1);
             if (result.equals(connection.user.getLogin())) {
@@ -145,15 +141,16 @@ public class ServerConnection implements ConnectionAgent {
                 chatForm.addNewTab(tabCount++, currentGroupList.get(1), message.getGroupID());
             }
             tabCount++;
-        }
-
-        else if (message.getType() == 7) {
+        } else if (message.getType() == 7) {
             logger.debug("делаю setID для вкладки: " + message.getGroupID());
             chatForm.addNewTab(tabCount++, message.getGroupID(), message.getGroupID());
+        } else if (message.getType() == 8) {
+            /*
+                Возращает от сервера список пользователей, за исключением тех что уже
+                есть в группе.
+             */
         }
-
     }
-
     /**
      * Метод создает новое окно чата для авторизированного/зарегистрированного пользователя
      * @param user пользователь который успешно авторизирован
