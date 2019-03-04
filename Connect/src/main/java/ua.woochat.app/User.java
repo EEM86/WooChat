@@ -93,8 +93,8 @@ public class User implements UsersAndGroups {
         this.isBanned = isBanned;
     }
 
-    public void addGroup(String groupName) {
-        groups.add(groupName);
+    public void addGroup(String groupID) {
+        groups.add(groupID);
     }
 
     public Set getGroups() {

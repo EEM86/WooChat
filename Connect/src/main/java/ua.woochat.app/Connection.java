@@ -47,7 +47,7 @@ public class Connection implements Connect, Runnable {
             try {
                 if (socketIn.ready()) {
                     String text = socketIn.readLine();
-                    logger.debug("Test" + socket.getInetAddress() + " " + socket.getPort() + " " + socket.getLocalPort());
+                    logger.debug("Message has been received from: " + socket.getInetAddress() + ":" + socket.getLocalPort() + socket.getPort());
                     connectionAgent.receivedMessage(Connection.this, text.trim());
                 }
             } catch (IOException e) {

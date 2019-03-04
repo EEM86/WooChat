@@ -11,7 +11,7 @@ import java.util.Set;
 public class Group implements UsersAndGroups {
 
     //private ArrayList<User> usersList = new ArrayList();   // скорее всего надо работать с объектами класса Connection
-    public Set<Connection> usersList = new LinkedHashSet<>(); // tmp field
+    private Set<Connection> usersList = new LinkedHashSet<>(); // tmp field
 
     private String groupName;
     private User adminGroup;

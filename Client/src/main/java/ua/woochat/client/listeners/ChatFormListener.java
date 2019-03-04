@@ -47,6 +47,9 @@ public class ChatFormListener implements ActionListener {
             Запрашивает у сервера по команде (==8) список пользователей, которые есть онлайн,
             но их нету в группе
              */
+            Message msg = new Message(8, "");
+            msg.setGroupID("group001");
+            chatForm.getServerConnection().sendToServer(HandleXml.marshalling1(Message.class, msg));
 
             reNewAddList(virtualUserList);
             chatForm.getChatForm().setEnabled(false);
@@ -118,12 +121,11 @@ public class ChatFormListener implements ActionListener {
         String name = chatForm.getServerConnection().connection.user.getLogin();
         Message message = new Message(2, text);
         message.setLogin(name);
+        message.setGroupID(chatForm.getConversationPanel().getTitleAt(chatForm.getConversationPanel().getSelectedIndex()));
         logger.debug("Забираю ID вкладки перед отправкой сообщения: " +
                 chatForm.getConversationPanel().getTitleAt(chatForm.getConversationPanel().getSelectedIndex()));
-        message.setGroupID(chatForm.getConversationPanel().getTitleAt(chatForm.getConversationPanel().getSelectedIndex()));
-        String str = HandleXml.marshalling1(Message.class, message);
         try {
-            chatForm.getServerConnection().sendToServer(str);
+            chatForm.getServerConnection().sendToServer(HandleXml.marshalling1(Message.class, message));
         }catch (NullPointerException e){
             System.out.println("Сообщение не отправлено");
         }

@@ -28,7 +28,7 @@ public final class Server implements ConnectionAgent {
     private Map<Integer, ArrayList<String>> onlineUsers = new HashMap<>();
     ServerSocket serverConnectSocket;
     ServerSocket serverChattingSocket;
-    public Set<Group> groupsList = new LinkedHashSet<>();
+    public LinkedHashSet<Group> groupsList = new LinkedHashSet<>();
 
     /**
      * Constructor creates Server socket which waits for connections.
@@ -70,21 +70,20 @@ public final class Server implements ConnectionAgent {
 
     @Override
     public synchronized void connectionCreated(Connection data) {
+        connections.add(data);
         Set<String> currentUserGroups = data.user.getGroups();
         for (String entry: currentUserGroups) {
             for (Group group : groupsList) {
-                if (entry.equalsIgnoreCase(group.getGroupName())) {
-                    group.usersList.add(data);
+                if (entry.equalsIgnoreCase(group.getGroupID())) {
+                    //group.usersList.add(data);      --  redundant method;
                     group.addUser(data);
                     logger.debug("Users in group \"" + group.getGroupName() + "\": ");
                     group.getUsersList().stream().forEach(x -> System.out.println(x.user.getLogin())); //печатает в консоль список юзеров в группе
                 }
             }
         }
-       connections.add(data);
-//       Message messageToSend = new Message(3, "Connection added " + data);
-//       receivedMessage(connection, HandleXml.marshalling1(Message.class, messageToSend));
     }
+
     @Override
     public synchronized void connectionDisconnect(Connection data) {
         connections.remove(data);
@@ -125,12 +124,11 @@ public final class Server implements ConnectionAgent {
             //messageSend.setType(1);
             if (verificationSingIn(message.getLogin(), message.getPassword())) { // проверка существует ли имя
                 connection.user = new User(message.getLogin(), message.getPassword());
-                connection.user.addGroup("MainChat");                 // сэтим юзеру главный чат как группу
+                connection.user.addGroup("group000");                 // сэтим юзеру главный чат как группу
                 connectionCreated(connection);
                 messageSend.setLogin(message.getLogin());
                 messageSend.setMessage("true, port=" + ConfigServer.getPort("portchatting"));
                 messageSend.setOnlineUsers(getOnlineUsers());
-                System.out.println("Соединение");
                 connection.sendToOutStream(HandleXml.marshalling1(Message.class, messageSend)); // format of message: <?xml version="1.0" encoding="UTF-8" standalone="yes"?><message><password>1qa</password><login>Zhe</login><type>1</type></message>
                 moveToChattingSocket();
             } else {
@@ -151,11 +149,12 @@ public final class Server implements ConnectionAgent {
                     result = entry.getUsersList();
                     for (Connection c: result) {
                         c.sendToOutStream(HandleXml.marshalling1(Message.class, message));
+                        logger.debug("Server sent to: [" + c.user.getLogin() + "] message: \"" + message.getMessage() + "\"");
                     }
                 }
             }
-            logger.debug("Who writes from server side: " + connection.user.getLogin());
-            sendToAll(HandleXml.marshalling1(Message.class, message));
+            logger.debug("Who wrote from server side: " + connection.user.getLogin() + "\n");
+            //sendToAll(HandleXml.marshalling1(Message.class, message));
         }
 
         else if (message.getType() == 3) {
@@ -165,46 +164,66 @@ public final class Server implements ConnectionAgent {
            sendToAll(HandleXml.marshalling1(Message.class, message));
         }
 
-        else if (message.getType() == 6) {   //сделать чтобы в файл User.xml записывался
+        else if (message.getType() == 6) {   //приватный чат  + сделать чтобы группы в файл User.xml записывались
             Group group = new Group("group00" + groupsList.size());
             groupsList.add(group);
             message.setGroupID(group.getGroupID());
-            ArrayList<String> tmp = message.getGroupList();
-            for (String s: tmp) {
+            ArrayList<String> usersInCurrentGroup = message.getGroupList();
+            for (String s: usersInCurrentGroup) {
                 for (Connection entry: connections) {
                     if (entry.user.getLogin().equals(s)) {
                         entry.user.groups.add(group.getGroupID());
+                        group.addUser(entry);
                         entry.sendToOutStream(HandleXml.marshalling1(Message.class, message));
-//                        Message msg = new Message(2, "You are connected to private chat "
-//                                + group.getGroupName() + " " + group.getGroupID());
-//                        msg.setLogin(entry.user.getLogin());
-//                        entry.sendToOutStream(HandleXml.marshalling1(Message.class, msg));
+                        logger.debug("Who is in group list: ");
+                        group.getUsersList().stream().forEach(x -> System.out.println(x.user.getLogin()));
                     }
                 }
             }
         }
 
         else if (message.getType() == 7) {
-            for (Connection entry : connections) {
+            for (Connection entry: connections) {
                 if (entry.user.getLogin().equals(message.getLogin())) {
-                    //тут мы не добавили (некорректно добавили) юзара для рассылки ему сообщений
-                    //на его стороне не срабатыввает "==2". Он может отправлять, а ему нет
                     entry.user.groups.add(message.getGroupID());
-
-
-                    logger.debug("Group: " + message.getGroupID());
-                    message.setType(7);
+                    for (Group g : groupsList) {
+                        if (g.getGroupID().equals(message.getGroupID())) {
+                            g.addUser(entry);
+                        }
+                    }
+//                    Group res = groupsList.stream().filter(x -> x.getGroupID().equals(message.getGroupID())).findFirst().get();
+//                    res.addUser(entry);
                     entry.sendToOutStream(HandleXml.marshalling1(Message.class, message));
                 }
             }
         }
+
+        else if (message.getType() == 8) {
+            ArrayList<String> result = new ArrayList<>();
+            for (Group g : groupsList) {
+                if (message.getGroupID().equals(g.getGroupID())) {
+                    Set<Connection> usersInGroup = g.getUsersList();
+                    for (Connection con : connections) {
+                        for (Connection c : usersInGroup) {
+                            if (!con.user.getLogin().equals(c.user.getLogin())) {
+                                result.add(con.user.getLogin());
+                                logger.debug("В список уникальных юзеров добавлен: " + con.user.getLogin());
+                            }
+                        }
+                    }
+                }
+            }
+            message.setGroupList(result); // сэтим эррей онлайн пользователей, которые не являются участниками приватной группы
+            connection.sendToOutStream(HandleXml.marshalling1(Message.class, message));
+        }
     }
 
     public void sendToAll(String text) {
-        for (Connection entry:connections) {
-            logger.info(entry.user.getLogin());
+        for (Connection entry : connections) {
+            logger.info("Who is in this group now: " + entry.user.getLogin() + ", message: " + message.getMessage());
             entry.sendToOutStream(text);
         }
+
     }
 
     private boolean verificationName(String login) {
