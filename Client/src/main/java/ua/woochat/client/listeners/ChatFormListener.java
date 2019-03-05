@@ -43,15 +43,13 @@ public class ChatFormListener implements ActionListener {
         }
 
         if (e.getActionCommand().equals("addUserBtn")) {
-            /*
-            Запрашивает у сервера по команде (==8) список пользователей, которые есть онлайн,
-            но их нету в группе
-             */
+
+            String group = chatForm.getConversationPanel().getTitleAt(chatForm.getConversationPanel().getSelectedIndex());
+
             Message msg = new Message(8, "");
-            msg.setGroupID("group001");
+            msg.setGroupID(group);
             chatForm.getServerConnection().sendToServer(HandleXml.marshalling1(Message.class, msg));
 
-            reNewAddList(virtualUserList);
             chatForm.getChatForm().setEnabled(false);
             chatForm.getAddUserListForm().setVisible(true);
         }
@@ -78,14 +76,15 @@ public class ChatFormListener implements ActionListener {
 
     /**
      * Метод обновляет список доступных для добавления пользователей
-     * @param virtualUserList спикок пользователей доступных для добавления
+     * @param list спикок пользователей доступных для добавления
      */
-    private void reNewAddList(String[] virtualUserList) {
+    public void reNewAddList(ArrayList<String> list) {
 
         chatForm.getAddUserScrollPane().setVisible(false);
         chatForm.getAddUserModel().clear();
+
         int i=0;
-        for (String entry: virtualUserList) {
+        for (String entry: list) {
             chatForm.getAddUserModel().add(i, entry);
             i++;
         }

@@ -139,11 +139,18 @@ public class ServerConnection implements ConnectionAgent {
         }
 
         else if (message.getType() == 8) {
-            /*
-                Возращает от сервера список пользователей, за исключением тех что уже
-                есть в группе.
-             */
+            logger.debug("");
             ArrayList<String> onlineUsersWithoutPrivateGroups = message.getGroupList();
+
+            /*
+            Цикл для теста того, что приходит в ответ на --8
+             */
+            int i=0;
+            for (String entry: onlineUsersWithoutPrivateGroups) {
+                logger.debug("Спикок пользователей: " + entry);
+                i++;
+            }
+            chatForm.getChatListener().reNewAddList(onlineUsersWithoutPrivateGroups);
         }
     }
 

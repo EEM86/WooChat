@@ -337,6 +337,10 @@ public class ChatForm {
         });
     }
 
+    public ChatFormListener getChatListener() {
+        return chatListener;
+    }
+
     public JList getAddUserList() {
         return addUserList;
     }
