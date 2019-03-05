@@ -60,6 +60,7 @@ public class ServerConnection implements ConnectionAgent {
 
     @Override
     public void connectionDisconnect(Connection data) {
+
     }
 
     @Override
@@ -83,6 +84,7 @@ public class ServerConnection implements ConnectionAgent {
                 loginFormListener.getLoginForm().getLoginWindow().setVisible(false); //закрывается окошко логин формы
                 chatWindow(connection.user.getLogin(), this);
 
+                chatForm.addNewTab(tabCount++, "WooChat", "group000");
                 message.setType(3);
                 sendToServer(HandleXml.marshalling1(Message.class, message));
             } else {
@@ -96,6 +98,13 @@ public class ServerConnection implements ConnectionAgent {
                             loginFormListener.getLoginForm().getLoginWindow());
                 }
             }
+        }
+
+        else if (message.getType() == 3) { //обновляет список юзеров онлайн
+            logger.debug("Сработал: " + connection.user.getLogin());
+            testOnlineList = new ArrayList(Arrays.asList(message.getOnlineUsers().split("\\s")));
+            reNewOnlineList(testOnlineList);
+            //sendToChat("WooChat", message.getLogin() + " has joined to chat.", groupID);
         }
 
         // сообщение
@@ -113,13 +122,6 @@ public class ServerConnection implements ConnectionAgent {
                     sendToChat(message.getLogin(), message.getMessage(), i);
                 }
             }
-        }
-
-        else if (message.getType() == 3) { //обновляет список юзеров онлайн
-            logger.debug("Сработал: " + connection.user.getLogin());
-            testOnlineList = new ArrayList(Arrays.asList(message.getOnlineUsers().split("\\s")));
-            reNewOnlineList(testOnlineList);
-            //sendToChat("WooChat", message.getLogin() + " has joined to chat.", groupID);
         }
 
         else if (message.getType() == 6) {   // работает только для приватного чата, когда пользователей 2!!!

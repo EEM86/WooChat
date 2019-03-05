@@ -200,16 +200,18 @@ public final class Server implements ConnectionAgent {
 
         else if (message.getType() == 8) {
             ArrayList<String> result = new ArrayList<>();
-            for (Group g : groupsList) {
+            for (Group g: groupsList) {  //groupsList - список всех групп, которые есть в WooChat
                 if (message.getGroupID().equals(g.getGroupID())) {
                     Set<Connection> usersInGroup = g.getUsersList();
-                    for (Connection con : connections) {
-                        for (Connection c : usersInGroup) {
-                            if (!con.user.getLogin().equals(c.user.getLogin())) {
-                                result.add(con.user.getLogin());
-                                logger.debug("В список уникальных юзеров добавлен: " + con.user.getLogin());
-                            }
+                    Set<Connection> tmp = new LinkedHashSet<>(connections); //connections - это список всех соединений(по сути клиентов), которые подключены к серверу
+                    for (Connection c: usersInGroup) {
+                        if (!tmp.add(c)) {
+                            tmp.remove(c);
                         }
+                    }
+                    for (Connection c : tmp) {
+                        result.add(c.user.getLogin());
+                        logger.debug("Юзер, не состоящий ни в одной из приватных групп: " + c.user.getLogin());
                     }
                 }
             }
@@ -223,7 +225,6 @@ public final class Server implements ConnectionAgent {
             logger.info("Who is in this group now: " + entry.user.getLogin() + ", message: " + message.getMessage());
             entry.sendToOutStream(text);
         }
-
     }
 
     private boolean verificationName(String login) {
@@ -235,12 +236,17 @@ public final class Server implements ConnectionAgent {
         return true;
     }
 
-    private boolean verificationSingIn(String login, String password) {
+    private boolean verificationSingIn(String login, String password) {  //переделать, чтобы выводило нужное сообщение, когда пользователь уже подключен к чату
         String path = new File("").getAbsolutePath();
         File file = new File(path + "/Server/src/main/resources/User/" + login.hashCode() + ".xml");
 
         if (file.isFile()) {
             user = (User) HandleXml.unMarshalling(file, User.class);
+            for (Connection connect : connections) {
+                if (connect.user.getLogin().equals(login)) {
+                    return false;
+                }
+            }
             if (password.equals(user.getPassword())) {
                 return true;
             }
