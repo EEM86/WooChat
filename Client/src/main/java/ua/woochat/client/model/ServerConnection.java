@@ -154,6 +154,12 @@ public class ServerConnection implements ConnectionAgent {
             }
             chatForm.getChatListener().reNewAddList(onlineUsersWithoutPrivateGroups);
         }
+
+        else if (message.getType() == 9) { //закрываем одну из вкладок, пользователь покидает группу
+            message.setType(3);
+            message.setMessage(message.getLogin() + " has left the group.");
+            sendToServer(HandleXml.marshalling1(Message.class, message));
+        }
     }
 
     /**

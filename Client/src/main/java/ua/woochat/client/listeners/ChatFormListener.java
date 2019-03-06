@@ -56,6 +56,12 @@ public class ChatFormListener implements ActionListener {
 
         if (e.getActionCommand().equals("leaveGroupBtn")) {
             logger.debug("Нажата кнопка leaveGroupBtn"); //и отсылаем на сервер сообщение о дисконнекте
+            Message msg = new Message(9, "");
+            String name = chatForm.getServerConnection().connection.user.getLogin();
+            String group = chatForm.getConversationPanel().getTitleAt(chatForm.getConversationPanel().getSelectedIndex());
+            msg.setLogin(name);
+            msg.setGroupID(group);
+            chatForm.getServerConnection().sendToServer(HandleXml.marshalling1(Message.class, msg));
         }
 
         if (e.getActionCommand().equals("addUser")) {

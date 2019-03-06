@@ -86,12 +86,13 @@ public final class Server implements ConnectionAgent {
 
     @Override
     public synchronized void connectionDisconnect(Connection data) {
+        sendToAll(data.user.getLogin() + " has disconnected. ");
         connections.remove(data);
         //receivedMessage("Client disconnected " + data);
     }
 
     @Override
-    public void receivedMessage(Connection data, String text) {
+    public void receivedMessage(Connection data, String text) { //добавить синхронайзд
         connection = data;
         try {
             message = HandleXml.unMarshallingMessage(text);
@@ -124,9 +125,10 @@ public final class Server implements ConnectionAgent {
             //messageSend.setType(1);
             if (verificationSingIn(message.getLogin(), message.getPassword())) { // проверка существует ли имя
                 connection.user = new User(message.getLogin(), message.getPassword());
-                connection.user.addGroup("group000");                 // сэтим юзеру главный чат как группу
+                connection.user.addGroup("group000");                 // сэтим юзеру главный чат как группу, переделать стрингу
                 connectionCreated(connection);
                 messageSend.setLogin(message.getLogin());
+                messageSend.setGroupID("group000");                          // переделать стрингу
                 messageSend.setMessage("true, port=" + ConfigServer.getPort("portchatting"));
                 messageSend.setOnlineUsers(getOnlineUsers());
                 connection.sendToOutStream(HandleXml.marshalling1(Message.class, messageSend)); // format of message: <?xml version="1.0" encoding="UTF-8" standalone="yes"?><message><password>1qa</password><login>Zhe</login><type>1</type></message>
@@ -161,7 +163,8 @@ public final class Server implements ConnectionAgent {
             //Message messageToSend = new Message(3, message.getMessage());
             message.setOnlineUsers(getOnlineUsers());
             //connection.sendToOutStream(HandleXml.marshalling1(Message.class, messageToSend));
-           sendToAll(HandleXml.marshalling1(Message.class, message));
+           //sendToAll(HandleXml.marshalling1(Message.class, message));
+           sendToAllGroup(message.getGroupID(), HandleXml.marshalling1(Message.class, message));
         }
 
         else if (message.getType() == 6) {   //приватный чат  + сделать чтобы группы в файл User.xml записывались
@@ -218,12 +221,44 @@ public final class Server implements ConnectionAgent {
             message.setGroupList(result); // сэтим эррей онлайн пользователей, которые не являются участниками приватной группы
             connection.sendToOutStream(HandleXml.marshalling1(Message.class, message));
         }
+
+        else if (message.getType() == 9) { // отключение пользователя с группы
+            Connection result = null;
+            for (Group g: groupsList) {
+                if (message.getGroupID().equals(g.getGroupID())) {
+                    for (Connection c : g.getUsersList()) {
+                        if (message.getLogin().equals(c.user.getLogin())) {
+                            message.setMessage(c.user.getLogin() + " has left the " + message.getGroupID());
+                            logger.debug(c.user.getLogin() + " has left the " + message.getGroupID());
+                            logger.debug("Список connection в сэте группы ДО того как " + c.user.getLogin() + " покинул группу: " + g.getUsersList().toString());
+                            g.getUsersList().remove(c);  //удаляем текущий коннекнш из сэта коннекшнов текущей группы
+                            logger.debug("Список connection в сэте группы ПОСЛЕ того как " + c.user.getLogin() + " покинул группу: " + g.getUsersList().toString());
+                            logger.debug("Список групп у юзера ДО того как юзер покинул группу " + g.getGroupID() + ": " + c.user.getGroups().toString());
+                            c.user.getGroups().remove(g.getGroupID());  //удаляем стрингу группы из поля списка групп в user
+                            logger.debug("Список групп у юзера ПОСЛЕ того как юзер покинул группу " + g.getGroupID() + ": " + c.user.getGroups().toString());
+                            c.sendToOutStream(HandleXml.marshalling1(Message.class, message));
+                        }
+                    }
+                }
+            }
+        }
     }
 
-    public void sendToAll(String text) {
+    public void sendToAll(String text) { //сделать отправку в группу
         for (Connection entry : connections) {
             logger.info("Who is in this group now: " + entry.user.getLogin() + ", message: " + message.getMessage());
             entry.sendToOutStream(text);
+        }
+    }
+
+    public void sendToAllGroup(String groupID, String text) { // отправляет сообщение всем юзерам в текущей группе
+        for (Group g: groupsList) {
+            if (groupID.equals(g.getGroupID())) {
+                for (Connection entry : g.getUsersList()) {
+                    logger.info("Method sendToAllGroup is working now. Who is in this group now: " + entry.user.getLogin() + ", message: " + message.getMessage());
+                    entry.sendToOutStream(text);
+                }
+            }
         }
     }
 

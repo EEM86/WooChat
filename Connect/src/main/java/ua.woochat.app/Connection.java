@@ -78,7 +78,7 @@ public class Connection implements Connect, Runnable {
             socket.close();
             socketIn.close();
             socketOut.close();
-            logger.debug("Client socket has closed");
+            logger.debug("Client's socket has closed");
         } catch (IOException e) {
             logger.error(Connection.this, e);
         }
@@ -90,6 +90,6 @@ public class Connection implements Connect, Runnable {
 
     @Override
     public String toString() {
-        return "[" + socket.getInetAddress().getHostAddress() + ":" + socket.getPort() + "]";
+        return "user: \"" + user.getLogin() + "\"";
     }
 }
