@@ -110,7 +110,7 @@ public final class Server implements ConnectionAgent {
                 connectionCreated(connection);
                 messageSend.setLogin(message.getLogin());
                 messageSend.setMessage("true, port=" + ConfigServer.getPort("portchatting"));
-                messageSend.setOnlineUsers(getOnlineUsers());
+                messageSend.setGroupList(getOnlineUsers());
                 connection.sendToOutStream(HandleXml.marshalling1(Message.class, messageSend));
                 moveToChattingSocket();
             } else {
@@ -131,7 +131,7 @@ public final class Server implements ConnectionAgent {
                 messageSend.setLogin(message.getLogin());
                 messageSend.setGroupID("group000");                          // переделать стрингу
                 messageSend.setMessage("true, port=" + ConfigServer.getPort("portchatting"));
-                messageSend.setOnlineUsers(getOnlineUsers());
+                messageSend.setGroupList(getOnlineUsers());
                 connection.sendToOutStream(HandleXml.marshalling1(Message.class, messageSend)); // format of message: <?xml version="1.0" encoding="UTF-8" standalone="yes"?><message><password>1qa</password><login>Zhe</login><type>1</type></message>
                 moveToChattingSocket();
             } else {
@@ -160,12 +160,16 @@ public final class Server implements ConnectionAgent {
             //sendToAll(HandleXml.marshalling1(Message.class, message));
         }
 
-        else if (message.getType() == 3) {
+        else if (message.getType() == 3) { //обновляет список всех пользователей онлайн в чате
             //Message messageToSend = new Message(3, message.getMessage());
-            message.setOnlineUsers(getOnlineUsers());
+            message.setGroupList(getOnlineUsers());
             //connection.sendToOutStream(HandleXml.marshalling1(Message.class, messageToSend));
            //sendToAll(HandleXml.marshalling1(Message.class, message));
            sendToAllGroup(message.getGroupID(), HandleXml.marshalling1(Message.class, message));
+        }
+
+        else if (message.getType() == 4) { //обновляет список пользователей в текущей группе
+
         }
 
         else if (message.getType() == 6) {   //приватный чат  + сделать чтобы группы в файл User.xml записывались
@@ -188,7 +192,7 @@ public final class Server implements ConnectionAgent {
             }
         }
 
-        else if (message.getType() == 7) {
+        else if (message.getType() == 7) { //добавление юзера в приватный чат (где уже общаются как минимум двое)
             for (Connection entry: connections) {
                 if (entry.user.getLogin().equals(message.getLogin())) {
                     entry.user.groups.add(message.getGroupID());
@@ -202,9 +206,21 @@ public final class Server implements ConnectionAgent {
                     entry.sendToOutStream(HandleXml.marshalling1(Message.class, message));
                 }
             }
+            ArrayList<String> result = new ArrayList<>();
+            for (Group g: groupsList) {
+                if (g.getGroupID().equals(message.getGroupID())) {
+                    for (Connection c : g.getUsersList()) {
+                        result.add(c.user.getLogin());
+                    }
+                }
+            }
+            message.setType(3);
+            message.setMessage(message.getLogin() + " has connected to group " + message.getGroupTitle());
+            message.setGroupList(result);
+            sendToAllGroup(message.getGroupID(), HandleXml.marshalling1(Message.class, message));
         }
 
-        else if (message.getType() == 8) {
+        else if (message.getType() == 8) { // возвращает список онлайн юзеров, которые не состоят в текущей группе
             ArrayList<String> result = new ArrayList<>();
             for (Group g: groupsList) {  //groupsList - список всех групп, которые есть в WooChat
                 if (message.getGroupID().equals(g.getGroupID())) {
@@ -231,6 +247,7 @@ public final class Server implements ConnectionAgent {
                 if (message.getGroupID().equals(g.getGroupID())) {
                     for (Connection c : g.getUsersList()) {
                         if (message.getLogin().equals(c.user.getLogin())) {
+                            message.setType(2);
                             message.setMessage(c.user.getLogin() + " has left the " + message.getGroupID());
                             logger.debug(c.user.getLogin() + " has left the " + message.getGroupID());
                             logger.debug("Список connection в сэте группы ДО того как " + c.user.getLogin() + " покинул группу: " + g.getUsersList().toString());
@@ -239,9 +256,16 @@ public final class Server implements ConnectionAgent {
                             logger.debug("Список групп у юзера ДО того как юзер покинул группу " + g.getGroupID() + ": " + c.user.getGroups().toString());
                             c.user.getGroups().remove(g.getGroupID());  //удаляем стрингу группы из поля списка групп в user
                             logger.debug("Список групп у юзера ПОСЛЕ того как юзер покинул группу " + g.getGroupID() + ": " + c.user.getGroups().toString());
-                            c.sendToOutStream(HandleXml.marshalling1(Message.class, message));
+                            sendToAllGroup(g.getGroupID(), HandleXml.marshalling1(Message.class, message));
                         }
                     }
+                    ArrayList<String> res = new ArrayList<>();
+                    for (Connection c2 : g.getUsersList()) {
+                        res.add(c2.user.getLogin());
+                    }
+                    message.setGroupList(res);
+                    message.setType(3);
+                    sendToAllGroup(g.getGroupID(), HandleXml.marshalling1(Message.class, message));
                 }
             }
         }
@@ -328,14 +352,11 @@ public final class Server implements ConnectionAgent {
 /*
 Временно сделал вывод строки, в дальнейшем хмл файл со списком надо будет передавать.
  */
-    public String getOnlineUsers() {
-        String result = "";
-//        Integer kee = 1;
-//        ArrayList<String> val = new ArrayList<>();
+    public ArrayList<String> getOnlineUsers() { // возвращает список всех онлайн пользователей
+        ArrayList<String> result = new ArrayList<>();
         for (Connection entry : connections) {
-            result += (entry.user.getLogin()) + " ";
+            result.add(entry.user.getLogin());
         }
-        //onlineUsers.put(kee, val);
         return result;
     }
 }

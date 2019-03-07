@@ -79,7 +79,7 @@ public class ServerConnection implements ConnectionAgent {
                 moveToChattingSocket(chattingPort);
 
                 connection.user = new User(message.getLogin(), message.getPassword());
-                testOnlineList = new ArrayList(Arrays.asList(message.getOnlineUsers().split("\\s")));
+                testOnlineList = message.getGroupList();
 
                 loginFormListener.getLoginForm().getLoginWindow().setVisible(false); //закрывается окошко логин формы
                 chatWindow(connection.user.getLogin(), this);
@@ -102,8 +102,10 @@ public class ServerConnection implements ConnectionAgent {
         }
 
         else if (message.getType() == 3) { //обновляет список юзеров онлайн
-            logger.debug("Сработал: " + connection.user.getLogin());
-            testOnlineList = new ArrayList(Arrays.asList(message.getOnlineUsers().split("\\s")));
+            logger.debug("Пришло название группы " + message.getGroupTitle());
+            logger.debug("Список пользователей: " + message.getGroupList().toString());
+            //testOnlineList = message.getGroupList();
+            testOnlineList = message.getGroupList();
             reNewOnlineList(testOnlineList);
             //sendToChat("WooChat", message.getLogin() + " has joined to chat.", groupID);
         }
@@ -146,16 +148,16 @@ public class ServerConnection implements ConnectionAgent {
             ArrayList<String> onlineUsersWithoutPrivateGroups = message.getGroupList();
 
             for (String entry: onlineUsersWithoutPrivateGroups) {
-                logger.debug("Спикок пользователей: " + entry);
+                logger.debug("Спиcок пользователей: " + entry);
             }
             chatForm.getChatListener().reNewAddList(onlineUsersWithoutPrivateGroups);
         }
 
-        else if (message.getType() == 9) { //закрываем одну из вкладок, пользователь покидает группу
-            message.setType(3);
-            message.setMessage(message.getLogin() + " has left the group.");
-            sendToServer(HandleXml.marshalling1(Message.class, message));
-        }
+//        else if (message.getType() == 9) { //закрываем одну из вкладок, пользователь покидает группу
+//            message.setType(3);
+//            message.setMessage(message.getLogin() + " has left the group.");
+//            sendToServer(HandleXml.marshalling1(Message.class, message));
+//        }
     }
 
     /**
@@ -218,7 +220,10 @@ public class ServerConnection implements ConnectionAgent {
     }
 
     public void leaveGroup(String groupID){
-        //connection.user.getLogin() - логин пользователя который хочет покинуть группу groupID
+        Message msg = new Message(9, "");
+        msg.setGroupID(groupID);
+        msg.setLogin(connection.user.getLogin());
         tabCount--;
+        sendToServer(HandleXml.marshalling1(Message.class, msg));
     }
 }

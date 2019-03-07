@@ -71,11 +71,9 @@ public class ChatFormListener implements ActionListener {
                 new MessageView("Выберите пользователя", chatForm.getAddUserListForm());
             }else{
                 String user2 = chatForm.getAddUserModel().get(idx);
-                if(user2.equals("Zhe")){
-                    addUserToCurrentGroup(user2, "group001");
+                    addUserToCurrentGroup(user2, chatForm.getConversationPanel().getTitleAt(chatForm.getConversationPanel().getSelectedIndex()));
                     chatForm.getChatForm().setEnabled(true);
                     chatForm.getAddUserListForm().setVisible(false);
-                }
             }
         }
     }
@@ -115,6 +113,7 @@ public class ChatFormListener implements ActionListener {
         Message msg = new Message(7, "Connected" + name + " to " + groupID);
         msg.setLogin(name);
         msg.setGroupID(groupID);
+        msg.setGroupTitle("Test_title"); // переделать тест
         chatForm.getServerConnection().sendToServer(HandleXml.marshalling1(Message.class, msg));
     }
 
@@ -137,9 +136,9 @@ public class ChatFormListener implements ActionListener {
     }
     /**
      * Метод вызывается когда пользователь покидает группу
-     * @param goupID имя группы которую покидает пользователь
+     * @param groupID имя группы которую покидает пользователь
      */
-    public void leaveGroup(String goupID){
-        chatForm.getServerConnection().leaveGroup(goupID);
+    public void pressedCloseGroup(String groupID){
+        chatForm.getServerConnection().leaveGroup(groupID);
     }
 }

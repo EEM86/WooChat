@@ -6,7 +6,6 @@ import ua.woochat.client.model.ServerConnection;
 
 import javax.swing.*;
 import javax.swing.border.Border;
-import javax.swing.border.EtchedBorder;
 import java.awt.*;
 import java.awt.event.*;
 
@@ -262,7 +261,7 @@ public class ChatForm {
                 public void actionPerformed(ActionEvent e)
                 {
                     System.out.println("Tab at index: " + index + " removed");
-                    chatListener.leaveGroup(conversationPanel.getTitleAt(index));
+                    chatListener.pressedCloseGroup(conversationPanel.getTitleAt(index));
                     logger.debug("groupID вкладки которая закрывается :" + conversationPanel.getTitleAt(index));
                     conversationPanel.remove(conversationPanel.getSelectedComponent());
                 }
