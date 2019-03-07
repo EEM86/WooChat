@@ -1,5 +1,6 @@
 package ua.woochat.client.view;
 
+import org.apache.log4j.Logger;
 import ua.woochat.client.listeners.ChatFormListener;
 import ua.woochat.client.model.ServerConnection;
 
@@ -51,6 +52,8 @@ public class ChatForm {
     private ServerConnection serverConnection;
     private String user;
     private ChatFormListener chatListener;
+
+    final static Logger logger = Logger.getLogger(ServerConnection.class);
 
     public ChatForm(WindowProperties properties, WindowImages images, String user, ServerConnection serverConnection){
 
@@ -259,6 +262,8 @@ public class ChatForm {
                 public void actionPerformed(ActionEvent e)
                 {
                     System.out.println("Tab at index: " + index + " removed");
+                    chatListener.leaveGroup(conversationPanel.getTitleAt(index));
+                    logger.debug("groupID вкладки которая закрывается :" + conversationPanel.getTitleAt(index));
                     conversationPanel.remove(conversationPanel.getSelectedComponent());
                 }
             });

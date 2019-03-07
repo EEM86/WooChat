@@ -216,4 +216,9 @@ public class ServerConnection implements ConnectionAgent {
         chatForm.getScrollPane().setVisible(true);
         chatForm.getUserOnlineLabel().setText("Online users: (" + Integer.toString(tOl.size()) + ")");
     }
+
+    public void leaveGroup(String groupID){
+        //connection.user.getLogin() - логин пользователя который хочет покинуть группу groupID
+        tabCount--;
+    }
 }

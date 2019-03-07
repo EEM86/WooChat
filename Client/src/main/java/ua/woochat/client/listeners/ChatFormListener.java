@@ -135,4 +135,11 @@ public class ChatFormListener implements ActionListener {
             System.out.println("Сообщение не отправлено");
         }
     }
+    /**
+     * Метод вызывается когда пользователь покидает группу
+     * @param goupID имя группы которую покидает пользователь
+     */
+    public void leaveGroup(String goupID){
+        chatForm.getServerConnection().leaveGroup(goupID);
+    }
 }
