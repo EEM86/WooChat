@@ -193,6 +193,8 @@ public final class Server implements ConnectionAgent {
         }
 
         else if (message.getType() == 7) { //добавление юзера в приватный чат (где уже общаются как минимум двое)
+            logger.debug("Сервер: я принял запрос на добавление: " + message.getLogin() + " в группу " + message.getGroupID());
+
             for (Connection entry: connections) {
                 if (entry.user.getLogin().equals(message.getLogin())) {
                     entry.user.groups.add(message.getGroupID());
@@ -247,18 +249,15 @@ public final class Server implements ConnectionAgent {
                 if (message.getGroupID().equals(g.getGroupID())) {
                     for (Connection c : g.getUsersList()) {
                         if (message.getLogin().equals(c.user.getLogin())) {
-                            message.setType(2);
                             message.setMessage(c.user.getLogin() + " has left the " + message.getGroupID());
-                            logger.debug(c.user.getLogin() + " has left the " + message.getGroupID());
-                            logger.debug("Список connection в сэте группы ДО того как " + c.user.getLogin() + " покинул группу: " + g.getUsersList().toString());
-                            g.getUsersList().remove(c);  //удаляем текущий коннекнш из сэта коннекшнов текущей группы
-                            logger.debug("Список connection в сэте группы ПОСЛЕ того как " + c.user.getLogin() + " покинул группу: " + g.getUsersList().toString());
-                            logger.debug("Список групп у юзера ДО того как юзер покинул группу " + g.getGroupID() + ": " + c.user.getGroups().toString());
-                            c.user.getGroups().remove(g.getGroupID());  //удаляем стрингу группы из поля списка групп в user
-                            logger.debug("Список групп у юзера ПОСЛЕ того как юзер покинул группу " + g.getGroupID() + ": " + c.user.getGroups().toString());
-                            sendToAllGroup(g.getGroupID(), HandleXml.marshalling1(Message.class, message));
+                            g.getUsersList().remove(c);
+                            c.user.getGroups().remove(g.getGroupID());
+                            break;
                         }
                     }
+                    message.setType(2);
+                    sendToAllGroup(g.getGroupID(), HandleXml.marshalling1(Message.class, message));
+
                     ArrayList<String> res = new ArrayList<>();
                     for (Connection c2 : g.getUsersList()) {
                         res.add(c2.user.getLogin());

@@ -104,21 +104,15 @@ public class ServerConnection implements ConnectionAgent {
         else if (message.getType() == 3) { //обновляет список юзеров онлайн
             logger.debug("Пришло название группы " + message.getGroupTitle());
             logger.debug("Список пользователей: " + message.getGroupList().toString());
-            //testOnlineList = message.getGroupList();
+            logger.debug("Пришел groupID: " + message.getGroupID());
             testOnlineList = message.getGroupList();
             reNewOnlineList(testOnlineList);
-            //sendToChat("WooChat", message.getLogin() + " has joined to chat.", groupID);
         }
 
         // сообщение
         else if (message.getType() == 2) {
-            logger.debug("Получили сообщение от сервера == 2 " + "from");
-            logger.debug("tabCount " + tabCount);
+
             for (int i = 0; i < tabCount; i++){
-                logger.debug("От кого пришла информация: " + message.getLogin());
-                logger.debug("I= " + i);
-                logger.debug("То что пришло: " + message.getGroupID());
-                logger.debug("ID со вкладки: " + chatForm.getConversationPanel().getTitleAt(i));
 
                 if (chatForm.getConversationPanel().getTitleAt(i).equals(message.getGroupID())) {
                     logger.debug("Нашли ID: " + message.getGroupID());
