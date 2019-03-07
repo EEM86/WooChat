@@ -5,7 +5,7 @@ import ua.woochat.client.model.ServerConnection;
 
 import javax.swing.*;
 import javax.swing.border.Border;
-import javax.swing.border.EmptyBorder;
+import javax.swing.border.EtchedBorder;
 import java.awt.*;
 import java.awt.event.*;
 
@@ -28,7 +28,6 @@ public class ChatForm {
     private JPanel listContainer;
     private JPanel messageContainer;
     private JPanel addUserListPanel;
-
 
     private DefaultListModel<String> model = new DefaultListModel();
     private DefaultListModel<String> addUserModel = new DefaultListModel();
@@ -211,18 +210,16 @@ public class ChatForm {
      * method create a chat container
      */
     private void createChatContainer() {
-
         chatContainer = new JPanel();
 
         chatContainer.setBackground(properties.getChatBackColor());
         chatContainer.setPreferredSize(new Dimension(500,400));
 
         conversationPanel = new JTabbedPane();
+        conversationPanel.setUI(new MyTabbedPaneUI(properties));
 
         conversationPanel.setPreferredSize(new Dimension(500,390));
-        conversationPanel.setBackground(properties.getChatBackColor());
-        conversationPanel.setForeground(properties.getTextColor());
-        conversationPanel.setBorder(new EmptyBorder(3, 3, 3, 3));
+
 
         chatContainer.add(conversationPanel);
     }
@@ -238,17 +235,23 @@ public class ChatForm {
         conversationPanel.addTab(null, createNewTab());
         conversationPanel.setTabComponentAt(index,new TabTitle(tabTitle,index));
         conversationPanel.setTitleAt(index,tabID);
+        conversationPanel.setSelectedIndex(index);
     }
 
     private class TabTitle extends JPanel{
-        private String title;
-
         private TabTitle(final String title, final int index){
-            this.title = title;
+
             setOpaque(false);
+
             JLabel lbl = new JLabel(title);
+
+            lbl.setForeground(properties.getTextColor());
+            lbl.setPreferredSize(new Dimension(55,13));
+
             JButton button = new JButton();
-            button.setPreferredSize(new Dimension(10, 10));
+            button.setBackground(properties.getBgColor());
+            button.setBorderPainted(false);
+            button.setPreferredSize(new Dimension(16, 16));
             button.setIcon(images.getCloseTabIcon());
 
             button.addActionListener(new ActionListener() {
@@ -271,10 +274,11 @@ public class ChatForm {
     private JPanel createNewTab() {
 
         JPanel newTab = new JPanel();
+        newTab.setBorder(BorderFactory.createLineBorder(properties.getUserListColor()));
         newTab.setBackground(properties.getChatBackColor());
 
         JTextArea chatArea = new JTextArea();
-        chatArea.setFont(new Font(null, Font.BOLD, 15));
+        chatArea.setFont(new Font(null, Font.ITALIC, 12));
         chatArea.setCaretPosition(chatArea.getDocument().getLength());
         chatArea.setBackground(properties.getChatBackColor());
         chatArea.setForeground(properties.getTextColor());
@@ -302,6 +306,10 @@ public class ChatForm {
         userOnlineLabel = new JLabel();
         userOnlineLabel.setForeground(properties.getLabelTextColor());
 
+        JLabel line = new JLabel();
+        line.setPreferredSize(new Dimension(140,10));
+        line.setIcon(images.getLine());
+
         userList = new JList(model);
         userList.setForeground(properties.getUserListColor());
 
@@ -313,6 +321,7 @@ public class ChatForm {
         scrollPane.setBorder(border());
 
         listContainer.add(userOnlineLabel);
+        listContainer.add(line);
         listContainer.add(scrollPane);
 
 
@@ -361,26 +370,6 @@ public class ChatForm {
         return chatForm;
     }
 
-    public JButton getSendButton() {
-        return sendButton;
-    }
-
-    public JPanel getChatContainer() {
-        return chatContainer;
-    }
-
-    public JPanel getListContainer() {
-        return listContainer;
-    }
-
-    public JPanel getMessageContainer() {
-        return messageContainer;
-    }
-
-    public JPanel getContainer() {
-        return container;
-    }
-
     public DefaultListModel<String> getModel() {
         return model;
     }
@@ -407,5 +396,34 @@ public class ChatForm {
 
     private Border border() {
         return BorderFactory.createEmptyBorder(0, 0, 0, 0);
+    }
+}
+
+class MyTabbedPaneUI extends javax.swing.plaf.basic.BasicTabbedPaneUI {
+
+    private WindowProperties properties;
+    public MyTabbedPaneUI(WindowProperties properties){
+        this.properties = properties;
+    }
+
+    @Override
+    protected void paintTab(Graphics g, int tabPlacement, Rectangle[] rects,
+                            int tabIndex, Rectangle iconRect, Rectangle textRect) {
+        Color savedColor = g.getColor();
+
+        g.setColor(properties.getBgColor());
+
+        g.fillRect(rects[tabIndex].x, rects[tabIndex].y,
+                rects[tabIndex].width, rects[tabIndex].height);
+
+        g.setColor(properties.getUserListColor());
+        g.drawRect(rects[tabIndex].x, rects[tabIndex].y,
+                rects[tabIndex].width, rects[tabIndex].height);
+        g.setColor(savedColor);
+    }
+
+    @Override
+    protected void paintContentBorder(Graphics g, int tabPlacement, int selectedIndex){
+        g.fillRect(0,0,0 ,0);
     }
 }

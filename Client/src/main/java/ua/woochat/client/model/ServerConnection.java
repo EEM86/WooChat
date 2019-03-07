@@ -85,6 +85,7 @@ public class ServerConnection implements ConnectionAgent {
                 chatWindow(connection.user.getLogin(), this);
 
                 chatForm.addNewTab(tabCount++, "WooChat", "group000");
+
                 message.setType(3);
                 sendToServer(HandleXml.marshalling1(Message.class, message));
             } else {
@@ -144,13 +145,8 @@ public class ServerConnection implements ConnectionAgent {
             logger.debug("");
             ArrayList<String> onlineUsersWithoutPrivateGroups = message.getGroupList();
 
-            /*
-            Цикл для теста того, что приходит в ответ на --8
-             */
-            int i=0;
             for (String entry: onlineUsersWithoutPrivateGroups) {
                 logger.debug("Спикок пользователей: " + entry);
-                i++;
             }
             chatForm.getChatListener().reNewAddList(onlineUsersWithoutPrivateGroups);
         }
