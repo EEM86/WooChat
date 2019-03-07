@@ -14,6 +14,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 public final class Server implements ConnectionAgent {
@@ -168,7 +169,9 @@ public final class Server implements ConnectionAgent {
         }
 
         else if (message.getType() == 6) {   //приватный чат  + сделать чтобы группы в файл User.xml записывались
-            Group group = new Group("group00" + groupsList.size());
+
+            Group group = new Group("group" + getUniqueID());
+            //Group group = new Group("group00" + groupsList.size());
             groupsList.add(group);
             message.setGroupID(group.getGroupID());
             ArrayList<String> usersInCurrentGroup = message.getGroupList();
@@ -243,6 +246,18 @@ public final class Server implements ConnectionAgent {
             }
         }
     }
+
+    /**
+     * Method generate an unique ID
+     * @return String type of unique ID
+     */
+        private  String getUniqueID() {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmssSSS");
+            Date now = new Date();
+            String uniqueID = dateFormat.format(now);
+            return uniqueID;
+        }
+
 
     public void sendToAll(String text) { //сделать отправку в группу
         for (Connection entry : connections) {
