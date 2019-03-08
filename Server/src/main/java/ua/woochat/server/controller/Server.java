@@ -1,12 +1,8 @@
 package ua.woochat.server.controller;
 
 import org.apache.log4j.Logger;
-import ua.woochat.app.Connection;
-import ua.woochat.app.ConnectionAgent;
-import ua.woochat.app.Message;
+import ua.woochat.app.*;
 import ua.woochat.server.model.ConfigServer;
-import ua.woochat.app.HandleXml;
-import ua.woochat.app.User;
 import ua.woochat.server.model.Group;
 
 import javax.xml.bind.JAXBException;
@@ -40,7 +36,7 @@ public final class Server implements ConnectionAgent {
         try {
             serverConnectSocket = new ServerSocket(ConfigServer.getPort("portconnection"));
             serverChattingSocket = new ServerSocket(ConfigServer.getPort("portchatting"));
-            final Group groupMain = new Group("MainGroup", "group000");
+            final Group groupMain = new Group("group000");
             groupsList.add(groupMain);
             while (true) {
                 try {
@@ -77,8 +73,9 @@ public final class Server implements ConnectionAgent {
             for (Group group : groupsList) {
                 if (entry.equalsIgnoreCase(group.getGroupID())) {
                     //group.usersList.add(data);      --  redundant method;
+                    //group.addUser(data.user.getLogin());
                     group.addUser(data);
-                    logger.debug("Users in group \"" + group.getGroupName() + "\": ");
+                    logger.debug("Users in group \"" + group.getGroupID() + "\": ");
                     group.getUsersList().stream().forEach(x -> System.out.println(x.user.getLogin())); //печатает в консоль список юзеров в группе
                 }
             }
@@ -106,17 +103,18 @@ public final class Server implements ConnectionAgent {
             //        messageSend.setType(0);
             if (verificationName(message.getLogin())) { // проверка существует ли имя
                 connection.user = new User(message.getLogin(), message.getPassword());
-                connection.user.saveUser();
+                connection.user.addGroup("group000");
+               // groupsList.iterator().next().addUser(connection);
                 connectionCreated(connection);
                 messageSend.setLogin(message.getLogin());
                 messageSend.setMessage("true, port=" + ConfigServer.getPort("portchatting"));
                 messageSend.setOnlineUsers(getOnlineUsers());
-                connection.sendToOutStream(HandleXml.marshalling1(Message.class, messageSend));
+                connection.sendToOutStream(HandleXml.marshallingWriter(Message.class, messageSend));
                 moveToChattingSocket();
             } else {
                 messageSend.setLogin(message.getLogin());
                 messageSend.setMessage("false");
-                connection.sendToOutStream(HandleXml.marshalling1(Message.class, messageSend));
+                connection.sendToOutStream(HandleXml.marshallingWriter(Message.class, messageSend));
             }
         }
 
@@ -126,18 +124,21 @@ public final class Server implements ConnectionAgent {
             //messageSend.setType(1);
             if (verificationSingIn(message.getLogin(), message.getPassword())) { // проверка существует ли имя
                 connection.user = new User(message.getLogin(), message.getPassword());
-                connection.user.addGroup("group000");                 // сэтим юзеру главный чат как группу, переделать стрингу
+               // connection.user.addGroup("group000");                 // сэтим юзеру главный чат как группу, переделать стрингу
+                connection.user.setGroups(user.getGroups());
+                connection.user.toString();
                 connectionCreated(connection);
                 messageSend.setLogin(message.getLogin());
                 messageSend.setGroupID("group000");                          // переделать стрингу
+                //messageSend.setGroupList(connection.user.getGroups());                          // переделать стрингу
                 messageSend.setMessage("true, port=" + ConfigServer.getPort("portchatting"));
                 messageSend.setOnlineUsers(getOnlineUsers());
-                connection.sendToOutStream(HandleXml.marshalling1(Message.class, messageSend)); // format of message: <?xml version="1.0" encoding="UTF-8" standalone="yes"?><message><password>1qa</password><login>Zhe</login><type>1</type></message>
+                connection.sendToOutStream(HandleXml.marshallingWriter(Message.class, messageSend)); // format of message: <?xml version="1.0" encoding="UTF-8" standalone="yes"?><message><password>1qa</password><login>Zhe</login><type>1</type></message>
                 moveToChattingSocket();
             } else {
                 messageSend.setLogin(message.getLogin());
                 messageSend.setMessage("false");
-                connection.sendToOutStream(HandleXml.marshalling1(Message.class, messageSend));
+                connection.sendToOutStream(HandleXml.marshallingWriter(Message.class, messageSend));
             }
         }
 
@@ -147,25 +148,29 @@ public final class Server implements ConnectionAgent {
 //            messageSend.setLogin(message.getLogin());
             String groupID = message.getGroupID();
             Set<Connection> result = null;
+            //Set<String> result = null;
             for (Group entry: groupsList) {
                 if (entry.getGroupID().equalsIgnoreCase(groupID)) {
+                    System.out.println("time now " + new Date());
+                    HistoryMessage historyMessage = new HistoryMessage(message.getLogin(), message.getMessage());
+                    entry.addToListMessage(historyMessage);
                     result = entry.getUsersList();
                     for (Connection c: result) {
-                        c.sendToOutStream(HandleXml.marshalling1(Message.class, message));
+                        c.sendToOutStream(HandleXml.marshallingWriter(Message.class, message));
                         logger.debug("Server sent to: [" + c.user.getLogin() + "] message: \"" + message.getMessage() + "\"");
                     }
                 }
             }
             logger.debug("Who wrote from server side: " + connection.user.getLogin() + "\n");
-            //sendToAll(HandleXml.marshalling1(Message.class, message));
+            //sendToAll(HandleXml.marshallingWriter(Message.class, message));
         }
 
         else if (message.getType() == 3) {
             //Message messageToSend = new Message(3, message.getMessage());
             message.setOnlineUsers(getOnlineUsers());
-            //connection.sendToOutStream(HandleXml.marshalling1(Message.class, messageToSend));
-           //sendToAll(HandleXml.marshalling1(Message.class, message));
-           sendToAllGroup(message.getGroupID(), HandleXml.marshalling1(Message.class, message));
+            //connection.sendToOutStream(HandleXml.marshallingWriter(Message.class, messageToSend));
+           //sendToAll(HandleXml.marshallingWriter(Message.class, message));
+           sendToAllGroup(message.getGroupID(), HandleXml.marshallingWriter(Message.class, message));
         }
 
         else if (message.getType() == 6) {   //приватный чат  + сделать чтобы группы в файл User.xml записывались
@@ -178,9 +183,10 @@ public final class Server implements ConnectionAgent {
             for (String s: usersInCurrentGroup) {
                 for (Connection entry: connections) {
                     if (entry.user.getLogin().equals(s)) {
-                        entry.user.groups.add(group.getGroupID());
+                        entry.user.addGroup(group.getGroupID());
+                        //group.addUser(entry.user.getLogin());
                         group.addUser(entry);
-                        entry.sendToOutStream(HandleXml.marshalling1(Message.class, message));
+                        entry.sendToOutStream(HandleXml.marshallingWriter(Message.class, message));
                         logger.debug("Who is in group list: ");
                         group.getUsersList().stream().forEach(x -> System.out.println(x.user.getLogin()));
                     }
@@ -194,12 +200,13 @@ public final class Server implements ConnectionAgent {
                     entry.user.groups.add(message.getGroupID());
                     for (Group g : groupsList) {
                         if (g.getGroupID().equals(message.getGroupID())) {
+                            //g.addUser(entry.user.getLogin());
                             g.addUser(entry);
                         }
                     }
 //                    Group res = groupsList.stream().filter(x -> x.getGroupID().equals(message.getGroupID())).findFirst().get();
 //                    res.addUser(entry);
-                    entry.sendToOutStream(HandleXml.marshalling1(Message.class, message));
+                    entry.sendToOutStream(HandleXml.marshallingWriter(Message.class, message));
                 }
             }
         }
@@ -222,7 +229,7 @@ public final class Server implements ConnectionAgent {
                 }
             }
             message.setGroupList(result); // сэтим эррей онлайн пользователей, которые не являются участниками приватной группы
-            connection.sendToOutStream(HandleXml.marshalling1(Message.class, message));
+            connection.sendToOutStream(HandleXml.marshallingWriter(Message.class, message));
         }
 
         else if (message.getType() == 9) { // отключение пользователя с группы
@@ -239,7 +246,7 @@ public final class Server implements ConnectionAgent {
                             logger.debug("Список групп у юзера ДО того как юзер покинул группу " + g.getGroupID() + ": " + c.user.getGroups().toString());
                             c.user.getGroups().remove(g.getGroupID());  //удаляем стрингу группы из поля списка групп в user
                             logger.debug("Список групп у юзера ПОСЛЕ того как юзер покинул группу " + g.getGroupID() + ": " + c.user.getGroups().toString());
-                            c.sendToOutStream(HandleXml.marshalling1(Message.class, message));
+                            c.sendToOutStream(HandleXml.marshallingWriter(Message.class, message));
                         }
                     }
                 }

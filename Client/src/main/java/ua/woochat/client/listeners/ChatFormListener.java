@@ -48,7 +48,7 @@ public class ChatFormListener implements ActionListener {
 
             Message msg = new Message(8, "");
             msg.setGroupID(group);
-            chatForm.getServerConnection().sendToServer(HandleXml.marshalling1(Message.class, msg));
+            chatForm.getServerConnection().sendToServer(HandleXml.marshallingWriter(Message.class, msg));
 
             chatForm.getChatForm().setEnabled(false);
             chatForm.getAddUserListForm().setVisible(true);
@@ -61,7 +61,7 @@ public class ChatFormListener implements ActionListener {
             String group = chatForm.getConversationPanel().getTitleAt(chatForm.getConversationPanel().getSelectedIndex());
             msg.setLogin(name);
             msg.setGroupID(group);
-            chatForm.getServerConnection().sendToServer(HandleXml.marshalling1(Message.class, msg));
+            chatForm.getServerConnection().sendToServer(HandleXml.marshallingWriter(Message.class, msg));
         }
 
         if (e.getActionCommand().equals("addUser")) {
@@ -108,14 +108,14 @@ public class ChatFormListener implements ActionListener {
         listUsers.add(user1);
         listUsers.add(user2);
         message.setGroupList(listUsers);
-        chatForm.getServerConnection().sendToServer(HandleXml.marshalling1(Message.class, message));
+        chatForm.getServerConnection().sendToServer(HandleXml.marshallingWriter(Message.class, message));
     }
 
     public void addUserToCurrentGroup(String name, String groupID) {
         Message msg = new Message(7, "Connected" + name + " to " + groupID);
         msg.setLogin(name);
         msg.setGroupID(groupID);
-        chatForm.getServerConnection().sendToServer(HandleXml.marshalling1(Message.class, msg));
+        chatForm.getServerConnection().sendToServer(HandleXml.marshallingWriter(Message.class, msg));
     }
 
     /**
@@ -130,7 +130,7 @@ public class ChatFormListener implements ActionListener {
         logger.debug("Забираю ID вкладки перед отправкой сообщения: " +
                 chatForm.getConversationPanel().getTitleAt(chatForm.getConversationPanel().getSelectedIndex()));
         try {
-            chatForm.getServerConnection().sendToServer(HandleXml.marshalling1(Message.class, message));
+            chatForm.getServerConnection().sendToServer(HandleXml.marshallingWriter(Message.class, message));
         }catch (NullPointerException e){
             System.out.println("Сообщение не отправлено");
         }

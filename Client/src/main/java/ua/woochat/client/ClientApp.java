@@ -1,6 +1,5 @@
 package ua.woochat.client;
 
-import ua.woochat.client.view.ChatForm;
 import ua.woochat.client.view.LoginForm;
 import ua.woochat.client.view.WindowImages;
 import ua.woochat.client.view.WindowProperties;
@@ -8,7 +7,7 @@ import ua.woochat.client.view.WindowProperties;
 /**
  * Main WooChat client application class
  * @autor Yevhen Yermolenko
- * @autor Maryia Romanovych
+ * @autor Mariia Romanovych
  * @autor Sergey Skidan
  * @version 0.9
 */

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<group>
+    <groupID>group20190308222730217</groupID>
+    <usersList>
+        <user>
+            <id>108237</id>
+            <login>mmm</login>
+            <password>11</password>
+            <groups>group000</groups>
+            <groups>group20190308131148116</groups>
+            <groups>group20190308222730217</groups>
+            <admin>false</admin>
+            <ban>false</ban>
+        </user>
+    </usersList>
+    <usersList>
+        <user>
+            <id>3264</id>
+            <login>ff</login>
+            <password>11</password>
+            <groups>group000</groups>
+            <groups>group20190308000710972</groups>
+            <groups>group20190308124010490</groups>
+            <groups>group20190308173740749</groups>
+            <groups>group20190308222730217</groups>
+            <admin>false</admin>
+            <ban>false</ban>
+        </user>
+    </usersList>
+    <queue>
+        <login>mmm</login>
+        <message>rgtg</message>
+        <time>2019-03-08T22:27:33.326+02:00</time>
+    </queue>
+    <queue>
+        <login>ff</login>
+        <message>rtg</message>
+        <time>2019-03-08T22:27:38.571+02:00</time>
+    </queue>
+    <queue>
+        <login>ff</login>
+        <message>rtgt</message>
+        <time>2019-03-08T22:27:41.246+02:00</time>
+    </queue>
+</group>

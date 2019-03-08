@@ -1,16 +1,16 @@
 package ua.woochat.app;
 
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-@XmlRootElement
+@XmlRootElement(name = "user")
 public class User implements UsersAndGroups {
     @XmlElement
     private int id;
@@ -34,7 +34,6 @@ public class User implements UsersAndGroups {
         this.id = login.hashCode();
     }
 
-
     public User() {
     }
 
@@ -55,6 +54,7 @@ public class User implements UsersAndGroups {
         }
 
     }
+
     public int getId() {
         return id;
     }
@@ -95,9 +95,34 @@ public class User implements UsersAndGroups {
 
     public void addGroup(String groupID) {
         groups.add(groupID);
+        saveUser();
     }
+
+    public void removeGroup(String groupID) {
+        groups.remove(groupID);
+        saveUser();
+    }
+
 
     public Set getGroups() {
         return groups;
+    }
+
+    @XmlElementWrapper(nillable = true)
+    public void setGroups(Set<String> groups) {
+        this.groups = groups;
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", login='" + login + '\'' +
+                ", password='" + password + '\'' +
+                ", gender=" + gender +
+                ", admin=" + admin +
+                ", isBanned=" + isBanned +
+                ", groups=" + groups +
+                '}';
     }
 }

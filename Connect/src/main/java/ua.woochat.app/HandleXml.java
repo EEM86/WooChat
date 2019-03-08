@@ -7,11 +7,9 @@ public class HandleXml {
 
     public static void marshalling(Class marshalClass, Object user, FileOutputStream stream) {
         try {
-            //создание объекта Marshaller, который выполняет сериализацию
             JAXBContext context = JAXBContext.newInstance(marshalClass);
             Marshaller marshaller = context.createMarshaller();
-
-            // сама сериализация
+            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
             marshaller.marshal(user, stream);
         } catch (PropertyException e) {
             e.printStackTrace();
@@ -20,14 +18,12 @@ public class HandleXml {
         }
     }
 
-    public static String marshalling1(Class marshClass, Object user) {
+    public static String marshallingWriter(Class marshClass, Object user) {
         StringWriter writer = new StringWriter();
         try {
-            //создание объекта Marshaller, который выполняет сериализацию
             JAXBContext context = JAXBContext.newInstance(marshClass);
             Marshaller marshaller = context.createMarshaller();
             //writer = new StringWriter();
-            // сама сериализация
             marshaller.marshal(user, writer);
         } catch (PropertyException e) {
             e.printStackTrace();
@@ -57,6 +53,7 @@ public class HandleXml {
         } catch (JAXBException e) {
             e.printStackTrace();
         }
+        System.out.println(user.toString());
         return user;
     }
 }

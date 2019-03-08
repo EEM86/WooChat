@@ -6,7 +6,6 @@ import ua.woochat.app.ConnectionAgent;
 import ua.woochat.app.HandleXml;
 import ua.woochat.app.Message;
 import ua.woochat.app.User;
-import ua.woochat.client.listeners.ChatFormListener;
 import ua.woochat.client.listeners.LoginFormListener;
 import ua.woochat.client.view.ChatForm;
 import ua.woochat.client.view.MessageView;
@@ -15,7 +14,6 @@ import ua.woochat.client.view.WindowProperties;
 
 import javax.swing.*;
 import javax.xml.bind.JAXBException;
-import java.awt.*;
 import java.io.IOException;
 import java.net.Socket;
 import java.text.SimpleDateFormat;
@@ -87,7 +85,7 @@ public class ServerConnection implements ConnectionAgent {
                 chatForm.addNewTab(tabCount++, "WooChat", "group000");
 
                 message.setType(3);
-                sendToServer(HandleXml.marshalling1(Message.class, message));
+                sendToServer(HandleXml.marshallingWriter(Message.class, message));
             } else {
                 if (message.getType() == 0) {
                     loginFormListener.getLoginForm().getLoginWindow().setEnabled(false);
@@ -154,7 +152,7 @@ public class ServerConnection implements ConnectionAgent {
         else if (message.getType() == 9) { //закрываем одну из вкладок, пользователь покидает группу
             message.setType(3);
             message.setMessage(message.getLogin() + " has left the group.");
-            sendToServer(HandleXml.marshalling1(Message.class, message));
+            sendToServer(HandleXml.marshallingWriter(Message.class, message));
         }
     }
 

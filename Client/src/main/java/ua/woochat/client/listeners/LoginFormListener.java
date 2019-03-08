@@ -8,9 +8,6 @@ import ua.woochat.client.view.MessageView;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
-import java.net.Socket;
-import java.util.ArrayList;
 
 /**
  * class defines the functionality associated with the events of pressing the buttons
@@ -108,7 +105,7 @@ public class LoginFormListener implements ActionListener {
     private void sendMessage(String account, String password, int type) {
 
         Message message = new Message(account, password, type);
-        String str = handleXml.marshalling1(Message.class, message);
+        String str = handleXml.marshallingWriter(Message.class, message);
 
         try {
             serverConnection.sendToServer(str);
