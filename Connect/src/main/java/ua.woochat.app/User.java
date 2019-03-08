@@ -7,10 +7,11 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-@XmlRootElement(name = "user")
+@XmlRootElement
 public class User implements UsersAndGroups {
     @XmlElement
     private int id;
@@ -26,6 +27,8 @@ public class User implements UsersAndGroups {
     private Gender gender;
     private boolean admin;
     private boolean isBanned;
+    private Date lastActivity = new Date();
+
     public Set<String> groups = new LinkedHashSet<>();
 
     public User(String login, String password) {
@@ -106,6 +109,14 @@ public class User implements UsersAndGroups {
 
     public Set getGroups() {
         return groups;
+    }
+
+    public Date getLastActivity() {
+        return lastActivity;
+    }
+
+    public void setLastActivity(Date lastActivity) {
+        this.lastActivity = lastActivity;
     }
 
     @XmlElementWrapper(nillable = true)

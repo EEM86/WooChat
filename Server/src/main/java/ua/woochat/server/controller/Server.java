@@ -12,8 +12,12 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public final class Server implements ConnectionAgent {
+
     final static Logger logger = Logger.getLogger(Server.class);
     private static Server server;
     private Set<Connection> connections = new LinkedHashSet<>();
@@ -32,7 +36,9 @@ public final class Server implements ConnectionAgent {
      */
     private Server() {
         ConfigServer.getConfigServer();
-        logger.debug("Server is running");
+        logger.debug("Server starting ....");
+        //verifyUsersActivityTimer();
+
         try {
             serverConnectSocket = new ServerSocket(ConfigServer.getPort("portconnection"));
             serverChattingSocket = new ServerSocket(ConfigServer.getPort("portchatting"));
@@ -52,7 +58,10 @@ public final class Server implements ConnectionAgent {
             //System.out.println("ConfigServer.setUserId(user.getId());" + user.getId());
             logger.error("Server socket exception " + e);
         }
+
     }
+
+    final ScheduledExecutorService ses = Executors.newSingleThreadScheduledExecutor();
 
     public static Server startServer() {
         if (server == null) {
@@ -171,6 +180,17 @@ public final class Server implements ConnectionAgent {
             //connection.sendToOutStream(HandleXml.marshallingWriter(Message.class, messageToSend));
            //sendToAll(HandleXml.marshallingWriter(Message.class, message));
            sendToAllGroup(message.getGroupID(), HandleXml.marshallingWriter(Message.class, message));
+            //sendToAll(HandleXml.marshalling1(Message.class, message));
+            updateUserActivity(message.getLogin());
+        }
+
+        else if (message.getType() == 3) { //обновляет список всех пользователей онлайн в чате
+            message.setGroupList(getOnlineUsers());
+           sendToAllGroup(message.getGroupID(), HandleXml.marshallingWriter(Message.class, message));
+        }
+
+        else if (message.getType() == 4) { //обновляет список пользователей в текущей группе
+
         }
 
         else if (message.getType() == 6) {   //приватный чат  + сделать чтобы группы в файл User.xml записывались
@@ -194,7 +214,9 @@ public final class Server implements ConnectionAgent {
             }
         }
 
-        else if (message.getType() == 7) {
+        else if (message.getType() == 7) { //добавление юзера в приватный чат (где уже общаются как минимум двое)
+            logger.debug("Сервер: я принял запрос на добавление: " + message.getLogin() + " в группу " + message.getGroupID());
+
             for (Connection entry: connections) {
                 if (entry.user.getLogin().equals(message.getLogin())) {
                     entry.user.groups.add(message.getGroupID());
@@ -204,14 +226,24 @@ public final class Server implements ConnectionAgent {
                             g.addUser(entry);
                         }
                     }
-//                    Group res = groupsList.stream().filter(x -> x.getGroupID().equals(message.getGroupID())).findFirst().get();
-//                    res.addUser(entry);
                     entry.sendToOutStream(HandleXml.marshallingWriter(Message.class, message));
                 }
             }
+            ArrayList<String> result = new ArrayList<>();
+            for (Group g: groupsList) {
+                if (g.getGroupID().equals(message.getGroupID())) {
+                    for (Connection c : g.getUsersList()) {
+                        result.add(c.user.getLogin());
+                    }
+                }
+            }
+            message.setType(3);
+            message.setMessage(message.getLogin() + " has connected to group " + message.getGroupID());
+            message.setGroupList(result);
+            sendToAllGroup(message.getGroupID(), HandleXml.marshallingWriter(Message.class, message));
         }
 
-        else if (message.getType() == 8) {
+        else if (message.getType() == 8) { // возвращает список онлайн юзеров, которые не состоят в текущей группе
             ArrayList<String> result = new ArrayList<>();
             for (Group g: groupsList) {  //groupsList - список всех групп, которые есть в WooChat
                 if (message.getGroupID().equals(g.getGroupID())) {
@@ -239,16 +271,21 @@ public final class Server implements ConnectionAgent {
                     for (Connection c : g.getUsersList()) {
                         if (message.getLogin().equals(c.user.getLogin())) {
                             message.setMessage(c.user.getLogin() + " has left the " + message.getGroupID());
-                            logger.debug(c.user.getLogin() + " has left the " + message.getGroupID());
-                            logger.debug("Список connection в сэте группы ДО того как " + c.user.getLogin() + " покинул группу: " + g.getUsersList().toString());
-                            g.getUsersList().remove(c);  //удаляем текущий коннекнш из сэта коннекшнов текущей группы
-                            logger.debug("Список connection в сэте группы ПОСЛЕ того как " + c.user.getLogin() + " покинул группу: " + g.getUsersList().toString());
-                            logger.debug("Список групп у юзера ДО того как юзер покинул группу " + g.getGroupID() + ": " + c.user.getGroups().toString());
-                            c.user.getGroups().remove(g.getGroupID());  //удаляем стрингу группы из поля списка групп в user
-                            logger.debug("Список групп у юзера ПОСЛЕ того как юзер покинул группу " + g.getGroupID() + ": " + c.user.getGroups().toString());
-                            c.sendToOutStream(HandleXml.marshallingWriter(Message.class, message));
+                            g.getUsersList().remove(c);
+                            c.user.getGroups().remove(g.getGroupID());
+                            break;
                         }
                     }
+                    message.setType(2);
+                    sendToAllGroup(g.getGroupID(), HandleXml.marshallingWriter(Message.class, message));
+
+                    ArrayList<String> res = new ArrayList<>();
+                    for (Connection c2 : g.getUsersList()) {
+                        res.add(c2.user.getLogin());
+                    }
+                    message.setGroupList(res);
+                    message.setType(3);
+                    sendToAllGroup(g.getGroupID(), HandleXml.marshallingWriter(Message.class, message));
                 }
             }
         }
@@ -264,7 +301,6 @@ public final class Server implements ConnectionAgent {
             String uniqueID = dateFormat.format(now);
             return uniqueID;
         }
-
 
     public void sendToAll(String text) { //сделать отправку в группу
         for (Connection entry : connections) {
@@ -335,14 +371,42 @@ public final class Server implements ConnectionAgent {
 /*
 Временно сделал вывод строки, в дальнейшем хмл файл со списком надо будет передавать.
  */
-    public String getOnlineUsers() {
-        String result = "";
-//        Integer kee = 1;
-//        ArrayList<String> val = new ArrayList<>();
+    public ArrayList<String> getOnlineUsers() { // возвращает список всех онлайн пользователей
+        ArrayList<String> result = new ArrayList<>();
         for (Connection entry : connections) {
-            result += (entry.user.getLogin()) + " ";
+            result.add(entry.user.getLogin());
         }
-        //onlineUsers.put(kee, val);
         return result;
+    }
+
+    /**
+     * Метод запускает таймер отслеживания активности пользователей
+     */
+    private void verifyUsersActivityTimer() {
+        logger.debug("Таймер запустился");
+        ses.scheduleWithFixedDelay(new Runnable() {
+            @Override
+            public void run() {
+                logger.debug("SERVER: Один раз в минуту проверяю активность всех пользователей");
+                for (Connection entry : connections) {
+                    if (connection != null){
+                        //тут реализация которая позволяет отключить пользователей неактивность которых
+                        //превышает лимит
+                        System.out.println("Пользователь: " + connection.user.getLogin() + " последняя активность: " +
+                                connection.user.getLastActivity());
+                    }
+                }
+            }
+        }, 0, 1, TimeUnit.MINUTES);
+    }
+
+    /**
+     * В этом методе обновляеться время последнего действия конкретного пользователя,
+     * в данном случае по отправке сообщения
+     * @param user имя пользователя или конкретный конекшн
+     */
+    private void updateUserActivity(String user){
+        System.out.println("SERVER: Обновляю активность пользователю: " + user);
+
     }
 }

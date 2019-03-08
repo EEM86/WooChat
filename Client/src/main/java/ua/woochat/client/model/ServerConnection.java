@@ -6,6 +6,7 @@ import ua.woochat.app.ConnectionAgent;
 import ua.woochat.app.HandleXml;
 import ua.woochat.app.Message;
 import ua.woochat.app.User;
+import ua.woochat.client.listeners.ChatFormListener;
 import ua.woochat.client.listeners.LoginFormListener;
 import ua.woochat.client.view.ChatForm;
 import ua.woochat.client.view.MessageView;
@@ -14,6 +15,7 @@ import ua.woochat.client.view.WindowProperties;
 
 import javax.swing.*;
 import javax.xml.bind.JAXBException;
+import java.awt.*;
 import java.io.IOException;
 import java.net.Socket;
 import java.text.SimpleDateFormat;
@@ -77,12 +79,13 @@ public class ServerConnection implements ConnectionAgent {
                 moveToChattingSocket(chattingPort);
 
                 connection.user = new User(message.getLogin(), message.getPassword());
-                testOnlineList = new ArrayList(Arrays.asList(message.getOnlineUsers().split("\\s")));
+                testOnlineList = message.getGroupList();
 
                 loginFormListener.getLoginForm().getLoginWindow().setVisible(false); //закрывается окошко логин формы
                 chatWindow(connection.user.getLogin(), this);
 
-                chatForm.addNewTab(tabCount++, "WooChat", "group000");
+                chatForm.addNewTab(tabCount++, "WooChat", "group000", false);
+
 
                 message.setType(3);
                 sendToServer(HandleXml.marshallingWriter(Message.class, message));
@@ -100,21 +103,17 @@ public class ServerConnection implements ConnectionAgent {
         }
 
         else if (message.getType() == 3) { //обновляет список юзеров онлайн
-            logger.debug("Сработал: " + connection.user.getLogin());
-            testOnlineList = new ArrayList(Arrays.asList(message.getOnlineUsers().split("\\s")));
+            logger.debug("Пришло название группы " + message.getGroupTitle());
+            logger.debug("Список пользователей: " + message.getGroupList().toString());
+            logger.debug("Пришел groupID: " + message.getGroupID());
+            testOnlineList = message.getGroupList();
             reNewOnlineList(testOnlineList);
-            //sendToChat("WooChat", message.getLogin() + " has joined to chat.", groupID);
         }
 
         // сообщение
         else if (message.getType() == 2) {
-            logger.debug("Получили сообщение от сервера == 2 " + "from");
-            logger.debug("tabCount " + tabCount);
+
             for (int i = 0; i < tabCount; i++){
-                logger.debug("От кого пришла информация: " + message.getLogin());
-                logger.debug("I= " + i);
-                logger.debug("То что пришло: " + message.getGroupID());
-                logger.debug("ID со вкладки: " + chatForm.getConversationPanel().getTitleAt(i));
 
                 if (chatForm.getConversationPanel().getTitleAt(i).equals(message.getGroupID())) {
                     logger.debug("Нашли ID: " + message.getGroupID());
@@ -127,16 +126,16 @@ public class ServerConnection implements ConnectionAgent {
             ArrayList<String> currentGroupList = message.getGroupList();
             String result = currentGroupList.get(currentGroupList.size() - 1);
             if (result.equals(connection.user.getLogin())) {
-                chatForm.addNewTab(tabCount++, currentGroupList.get(0), message.getGroupID());
+                chatForm.addNewTab(tabCount++, currentGroupList.get(0), message.getGroupID(),true);
             } else {
-                chatForm.addNewTab(tabCount++, currentGroupList.get(1), message.getGroupID());
+                chatForm.addNewTab(tabCount++, currentGroupList.get(1), message.getGroupID(),true);
             }
             logger.debug("делаю setID для вкладки: " + message.getGroupID());
         }
 
         else if (message.getType() == 7) {
             logger.debug("делаю setID для вкладки: " + message.getGroupID());
-            chatForm.addNewTab(tabCount++, message.getGroupID(), message.getGroupID());
+            chatForm.addNewTab(tabCount++, message.getGroupID(), message.getGroupID(),true);
         }
 
         else if (message.getType() == 8) {
@@ -144,16 +143,16 @@ public class ServerConnection implements ConnectionAgent {
             ArrayList<String> onlineUsersWithoutPrivateGroups = message.getGroupList();
 
             for (String entry: onlineUsersWithoutPrivateGroups) {
-                logger.debug("Спикок пользователей: " + entry);
+                logger.debug("Спиcок пользователей: " + entry);
             }
             chatForm.getChatListener().reNewAddList(onlineUsersWithoutPrivateGroups);
         }
 
-        else if (message.getType() == 9) { //закрываем одну из вкладок, пользователь покидает группу
+/*        else if (message.getType() == 9) { //закрываем одну из вкладок, пользователь покидает группу
             message.setType(3);
             message.setMessage(message.getLogin() + " has left the group.");
             sendToServer(HandleXml.marshallingWriter(Message.class, message));
-        }
+        }*/
     }
 
     /**
@@ -213,5 +212,13 @@ public class ServerConnection implements ConnectionAgent {
 
         chatForm.getScrollPane().setVisible(true);
         chatForm.getUserOnlineLabel().setText("Online users: (" + Integer.toString(tOl.size()) + ")");
+    }
+
+    public void leaveGroup(String groupID){
+        Message msg = new Message(9, "");
+        msg.setGroupID(groupID);
+        msg.setLogin(connection.user.getLogin());
+        tabCount--;
+        sendToServer(HandleXml.marshallingWriter(Message.class, msg));
     }
 }

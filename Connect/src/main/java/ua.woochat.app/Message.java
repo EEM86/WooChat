@@ -10,8 +10,9 @@ public class Message implements Serializable {
     private String login;
     @XmlElement
     private String password;
-    private String onlineUsers;
+    private String onlineUsers; //удалить?
     private String groupID;
+    private String groupTitle;
 
     private int type;
     public static int REGISTER_TYPE = 0;  // сделать через enum?
@@ -77,9 +78,9 @@ public class Message implements Serializable {
         return onlineUsers;
     }
 
-    public void setOnlineUsers(String onlineUsers) {
-        this.onlineUsers = onlineUsers;
-    }
+//    public void setOnlineUsers(String onlineUsers) {
+//        this.onlineUsers = onlineUsers;
+//    }
 
     public void setMessage(String message) {
         this.message = message;
@@ -105,5 +106,13 @@ public class Message implements Serializable {
 
     public void setGroupList(ArrayList<String> groupList) {
         this.groupList = groupList;
+    }
+
+    public String getGroupTitle() {
+        return groupTitle;
+    }
+
+    public void setGroupTitle(String groupTitle) {
+        this.groupTitle = groupTitle;
     }
 }

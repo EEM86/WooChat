@@ -26,7 +26,7 @@ public class ChatFormListener implements ActionListener {
             String message = chatForm.getMessageField().getText();
             if (message.equals("")){}
             else {
-                logger.debug("Сработала кнопка по нажатию мышкой");
+                logger.debug("Клиент:Сработала кнопка отправить: " + chatForm.getServerConnection().connection.user.getLogin());
                 sendMessage(message);
             }
         }
@@ -48,20 +48,21 @@ public class ChatFormListener implements ActionListener {
 
             Message msg = new Message(8, "");
             msg.setGroupID(group);
-            chatForm.getServerConnection().sendToServer(HandleXml.marshallingWriter(Message.class, msg));
+            chatForm.getServerConnection().sendToServer(HandleXml.marshalling1(Message.class, msg));
 
             chatForm.getChatForm().setEnabled(false);
             chatForm.getAddUserListForm().setVisible(true);
         }
 
         if (e.getActionCommand().equals("leaveGroupBtn")) {
-            logger.debug("Нажата кнопка leaveGroupBtn"); //и отсылаем на сервер сообщение о дисконнекте
-            Message msg = new Message(9, "");
-            String name = chatForm.getServerConnection().connection.user.getLogin();
-            String group = chatForm.getConversationPanel().getTitleAt(chatForm.getConversationPanel().getSelectedIndex());
-            msg.setLogin(name);
-            msg.setGroupID(group);
-            chatForm.getServerConnection().sendToServer(HandleXml.marshallingWriter(Message.class, msg));
+//            logger.debug("Нажата кнопка leaveGroupBtn"); //и отсылаем на сервер сообщение о дисконнекте
+//            Message msg = new Message(9, "");
+//            String name = chatForm.getServerConnection().connection.user.getLogin();
+//            String group = chatForm.getConversationPanel().getTitleAt(chatForm.getConversationPanel().getSelectedIndex());
+//            msg.setLogin(name);
+//            msg.setLogin(name);
+//            msg.setGroupID(group);
+//            chatForm.getServerConnection().sendToServer(HandleXml.marshalling1(Message.class, msg));
         }
 
         if (e.getActionCommand().equals("addUser")) {
@@ -71,11 +72,10 @@ public class ChatFormListener implements ActionListener {
                 new MessageView("Выберите пользователя", chatForm.getAddUserListForm());
             }else{
                 String user2 = chatForm.getAddUserModel().get(idx);
-                if(user2.equals("Zhe")){
-                    addUserToCurrentGroup(user2, "group001");
+                logger.debug("Добавляем пользователя: " + user2 + " в группу: " + chatForm.getConversationPanel().getTitleAt(chatForm.getConversationPanel().getSelectedIndex()));
+                    addUserToCurrentGroup(user2, chatForm.getConversationPanel().getTitleAt(chatForm.getConversationPanel().getSelectedIndex()));
                     chatForm.getChatForm().setEnabled(true);
                     chatForm.getAddUserListForm().setVisible(false);
-                }
             }
         }
     }
@@ -108,14 +108,15 @@ public class ChatFormListener implements ActionListener {
         listUsers.add(user1);
         listUsers.add(user2);
         message.setGroupList(listUsers);
-        chatForm.getServerConnection().sendToServer(HandleXml.marshallingWriter(Message.class, message));
+        chatForm.getServerConnection().sendToServer(HandleXml.marshalling1(Message.class, message));
     }
 
     public void addUserToCurrentGroup(String name, String groupID) {
         Message msg = new Message(7, "Connected" + name + " to " + groupID);
         msg.setLogin(name);
         msg.setGroupID(groupID);
-        chatForm.getServerConnection().sendToServer(HandleXml.marshallingWriter(Message.class, msg));
+        msg.setGroupTitle("Test_title"); // переделать тест
+        chatForm.getServerConnection().sendToServer(HandleXml.marshalling1(Message.class, msg));
     }
 
     /**
@@ -123,16 +124,24 @@ public class ChatFormListener implements ActionListener {
      * @param text текст сообщения
      */
     public void sendMessage(String text) {
+
         String name = chatForm.getServerConnection().connection.user.getLogin();
         Message message = new Message(2, text);
         message.setLogin(name);
         message.setGroupID(chatForm.getConversationPanel().getTitleAt(chatForm.getConversationPanel().getSelectedIndex()));
-        logger.debug("Забираю ID вкладки перед отправкой сообщения: " +
+        logger.debug("Клиент:ID вкладки c которой отправляю: " +
                 chatForm.getConversationPanel().getTitleAt(chatForm.getConversationPanel().getSelectedIndex()));
         try {
-            chatForm.getServerConnection().sendToServer(HandleXml.marshallingWriter(Message.class, message));
+            chatForm.getServerConnection().sendToServer(HandleXml.marshalling1(Message.class, message));
         }catch (NullPointerException e){
             System.out.println("Сообщение не отправлено");
         }
+    }
+    /**
+     * Метод вызывается когда пользователь покидает группу
+     * @param groupID имя группы которую покидает пользователь
+     */
+    public void pressedCloseGroup(String groupID){
+        chatForm.getServerConnection().leaveGroup(groupID);
     }
 }
