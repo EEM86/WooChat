@@ -16,8 +16,12 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public final class Server implements ConnectionAgent {
+
     final static Logger logger = Logger.getLogger(Server.class);
     private static Server server;
     private Set<Connection> connections = new LinkedHashSet<>();
@@ -36,7 +40,8 @@ public final class Server implements ConnectionAgent {
      */
     private Server() {
         ConfigServer.getConfigServer();
-        logger.debug("Server is running");
+        verifyUsersActivityTimer();
+
         try {
             serverConnectSocket = new ServerSocket(ConfigServer.getPort("portconnection"));
             serverChattingSocket = new ServerSocket(ConfigServer.getPort("portchatting"));
@@ -56,7 +61,10 @@ public final class Server implements ConnectionAgent {
             //System.out.println("ConfigServer.setUserId(user.getId());" + user.getId());
             logger.error("Server socket exception " + e);
         }
+
     }
+
+    final ScheduledExecutorService ses = Executors.newSingleThreadScheduledExecutor();
 
     public static Server startServer() {
         if (server == null) {
@@ -158,6 +166,7 @@ public final class Server implements ConnectionAgent {
             }
             logger.debug("Who wrote from server side: " + connection.user.getLogin() + "\n");
             //sendToAll(HandleXml.marshalling1(Message.class, message));
+            updateUserActivity(message.getLogin());
         }
 
         else if (message.getType() == 3) { //обновляет список всех пользователей онлайн в чате
@@ -357,5 +366,36 @@ public final class Server implements ConnectionAgent {
             result.add(entry.user.getLogin());
         }
         return result;
+    }
+
+    /**
+     * Метод запускает таймер отслеживания активности пользователей
+     */
+    private void verifyUsersActivityTimer() {
+        logger.debug("Таймер запустился");
+        ses.scheduleWithFixedDelay(new Runnable() {
+            @Override
+            public void run() {
+                logger.debug("SERVER: Один раз в минуту проверяю активность всех пользователей");
+                for (Connection entry : connections) {
+                    if (connection != null){
+                        //тут реализация которая позволяет отключить пользователей неактивность которых
+                        //превышает лимит
+                        System.out.println("Пользователь: " + connection.user.getLogin() + " последняя активность: " +
+                                connection.user.getLastActivity());
+                    }
+                }
+            }
+        }, 0, 1, TimeUnit.MINUTES);
+    }
+
+    /**
+     * В этом методе обновляеться время последнего действия конкретного пользователя,
+     * в данном случае по отправке сообщения
+     * @param user имя пользователя или конкретный конекшн
+     */
+    private void updateUserActivity(String user){
+        System.out.println("SERVER: Обновляю активность пользователю: " + user);
+
     }
 }

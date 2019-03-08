@@ -7,6 +7,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -26,6 +27,8 @@ public class User implements UsersAndGroups {
     private Gender gender;
     private boolean admin;
     private boolean isBanned;
+    private Date lastActivity = new Date();
+
     public Set<String> groups = new LinkedHashSet<>();
 
     public User(String login, String password) {
@@ -99,5 +102,13 @@ public class User implements UsersAndGroups {
 
     public Set getGroups() {
         return groups;
+    }
+
+    public Date getLastActivity() {
+        return lastActivity;
+    }
+
+    public void setLastActivity(Date lastActivity) {
+        this.lastActivity = lastActivity;
     }
 }
