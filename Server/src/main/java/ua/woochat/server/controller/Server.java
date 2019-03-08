@@ -40,7 +40,8 @@ public final class Server implements ConnectionAgent {
      */
     private Server() {
         ConfigServer.getConfigServer();
-        verifyUsersActivityTimer();
+        logger.debug("Server starting ....");
+        //verifyUsersActivityTimer();
 
         try {
             serverConnectSocket = new ServerSocket(ConfigServer.getPort("portconnection"));
@@ -170,10 +171,7 @@ public final class Server implements ConnectionAgent {
         }
 
         else if (message.getType() == 3) { //обновляет список всех пользователей онлайн в чате
-            //Message messageToSend = new Message(3, message.getMessage());
             message.setGroupList(getOnlineUsers());
-            //connection.sendToOutStream(HandleXml.marshalling1(Message.class, messageToSend));
-           //sendToAll(HandleXml.marshalling1(Message.class, message));
            sendToAllGroup(message.getGroupID(), HandleXml.marshalling1(Message.class, message));
         }
 
@@ -212,8 +210,6 @@ public final class Server implements ConnectionAgent {
                             g.addUser(entry);
                         }
                     }
-//                    Group res = groupsList.stream().filter(x -> x.getGroupID().equals(message.getGroupID())).findFirst().get();
-//                    res.addUser(entry);
                     entry.sendToOutStream(HandleXml.marshalling1(Message.class, message));
                 }
             }
@@ -289,7 +285,6 @@ public final class Server implements ConnectionAgent {
             String uniqueID = dateFormat.format(now);
             return uniqueID;
         }
-
 
     public void sendToAll(String text) { //сделать отправку в группу
         for (Connection entry : connections) {

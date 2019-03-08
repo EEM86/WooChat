@@ -84,7 +84,8 @@ public class ServerConnection implements ConnectionAgent {
                 loginFormListener.getLoginForm().getLoginWindow().setVisible(false); //закрывается окошко логин формы
                 chatWindow(connection.user.getLogin(), this);
 
-                chatForm.addNewTab(tabCount++, "WooChat", "group000");
+                chatForm.addNewTab(tabCount++, "WooChat", "group000", false);
+
 
                 message.setType(3);
                 sendToServer(HandleXml.marshalling1(Message.class, message));
@@ -125,16 +126,16 @@ public class ServerConnection implements ConnectionAgent {
             ArrayList<String> currentGroupList = message.getGroupList();
             String result = currentGroupList.get(currentGroupList.size() - 1);
             if (result.equals(connection.user.getLogin())) {
-                chatForm.addNewTab(tabCount++, currentGroupList.get(0), message.getGroupID());
+                chatForm.addNewTab(tabCount++, currentGroupList.get(0), message.getGroupID(),true);
             } else {
-                chatForm.addNewTab(tabCount++, currentGroupList.get(1), message.getGroupID());
+                chatForm.addNewTab(tabCount++, currentGroupList.get(1), message.getGroupID(),true);
             }
             logger.debug("делаю setID для вкладки: " + message.getGroupID());
         }
 
         else if (message.getType() == 7) {
             logger.debug("делаю setID для вкладки: " + message.getGroupID());
-            chatForm.addNewTab(tabCount++, message.getGroupID(), message.getGroupID());
+            chatForm.addNewTab(tabCount++, message.getGroupID(), message.getGroupID(),true);
         }
 
         else if (message.getType() == 8) {

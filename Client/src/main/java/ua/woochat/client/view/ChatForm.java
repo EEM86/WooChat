@@ -47,6 +47,7 @@ public class ChatForm {
     private JTabbedPane conversationPanel;
 
     private JTextField messageField;
+    private JTextField groupTextField;
 
     private ServerConnection serverConnection;
     private String user;
@@ -96,6 +97,12 @@ public class ChatForm {
         addUserListForm.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         addUserListForm.setResizable(false);
 
+        JLabel groupTextLabel = new JLabel("GROUP NAME:");
+        groupTextLabel.setForeground(properties.getLabelTextColor());
+
+        groupTextField = new JTextField();
+        groupTextField.setPreferredSize(new Dimension(150,20));
+
         addUserListPanel = new JPanel();
         addUserListPanel.setLayout(new FlowLayout());
         addUserListPanel.setBackground(properties.getChatBackColor());
@@ -113,8 +120,7 @@ public class ChatForm {
 
         addUserScrollPane = new JScrollPane(addUserList);
 
-        addUserScrollPane.setPreferredSize(new Dimension(150, 275));
-        addUserScrollPane.setPreferredSize(new Dimension(150, 275));
+        addUserScrollPane.setPreferredSize(new Dimension(150, 225));
         addUserScrollPane.setBorder(border());
 
         addUser = new JButton("Add");
@@ -124,6 +130,8 @@ public class ChatForm {
 
         addUser.setPreferredSize(new Dimension(150,30));
 
+        addUserListPanel.add(groupTextLabel);
+        addUserListPanel.add(groupTextField);
         addUserListPanel.add(addUserOnlineLabel);
         addUserListPanel.add(addUserScrollPane);
         addUserListPanel.add(addUser);
@@ -233,15 +241,15 @@ public class ChatForm {
      * @param tabID id вкладки, который аналогичен groupID. По нему мы будем определять в какую вкладку
      * отправлять ссобщение
      */
-    public void addNewTab(int index, String tabTitle, String tabID) {
+    public void addNewTab(int index, String tabTitle, String tabID, boolean closeable) {
         conversationPanel.addTab(null, createNewTab());
-        conversationPanel.setTabComponentAt(index,new TabTitle(tabTitle,index));
+        conversationPanel.setTabComponentAt(index,new TabTitle(tabTitle,index, closeable));
         conversationPanel.setTitleAt(index,tabID);
         conversationPanel.setSelectedIndex(index);
     }
 
     private class TabTitle extends JPanel{
-        private TabTitle(final String title, final int index){
+        private TabTitle(final String title, final int index, boolean closeable){
 
             setOpaque(false);
 
@@ -263,11 +271,16 @@ public class ChatForm {
                     System.out.println("Tab at index: " + index + " removed");
                     chatListener.pressedCloseGroup(conversationPanel.getTitleAt(index));
                     logger.debug("groupID вкладки которая закрывается :" + conversationPanel.getTitleAt(index));
-                    conversationPanel.remove(conversationPanel.getSelectedComponent());
+                    conversationPanel.removeTabAt(index);
                 }
             });
-            add(lbl, BorderLayout.CENTER);
-            add(button, BorderLayout.EAST);
+
+            if (closeable){
+                add(lbl, BorderLayout.CENTER);
+                add(button, BorderLayout.EAST);
+            }else {
+                add(lbl, BorderLayout.CENTER);
+            }
         }
     }
 
