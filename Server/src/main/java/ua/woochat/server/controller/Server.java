@@ -117,7 +117,7 @@ public final class Server implements ConnectionAgent {
                 connectionCreated(connection);
                 messageSend.setLogin(message.getLogin());
                 messageSend.setMessage("true, port=" + ConfigServer.getPort("portchatting"));
-                messageSend.setOnlineUsers(getOnlineUsers());
+                messageSend.setGroupList(getOnlineUsers());
                 connection.sendToOutStream(HandleXml.marshallingWriter(Message.class, messageSend));
                 moveToChattingSocket();
             } else {
@@ -141,7 +141,7 @@ public final class Server implements ConnectionAgent {
                 messageSend.setGroupID("group000");                          // переделать стрингу
                 //messageSend.setGroupList(connection.user.getGroups());                          // переделать стрингу
                 messageSend.setMessage("true, port=" + ConfigServer.getPort("portchatting"));
-                messageSend.setOnlineUsers(getOnlineUsers());
+                messageSend.setGroupList(getOnlineUsers());
                 connection.sendToOutStream(HandleXml.marshallingWriter(Message.class, messageSend)); // format of message: <?xml version="1.0" encoding="UTF-8" standalone="yes"?><message><password>1qa</password><login>Zhe</login><type>1</type></message>
                 moveToChattingSocket();
             } else {
@@ -171,15 +171,6 @@ public final class Server implements ConnectionAgent {
                 }
             }
             logger.debug("Who wrote from server side: " + connection.user.getLogin() + "\n");
-            //sendToAll(HandleXml.marshallingWriter(Message.class, message));
-        }
-
-        else if (message.getType() == 3) {
-            //Message messageToSend = new Message(3, message.getMessage());
-            message.setOnlineUsers(getOnlineUsers());
-            //connection.sendToOutStream(HandleXml.marshallingWriter(Message.class, messageToSend));
-           //sendToAll(HandleXml.marshallingWriter(Message.class, message));
-           sendToAllGroup(message.getGroupID(), HandleXml.marshallingWriter(Message.class, message));
             //sendToAll(HandleXml.marshalling1(Message.class, message));
             updateUserActivity(message.getLogin());
         }

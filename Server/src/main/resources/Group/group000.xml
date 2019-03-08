@@ -3,19 +3,6 @@
     <groupID>group000</groupID>
     <usersList>
         <user>
-            <id>3264</id>
-            <login>ff</login>
-            <password>11</password>
-            <groups>group000</groups>
-            <groups>group20190308000710972</groups>
-            <groups>group20190308124010490</groups>
-            <groups>group20190308173740749</groups>
-            <admin>false</admin>
-            <ban>false</ban>
-        </user>
-    </usersList>
-    <usersList>
-        <user>
             <id>3488</id>
             <login>mm</login>
             <password>11</password>
@@ -26,17 +13,17 @@
             <groups>group20190308173740749</groups>
             <admin>false</admin>
             <ban>false</ban>
+            <lastActivity>2019-03-08T23:58:11.915+02:00</lastActivity>
         </user>
     </usersList>
-    <usersList>
-        <user>
-            <id>108237</id>
-            <login>mmm</login>
-            <password>11</password>
-            <groups>group000</groups>
-            <groups>group20190308131148116</groups>
-            <admin>false</admin>
-            <ban>false</ban>
-        </user>
-    </usersList>
+    <queue>
+        <login>mm</login>
+        <message>ghfgh</message>
+        <time>2019-03-08T23:58:14.963+02:00</time>
+    </queue>
+    <queue>
+        <login>mm</login>
+        <message>gtrh</message>
+        <time>2019-03-08T23:58:16.721+02:00</time>
+    </queue>
 </group>
