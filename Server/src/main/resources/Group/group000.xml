@@ -3,32 +3,6 @@
     <groupID>group000</groupID>
     <usersList>
         <user>
-            <id>988603582</id>
-            <login>rayvoid</login>
-            <password>2788</password>
-            <groups>group000</groups>
-            <groups>group20190309140000547</groups>
-            <groups>group20190309151813920</groups>
-            <groups>group20190309152415774</groups>
-            <groups>group20190309153210911</groups>
-            <groups>group20190309153937446</groups>
-            <groups>group20190309160151527</groups>
-            <groups>group20190309161038102</groups>
-            <groups>group20190309161930176</groups>
-            <groups>group20190309162823554</groups>
-            <groups>group20190309163123231</groups>
-            <groups>group20190309164702394</groups>
-            <groups>group20190309165251177</groups>
-            <groups>group20190309165533763</groups>
-            <groups>group20190309165924547</groups>
-            <groups>group20190309170608951</groups>
-            <admin>false</admin>
-            <ban>false</ban>
-            <lastActivity>2019-03-09T17:08:52.592+02:00</lastActivity>
-        </user>
-    </usersList>
-    <usersList>
-        <user>
             <id>113</id>
             <login>q</login>
             <password>1</password>
@@ -48,9 +22,39 @@
             <groups>group20190309165533763</groups>
             <groups>group20190309165924547</groups>
             <groups>group20190309170608951</groups>
+            <groups>group20190309170907880</groups>
+            <groups>group20190309174119347</groups>
             <admin>false</admin>
             <ban>false</ban>
-            <lastActivity>2019-03-09T17:09:02.515+02:00</lastActivity>
+            <lastActivity>2019-03-09T17:50:07.050+02:00</lastActivity>
+        </user>
+    </usersList>
+    <usersList>
+        <user>
+            <id>988603582</id>
+            <login>rayvoid</login>
+            <password>2788</password>
+            <groups>group000</groups>
+            <groups>group20190309140000547</groups>
+            <groups>group20190309151813920</groups>
+            <groups>group20190309152415774</groups>
+            <groups>group20190309153210911</groups>
+            <groups>group20190309153937446</groups>
+            <groups>group20190309160151527</groups>
+            <groups>group20190309161038102</groups>
+            <groups>group20190309161930176</groups>
+            <groups>group20190309162823554</groups>
+            <groups>group20190309163123231</groups>
+            <groups>group20190309164702394</groups>
+            <groups>group20190309165251177</groups>
+            <groups>group20190309165533763</groups>
+            <groups>group20190309165924547</groups>
+            <groups>group20190309170608951</groups>
+            <groups>group20190309170907880</groups>
+            <groups>group20190309174119347</groups>
+            <admin>false</admin>
+            <ban>false</ban>
+            <lastActivity>2019-03-09T17:50:27.655+02:00</lastActivity>
         </user>
     </usersList>
 </group>

@@ -18,8 +18,6 @@ public class ChatFormListener implements ActionListener {
         this.chatForm = chatForm;
     }
 
-    private String[] virtualUserList = {"Zhe","Jon Snow", "Vasya", "Christopher"};
-
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getActionCommand().equals("sendButton")) {

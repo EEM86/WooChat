@@ -71,6 +71,8 @@ public class LoginForm {
 
         userName = new JTextField(20);
         userPassword = new JTextField(20);
+        userPassword.setActionCommand("passwordEnterPressed");
+
 
         dummyComponent = new JLabel();
         dummyComponent.setPreferredSize(new Dimension(200,15));
@@ -150,6 +152,7 @@ public class LoginForm {
         registerButton.addActionListener(loginFormListener);
         newUserButton.addActionListener(loginFormListener);
         cancelNewUserButton.addActionListener(loginFormListener);
+        userPassword.addActionListener(loginFormListener);
 
 
         loginWindow.setVisible(true);

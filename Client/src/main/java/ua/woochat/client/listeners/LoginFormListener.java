@@ -39,14 +39,7 @@ public class LoginFormListener implements ActionListener {
          * event handling associated with pressing the button singInButton
          */
         if (e.getActionCommand().equals("signInButton")) {
-            String account = loginForm.getUserName().getText();
-            String password = loginForm.getUserPassword().getText();
-
-            if (account.equals("") || password.equals("")){
-                new MessageView("Login or password must not be empty", loginForm.getLoginWindow());
-            }else{
-                sendMessage(account, password, Message.SINGIN_TYPE);
-            }
+            signIn();
         }
 
         /**
@@ -59,6 +52,10 @@ public class LoginFormListener implements ActionListener {
             loginForm.getLoginWindow().getContentPane().remove(loginForm.getLoginPanel());
             loginForm.getLoginWindow().getContentPane().add(loginForm.getRegistrationPanel());
             loginForm.getLoginWindow().setVisible(true);
+        }
+
+        if (e.getActionCommand().equals("passwordEnterPressed")) {
+            signIn();
         }
 
         /**
@@ -100,6 +97,17 @@ public class LoginFormListener implements ActionListener {
             loginForm.getLoginWindow().setVisible(true);
         }
 
+    }
+
+    private void signIn() {
+        String account = loginForm.getUserName().getText();
+        String password = loginForm.getUserPassword().getText();
+
+        if (account.equals("") || password.equals("")){
+            new MessageView("Login or password must not be empty", loginForm.getLoginWindow());
+        }else{
+            sendMessage(account, password, Message.SINGIN_TYPE);
+        }
     }
 
     private void sendMessage(String account, String password, int type) {

@@ -263,4 +263,8 @@ public class ServerConnection implements ConnectionAgent {
         tabCount--;
         sendToServer(HandleXml.marshallingWriter(Message.class, msg));
     }
+
+    public boolean isRenderComplete() {
+        return renderComplete;
+    }
 }

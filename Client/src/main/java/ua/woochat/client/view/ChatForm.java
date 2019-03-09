@@ -193,6 +193,7 @@ public class ChatForm {
         sendButton.addActionListener(chatListener);
 
         addUserBtn = new JButton("Add");
+        addUserBtn.setEnabled(false);
         leaveGroupBtn = new JButton("Leave");
         addUserBtn.setActionCommand("addUserBtn");
         leaveGroupBtn.setActionCommand("leaveGroupBtn");
@@ -232,6 +233,16 @@ public class ChatForm {
         conversationPanel.addChangeListener(new ChangeListener() {
             public void stateChanged(ChangeEvent e) {
                 serverConnection.changeTabReNewOnlineList(conversationPanel.getSelectedIndex());
+
+                if (serverConnection.isRenderComplete()){
+                if (conversationPanel.getTitleAt(conversationPanel.getSelectedIndex()).equals("group000")){
+                    logger.debug("addUserBtn.setEnabled(false);");
+                    addUserBtn.setEnabled(false);
+                }else {
+                    logger.debug("addUserBtn.setEnabled(true);");
+                    addUserBtn.setEnabled(true);
+                }
+            }
             }
         });
 
@@ -415,6 +426,10 @@ public class ChatForm {
 
     public JLabel getUserOnlineLabel() {
         return userOnlineLabel;
+    }
+
+    public JButton getAddUserBtn() {
+        return addUserBtn;
     }
 
     private Border border() {
