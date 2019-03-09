@@ -272,8 +272,10 @@ public final class Server implements ConnectionAgent {
 
                     ArrayList<String> res = new ArrayList<>();
                     for (Connection c2 : g.getUsersList()) {
+                        logger.debug("Запаковываю товарищей в ==9: " + c2.user.getLogin() );
                         res.add(c2.user.getLogin());
                     }
+
                     message.setGroupList(res);
                     message.setType(3);
                     sendToAllGroup(g.getGroupID(), HandleXml.marshallingWriter(Message.class, message));

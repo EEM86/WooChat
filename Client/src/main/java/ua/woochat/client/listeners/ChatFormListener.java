@@ -66,6 +66,7 @@ public class ChatFormListener implements ActionListener {
         }
 
         if (e.getActionCommand().equals("addUser")) {
+
             int idx = chatForm.getAddUserList().getSelectedIndex();
             if (idx == -1){
                 logger.info("task to edit not selected or missing");

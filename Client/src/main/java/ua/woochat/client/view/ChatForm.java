@@ -6,6 +6,8 @@ import ua.woochat.client.model.ServerConnection;
 
 import javax.swing.*;
 import javax.swing.border.Border;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.*;
 
@@ -226,11 +228,15 @@ public class ChatForm {
         chatContainer.setPreferredSize(new Dimension(500,400));
 
         conversationPanel = new JTabbedPane();
+
+        conversationPanel.addChangeListener(new ChangeListener() {
+            public void stateChanged(ChangeEvent e) {
+                serverConnection.changeTabReNewOnlineList(conversationPanel.getSelectedIndex());
+            }
+        });
+
         conversationPanel.setUI(new MyTabbedPaneUI(properties));
-
         conversationPanel.setPreferredSize(new Dimension(500,390));
-
-
         chatContainer.add(conversationPanel);
     }
 

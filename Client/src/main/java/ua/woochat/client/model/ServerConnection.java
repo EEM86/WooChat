@@ -14,6 +14,8 @@ import ua.woochat.client.view.WindowImages;
 import ua.woochat.client.view.WindowProperties;
 
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.xml.bind.JAXBException;
 import java.awt.*;
 import java.io.IOException;
@@ -32,6 +34,8 @@ public class ServerConnection implements ConnectionAgent {
     private WindowProperties windowProperties;
     private WindowImages windowImages;
     private int tabCount;
+    private HashMap<String, ArrayList<String>> onlineState = new HashMap<>();
+    private boolean renderComplete;
 
     final static Logger logger = Logger.getLogger(ServerConnection.class);
 
@@ -41,12 +45,15 @@ public class ServerConnection implements ConnectionAgent {
 
         this.loginFormListener = loginFormListener;
 
+        onlineState.put("group000", new ArrayList<>());
+
         try {
             socket = new Socket(ConfigClient.getServerIP(), ConfigClient.getPortConnection());
             this.connection = new Connection(this, socket);
         } catch (Exception e) {
 
         }
+
     }
 
     public void sendToServer(String text){
@@ -86,9 +93,12 @@ public class ServerConnection implements ConnectionAgent {
 
                 chatForm.addNewTab(tabCount++, "WooChat", "group000", false);
 
-
                 message.setType(3);
+                message.setGroupID("group000");
+                message.setGroupTitle("WooChat");
+
                 sendToServer(HandleXml.marshallingWriter(Message.class, message));
+
             } else {
                 if (message.getType() == 0) {
                     loginFormListener.getLoginForm().getLoginWindow().setEnabled(false);
@@ -106,8 +116,25 @@ public class ServerConnection implements ConnectionAgent {
             logger.debug("Пришло название группы " + message.getGroupTitle());
             logger.debug("Список пользователей: " + message.getGroupList().toString());
             logger.debug("Пришел groupID: " + message.getGroupID());
-            testOnlineList = message.getGroupList();
-            reNewOnlineList(testOnlineList);
+
+            if (message.getGroupID().equals("group000")){
+                onlineState.put("group000",message.getGroupList());
+                logger.debug("Записываю в group000: " + message.getGroupID());
+                logger.debug("Значение: " + message.getGroupList().toString());
+            }else{
+                logger.debug("ELSE сработал");
+                onlineState.put(message.getGroupID(),message.getGroupList());
+            }
+
+            for (int i = 0; i < tabCount; i++) {
+                String tabTitle = chatForm.getConversationPanel().getTitleAt(i);
+                for(Map.Entry<String, ArrayList<String>> entry: onlineState.entrySet()){
+                    if(tabTitle.equals(entry.getKey())){
+                        reNewOnlineList(entry.getValue());
+                    }
+                }
+            }
+            renderComplete = true;
         }
 
         // сообщение
@@ -147,12 +174,6 @@ public class ServerConnection implements ConnectionAgent {
             }
             chatForm.getChatListener().reNewAddList(onlineUsersWithoutPrivateGroups);
         }
-
-/*        else if (message.getType() == 9) { //закрываем одну из вкладок, пользователь покидает группу
-            message.setType(3);
-            message.setMessage(message.getLogin() + " has left the group.");
-            sendToServer(HandleXml.marshallingWriter(Message.class, message));
-        }*/
     }
 
     /**
@@ -175,7 +196,7 @@ public class ServerConnection implements ConnectionAgent {
         }
     }
 
-    public void sendToChat(String login, String message, int tabNumber){
+    private void sendToChat(String login, String message, int tabNumber){
         JPanel temp;
         JScrollPane sp;
         JTextArea jta;
@@ -193,6 +214,15 @@ public class ServerConnection implements ConnectionAgent {
 
         jta.append("[" + sdf.format(date) + "]" + "<" + login + ">: " + message + "\n");
         chatForm.getMessageField().setText("");
+    }
+
+    public void changeTabReNewOnlineList(int index){
+        logger.debug("Обновляю список по вкладке с groupID: "  + chatForm.getConversationPanel().getTitleAt(index));
+        if (renderComplete) {
+            if (onlineState.get(chatForm.getConversationPanel().getTitleAt(index))!=null) {
+                reNewOnlineList(onlineState.get(chatForm.getConversationPanel().getTitleAt(index)));
+            }
+        }
     }
 
     /**
@@ -214,7 +244,19 @@ public class ServerConnection implements ConnectionAgent {
         chatForm.getUserOnlineLabel().setText("Online users: (" + Integer.toString(tOl.size()) + ")");
     }
 
+    /**
+     * При нажатии на кнопку закрытия вкладки, метод отправляет серверу запрос на удаление пользователя с группы
+     * @param groupID ID группы которую пользователь хочет покинуть
+     */
     public void leaveGroup(String groupID){
+        for(Map.Entry<String, ArrayList<String>> entry: onlineState.entrySet()){
+            if (entry.getKey().equals(groupID)){
+                logger.debug("Удаляю значение по getKey" + groupID);
+                onlineState.remove(entry.getKey());
+                    break;
+            }
+        }
+
         Message msg = new Message(9, "");
         msg.setGroupID(groupID);
         msg.setLogin(connection.user.getLogin());
