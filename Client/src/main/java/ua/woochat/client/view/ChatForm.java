@@ -1,6 +1,7 @@
 package ua.woochat.client.view;
 
 import org.apache.log4j.Logger;
+import ua.woochat.app.Message;
 import ua.woochat.client.listeners.ChatFormListener;
 import ua.woochat.client.model.ServerConnection;
 
@@ -72,8 +73,19 @@ public class ChatForm {
         chatForm.getContentPane().setBackground(properties.getBgColor());
         chatForm.setBounds(700, 500, 700, 482);
         chatForm.setLocationRelativeTo(null);
-        chatForm.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        chatForm.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         chatForm.setResizable(false);
+        chatForm.addWindowListener( new WindowAdapter()
+        {
+            @Override
+            public void windowClosing( WindowEvent e )
+            {
+                // Здесь будет реакция на кнопку EXIT_ON_CLOSE
+                logger.debug("Сработала кнопка \"закрыть приложение\"");
+                serverConnection.disconnectRequest();
+                System.exit(0);
+            }
+        } );
 
         container = new JPanel();
         container.setBackground(properties.getBgColor());

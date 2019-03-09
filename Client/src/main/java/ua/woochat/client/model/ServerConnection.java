@@ -56,7 +56,7 @@ public class ServerConnection implements ConnectionAgent {
 
     }
 
-    public void sendToServer(String text){
+    public void sendToServer(String text){ //убрать этот метод, вместо него использовать connection.sendToOutStream(text);
         connection.sendToOutStream(text);
     }
 
@@ -266,5 +266,13 @@ public class ServerConnection implements ConnectionAgent {
 
     public boolean isRenderComplete() {
         return renderComplete;
+    }
+
+    public void disconnectRequest() {
+        Message msg = new Message(11, "");
+        msg.setLogin(connection.user.getLogin());
+        logger.debug("Who is here: " + connection.user.getLogin());
+        sendToServer(HandleXml.marshallingWriter(Message.class, msg));
+        //connection.disconnect();
     }
 }

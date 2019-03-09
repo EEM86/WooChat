@@ -75,9 +75,9 @@ public class Connection implements Connect, Runnable {
         thread.interrupt();
         logger.debug("Thread was interrupted");
         try {
-            socket.close();
             socketIn.close();
             socketOut.close();
+            socket.close();
             logger.debug("Client's socket has closed");
         } catch (IOException e) {
             logger.error(Connection.this, e);

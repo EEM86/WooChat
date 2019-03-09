@@ -22,8 +22,8 @@ public class Group implements UsersAndGroups {
     @XmlElement
     private String groupID;
     @XmlElement
-    //private Set<String> usersList = new LinkedHashSet<>(); // tmp field
-    private Set<Connection> usersList = new LinkedHashSet<>(); // tmp field
+    private Set<String> usersList = new LinkedHashSet<>(); // tmp field
+    //private Set<Connection> usersList = new LinkedHashSet<>(); // tmp field
     @XmlTransient
     HistoryMessage historyMessage;
     @XmlElement
@@ -47,17 +47,30 @@ public class Group implements UsersAndGroups {
         this.groupID = idGroup;
     }*/
 
-    public Set<Connection> getUsersList() {
+//public Set<Connection> getUsersList() {   --------- меняем на сэт стрингов
+//        return usersList;
+//    }
+    public Set<String> getUsersList() {
         return usersList;
     }
 
-    public void addUser (Connection connection){
-        usersList.add(connection);
+//    public void addUser (Connection connection){ --------- меняем на сэт стрингов
+//        usersList.add(connection);
+//        saveGroup();
+//    }
+
+    public void addUser (String login){
+        usersList.add(login);
         saveGroup();
     }
 
-    public void removeUser (Connection connection){
-        usersList.remove(connection);
+//    public void removeUser (Connection connection){ --------- меняем на сэт стрингов
+//        usersList.remove(connection);
+//        saveGroup();
+//    }
+
+    public void removeUser (String login){
+        usersList.remove(login);
         saveGroup();
     }
 /*    public Set<String> getUsersList() {

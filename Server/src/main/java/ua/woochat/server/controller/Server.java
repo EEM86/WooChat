@@ -81,11 +81,10 @@ public final class Server implements ConnectionAgent {
         for (String entry: currentUserGroups) {
             for (Group group : groupsList) {
                 if (entry.equalsIgnoreCase(group.getGroupID())) {
-                    //group.usersList.add(data);      --  redundant method;
-                    //group.addUser(data.user.getLogin());
-                    group.addUser(data);
+                    //group.addUser(data);   -- меняем объект connection на стрингу с логином
+                    group.addUser(data.user.getLogin());
                     logger.debug("Users in group \"" + group.getGroupID() + "\": ");
-                    group.getUsersList().stream().forEach(x -> System.out.println(x.user.getLogin())); //печатает в консоль список юзеров в группе
+                    group.getUsersList().stream().forEach(x -> System.out.println(x)); //печатает в консоль список юзеров в группе
                 }
             }
         }
@@ -93,8 +92,20 @@ public final class Server implements ConnectionAgent {
 
     @Override
     public synchronized void connectionDisconnect(Connection data) {
-        sendToAll(data.user.getLogin() + " has disconnected. ");
+        for (Group g: groupsList) {
+            //for (Connection entry: g.getUsersList()) {     -- меняем объект connection на стрингу с логином
+            for (String entry: g.getUsersList()) {
+                //if (data.user.getLogin().equals(entry.user.getLogin())) { -- меняем объект connection на стрингу с логином
+                if (data.user.getLogin().equals(entry)) {
+                    g.removeUser(entry);
+                    break;
+                }
+            }
+        }
         connections.remove(data);
+        logger.debug("Sending to all info about connection closed");
+        sendToAll(data.user.getLogin() + " has disconnected. ");
+        data.disconnect();
         //receivedMessage("Client disconnected " + data);
     }
 
@@ -155,19 +166,20 @@ public final class Server implements ConnectionAgent {
         else if (message.getType() == 2)  {
 //            Message messageSend = new Message(2, message.getMessage());
 //            messageSend.setLogin(message.getLogin());
-            String groupID = message.getGroupID();
-            Set<Connection> result = null;
+            Set<String> result = null;
+            //Set<Connection> result = null;   -- меняем объект Коннекшн на стрингу логина
             //Set<String> result = null;
             for (Group entry: groupsList) {
-                if (entry.getGroupID().equalsIgnoreCase(groupID)) {
-                    System.out.println("time now " + new Date());
+                if (entry.getGroupID().equalsIgnoreCase(message.getGroupID())) {
+                    logger.debug("time now " + new Date());
                     HistoryMessage historyMessage = new HistoryMessage(message.getLogin(), message.getMessage());
                     entry.addToListMessage(historyMessage);
                     result = entry.getUsersList();
-                    for (Connection c: result) {
-                        c.sendToOutStream(HandleXml.marshallingWriter(Message.class, message));
-                        logger.debug("Server sent to: [" + c.user.getLogin() + "] message: \"" + message.getMessage() + "\"");
-                    }
+                    //for (Connection c: result) {                    -- меняем объект Коннекшн на стрингу логина
+//                        c.sendToOutStream(HandleXml.marshallingWriter(Message.class, message));
+//                        logger.debug("Server sent to: [" + c.user.getLogin() + "] message: \"" + message.getMessage() + "\"");
+//                    }
+                    sendToAllGroup(entry.getGroupID(),HandleXml.marshallingWriter(Message.class, message)); // -- меняем объект Коннекшн на стрингу логина
                 }
             }
             logger.debug("Who wrote from server side: " + connection.user.getLogin() + "\n");
@@ -176,7 +188,7 @@ public final class Server implements ConnectionAgent {
         }
 
         else if (message.getType() == 3) { //обновляет список всех пользователей онлайн в чате
-            message.setGroupList(getOnlineUsers());
+           message.setGroupList(getOnlineUsers());
            sendToAllGroup(message.getGroupID(), HandleXml.marshallingWriter(Message.class, message));
         }
 
@@ -196,10 +208,11 @@ public final class Server implements ConnectionAgent {
                     if (entry.user.getLogin().equals(s)) {
                         entry.user.addGroup(group.getGroupID());
                         //group.addUser(entry.user.getLogin());
-                        group.addUser(entry);
+                        //group.addUser(entry);  -- меняем объект Коннекшн на стрингу логина
+                        group.addUser(entry.user.getLogin()); // -- меняем объект Коннекшн на стрингу логина
                         entry.sendToOutStream(HandleXml.marshallingWriter(Message.class, message));
                         logger.debug("Who is in group list: ");
-                        group.getUsersList().stream().forEach(x -> System.out.println(x.user.getLogin()));
+                        group.getUsersList().stream().forEach(x -> System.out.println(x));
                     }
                 }
             }
@@ -207,27 +220,30 @@ public final class Server implements ConnectionAgent {
 
         else if (message.getType() == 7) { //добавление юзера в приватный чат (где уже общаются как минимум двое)
             logger.debug("Сервер: я принял запрос на добавление: " + message.getLogin() + " в группу " + message.getGroupID());
+            ArrayList<String> result = new ArrayList<>(); // заменить Аррей на Сет?
 
             for (Connection entry: connections) {
                 if (entry.user.getLogin().equals(message.getLogin())) {
-                    entry.user.groups.add(message.getGroupID());
+                    entry.user.addGroup(message.getGroupID());
                     for (Group g : groupsList) {
                         if (g.getGroupID().equals(message.getGroupID())) {
                             //g.addUser(entry.user.getLogin());
-                            g.addUser(entry);
+                            g.addUser(entry.user.getLogin());
+                            result.addAll(g.getUsersList());
                         }
                     }
                     entry.sendToOutStream(HandleXml.marshallingWriter(Message.class, message));
                 }
             }
-            ArrayList<String> result = new ArrayList<>();
-            for (Group g: groupsList) {
-                if (g.getGroupID().equals(message.getGroupID())) {
-                    for (Connection c : g.getUsersList()) {
-                        result.add(c.user.getLogin());
-                    }
-                }
-            }
+
+
+//            for (Group g: groupsList) {
+//                if (g.getGroupID().equals(message.getGroupID())) {
+//                    for (String line : g.getUsersList()) {
+//                        result.add(line);
+//                    }
+//                }
+//            }
             message.setType(3);
             message.setMessage(message.getLogin() + " has connected to group " + message.getGroupID());
             message.setGroupList(result);
@@ -238,16 +254,19 @@ public final class Server implements ConnectionAgent {
             ArrayList<String> result = new ArrayList<>();
             for (Group g: groupsList) {  //groupsList - список всех групп, которые есть в WooChat
                 if (message.getGroupID().equals(g.getGroupID())) {
-                    Set<Connection> usersInGroup = g.getUsersList();
-                    Set<Connection> tmp = new LinkedHashSet<>(connections); //connections - это список всех соединений(по сути клиентов), которые подключены к серверу
-                    for (Connection c: usersInGroup) {
+                    //Set<Connection> usersInGroup = g.getUsersList();  -- меняем объект Коннекшн на стрингу логина
+                    //Set<Connection> tmp = new LinkedHashSet<>(connections); //connections - это список всех соединений(по сути клиентов), которые подключены к серверу
+                    //Group mainGroup = groupsList.stream().filter(x -> Objects.equals(x, "group000")).findFirst().get();
+
+                    Set<String> tmp = new LinkedHashSet<>(groupsList.iterator().next().getUsersList());
+                    for (String c: g.getUsersList()) {  //  -- меняем объект Коннекшн на стрингу логина
                         if (!tmp.add(c)) {
                             tmp.remove(c);
                         }
                     }
-                    for (Connection c : tmp) {
-                        result.add(c.user.getLogin());
-                        logger.debug("Юзер, не состоящий ни в одной из приватных групп: " + c.user.getLogin());
+                    for (String c : tmp) {
+                        result.add(c);
+                        logger.debug("Юзер, не состоящий ни в одной из приватных групп: " + c);
                     }
                 }
             }
@@ -256,14 +275,18 @@ public final class Server implements ConnectionAgent {
         }
 
         else if (message.getType() == 9) { // отключение пользователя с группы
-            Connection result = null;
             for (Group g: groupsList) {
                 if (message.getGroupID().equals(g.getGroupID())) {
-                    for (Connection c : g.getUsersList()) {
-                        if (message.getLogin().equals(c.user.getLogin())) {
-                            message.setMessage(c.user.getLogin() + " has left the " + message.getGroupID());
-                            g.getUsersList().remove(c);
-                            c.user.getGroups().remove(g.getGroupID());
+                    for (String c : g.getUsersList()) {
+                        if (message.getLogin().equals(c)) {
+                            for (Connection findUser: connections) {
+                                if (findUser.user.getLogin().equals(c)) {
+                                    findUser.user.removeGroup(g.getGroupID());
+                                }
+                            }
+                            message.setMessage(c + " has left the " + message.getGroupID());
+                            g.removeUser(c);
+                            //c.user.getGroups().remove(g.getGroupID());
                             break;
                         }
                     }
@@ -271,9 +294,9 @@ public final class Server implements ConnectionAgent {
                     sendToAllGroup(g.getGroupID(), HandleXml.marshallingWriter(Message.class, message));
 
                     ArrayList<String> res = new ArrayList<>();
-                    for (Connection c2 : g.getUsersList()) {
-                        logger.debug("Запаковываю товарищей в ==9: " + c2.user.getLogin() );
-                        res.add(c2.user.getLogin());
+                    for (String c2 : g.getUsersList()) {
+                        logger.debug("Запаковываю товарищей в ==9: " + c2 );
+                        res.add(c2);
                     }
 
                     message.setGroupList(res);
@@ -281,6 +304,10 @@ public final class Server implements ConnectionAgent {
                     sendToAllGroup(g.getGroupID(), HandleXml.marshallingWriter(Message.class, message));
                 }
             }
+        }
+
+        else if (message.getType() == 11) { // выход из чата крестиком
+            connectionDisconnect(connection);
         }
     }
 
@@ -295,19 +322,23 @@ public final class Server implements ConnectionAgent {
             return uniqueID;
         }
 
-    public void sendToAll(String text) { //сделать отправку в группу
+    public void sendToAll(String text) { //сделать отправку не стрингой, а месседжем
         for (Connection entry : connections) {
             logger.info("Who is in this group now: " + entry.user.getLogin() + ", message: " + message.getMessage());
-            entry.sendToOutStream(text);
+            entry.sendToOutStream("<WooChat>: " + text);
         }
     }
 
     public void sendToAllGroup(String groupID, String text) { // отправляет сообщение всем юзерам в текущей группе
         for (Group g: groupsList) {
             if (groupID.equals(g.getGroupID())) {
-                for (Connection entry : g.getUsersList()) {
-                    logger.info("Method sendToAllGroup is working now. Who is in this group now: " + entry.user.getLogin() + ", message: " + message.getMessage());
-                    entry.sendToOutStream(text);
+                for (String line : g.getUsersList()) {
+                    for (Connection entry: connections) {
+                        if (entry.user.getLogin().equals(line)) {
+                            logger.info("Method sendToAllGroup is working now. Who is in this group now: " + line + ", message: " + message.getMessage());
+                            entry.sendToOutStream(text);
+                        }
+                    }
                 }
             }
         }
