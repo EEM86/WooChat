@@ -14,6 +14,7 @@ public class Connection implements Connect, Runnable {
     private BufferedWriter socketOut;
     private final Thread thread;
     private final ConnectionAgent connectionAgent;
+    private boolean socketIsOpened = true;
     private static final Logger logger = Logger.getLogger(Connection.class);
 
     public Connection(ConnectionAgent connectionAgent, Socket socket) throws IOException {
@@ -43,7 +44,7 @@ public class Connection implements Connect, Runnable {
      */
     @Override
     public void run() {
-        while(true) {
+        while(socketIsOpened) {
             try {
                 if (socketIn.ready()) {
                     String text = socketIn.readLine();
@@ -51,7 +52,12 @@ public class Connection implements Connect, Runnable {
                     connectionAgent.receivedMessage(Connection.this, text.trim());
                 }
             } catch (IOException e) {
-                logger.error("Error with connection creation" + e);
+                logger.error("Error with connection creation " + e);
+                try {
+                    Thread.sleep(1500);
+                } catch (InterruptedException e1) {
+                    e1.printStackTrace();
+                }
             }
         }
     }
@@ -73,12 +79,13 @@ public class Connection implements Connect, Runnable {
     @Override
     public void disconnect() {
         thread.interrupt();
+        socketIsOpened = false;
         logger.debug("Thread was interrupted");
         try {
+            socket.close();
             socketIn.close();
             socketOut.close();
-            socket.close();
-            logger.debug("Client's socket has closed");
+            logger.debug("Socket was closed");
         } catch (IOException e) {
             logger.error(Connection.this, e);
         }
@@ -88,8 +95,8 @@ public class Connection implements Connect, Runnable {
         return thread;
     }
 
-    @Override
-    public String toString() {
-        return "user: \"" + user.getLogin() + "\"";
-    }
+//    @Override
+//    public String toString() {
+//        return "user: \"" + user.getLogin() + "\"";
+//    }
 }

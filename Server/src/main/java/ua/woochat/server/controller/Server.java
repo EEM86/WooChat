@@ -92,19 +92,24 @@ public final class Server implements ConnectionAgent {
 
     @Override
     public synchronized void connectionDisconnect(Connection data) {
+        connections.remove(data);
+        String deletedUser = "";
         for (Group g: groupsList) {
             //for (Connection entry: g.getUsersList()) {     -- меняем объект connection на стрингу с логином
             for (String entry: g.getUsersList()) {
                 //if (data.user.getLogin().equals(entry.user.getLogin())) { -- меняем объект connection на стрингу с логином
                 if (data.user.getLogin().equals(entry)) {
+                    deletedUser = entry;
                     g.removeUser(entry);
                     break;
                 }
             }
         }
-        connections.remove(data);
         logger.debug("Sending to all info about connection closed");
-        sendToAll(data.user.getLogin() + " has disconnected. ");
+        Message msg = new Message(2, " has disconnected.");
+        msg.setLogin(deletedUser);
+        //msg.setGroupID("group000");
+        sendToAll(HandleXml.marshallingWriter(Message.class, msg));
         data.disconnect();
         //receivedMessage("Client disconnected " + data);
     }
@@ -323,19 +328,24 @@ public final class Server implements ConnectionAgent {
         }
 
     public void sendToAll(String text) { //сделать отправку не стрингой, а месседжем
-        for (Connection entry : connections) {
-            logger.info("Who is in this group now: " + entry.user.getLogin() + ", message: " + message.getMessage());
-            entry.sendToOutStream("<WooChat>: " + text);
+        for (Connection entry: connections) {
+            for (Group g : groupsList) {
+                for (String s : g.getUsersList()) {
+                    if (entry.user.getLogin().equals(s)) {
+                        entry.sendToOutStream(text);
+                    }
+                }
+            }
         }
     }
 
     public void sendToAllGroup(String groupID, String text) { // отправляет сообщение всем юзерам в текущей группе
         for (Group g: groupsList) {
             if (groupID.equals(g.getGroupID())) {
-                for (String line : g.getUsersList()) {
+                for (String line: g.getUsersList()) {
                     for (Connection entry: connections) {
                         if (entry.user.getLogin().equals(line)) {
-                            logger.info("Method sendToAllGroup is working now. Who is in this group now: " + line + ", message: " + message.getMessage());
+                            logger.info("Method sendToAllGroup is working now. Who is in this group now: " + line + ", message: " + text);
                             entry.sendToOutStream(text);
                         }
                     }
