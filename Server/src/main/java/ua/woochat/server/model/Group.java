@@ -1,11 +1,11 @@
 package ua.woochat.server.model;
 
-import ua.woochat.app.Connection;
 import ua.woochat.app.HandleXml;
 import ua.woochat.app.HistoryMessage;
 import ua.woochat.app.UsersAndGroups;
 
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 import java.io.File;
@@ -21,16 +21,20 @@ import java.util.concurrent.ArrayBlockingQueue;
 public class Group implements UsersAndGroups {
     @XmlElement
     private String groupID;
-    @XmlElement
-    private Set<String> usersList = new LinkedHashSet<>(); // tmp field
-    //private Set<Connection> usersList = new LinkedHashSet<>(); // tmp field
+    @XmlElementWrapper(name="Users-List", nillable = true)
+    @XmlElement(name="user")
+    private Set<String> usersList = new LinkedHashSet<>();
+
+    @XmlElementWrapper(name="Online-Users-List", nillable = true)
+    @XmlElement(name="Online-user")
+    private Set<String> onlineUsersList = new LinkedHashSet<>();
+
     @XmlTransient
     HistoryMessage historyMessage;
     @XmlElement
     private static ArrayBlockingQueue<HistoryMessage> queue = null;
    // private String groupName;
    // private User adminGroup;
-
 
     public Group() {
     }
@@ -41,51 +45,33 @@ public class Group implements UsersAndGroups {
         saveGroup();
     }
 
-
-   /* public Group(String groupName, String idGroup) {
-        this.groupName = groupName;
-        this.groupID = idGroup;
-    }*/
-
-//public Set<Connection> getUsersList() {   --------- меняем на сэт стрингов
-//        return usersList;
-//    }
     public Set<String> getUsersList() {
         return usersList;
     }
-
-//    public void addUser (Connection connection){ --------- меняем на сэт стрингов
-//        usersList.add(connection);
-//        saveGroup();
-//    }
 
     public void addUser (String login){
         usersList.add(login);
         saveGroup();
     }
 
-//    public void removeUser (Connection connection){ --------- меняем на сэт стрингов
-//        usersList.remove(connection);
-//        saveGroup();
-//    }
-
     public void removeUser (String login){
         usersList.remove(login);
         saveGroup();
     }
-/*    public Set<String> getUsersList() {
-        return usersList;
+
+    public Set<String> getOnlineUsersList () {
+        return onlineUsersList;
     }
 
-    public void addUser (String usersLogin){
-        usersList.add(usersLogin);
+    public void addOnlineUser (String login){
+        onlineUsersList.add(login);
         saveGroup();
     }
 
-    public void removeUser (String usersLogin){
-        usersList.remove(usersLogin);
+    public void removeOnlineUser (String login){
+        onlineUsersList.remove(login);
         saveGroup();
-    }*/
+    }
 
     public String getGroupID() {
         return groupID;

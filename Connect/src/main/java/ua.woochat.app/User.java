@@ -29,6 +29,8 @@ public class User implements UsersAndGroups {
     private boolean isBanned;
     private Date lastActivity = new Date();
 
+    @XmlElementWrapper(name="ListGroup", nillable = true)
+    @XmlElement(name="group")
     public Set<String> groups = new LinkedHashSet<>();
 
     public User(String login, String password) {

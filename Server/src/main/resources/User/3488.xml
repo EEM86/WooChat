@@ -3,11 +3,13 @@
     <id>3488</id>
     <login>mm</login>
     <password>11</password>
-    <groups>group000</groups>
-    <groups>group20190308000710972</groups>
-    <groups>group20190308124010490</groups>
-    <groups>group20190308131148116</groups>
-    <groups>group20190308173740749</groups>
+    <ListGroup>
+        <group>group000</group>
+        <group>group20190309223523832</group>
+        <group>group20190309224559795</group>
+        <group>group20190309230616206</group>
+    </ListGroup>
     <admin>false</admin>
     <ban>false</ban>
+    <lastActivity>2019-03-09T23:06:13.347+02:00</lastActivity>
 </user>
