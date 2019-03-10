@@ -1,12 +1,7 @@
 package ua.woochat.client.model;
 
 import org.apache.log4j.Logger;
-import ua.woochat.app.Connection;
-import ua.woochat.app.ConnectionAgent;
-import ua.woochat.app.HandleXml;
-import ua.woochat.app.Message;
-import ua.woochat.app.User;
-import ua.woochat.client.listeners.ChatFormListener;
+import ua.woochat.app.*;
 import ua.woochat.client.listeners.LoginFormListener;
 import ua.woochat.client.view.ChatForm;
 import ua.woochat.client.view.MessageView;
@@ -14,10 +9,7 @@ import ua.woochat.client.view.WindowImages;
 import ua.woochat.client.view.WindowProperties;
 
 import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import javax.xml.bind.JAXBException;
-import java.awt.*;
 import java.io.IOException;
 import java.net.Socket;
 import java.text.SimpleDateFormat;
@@ -100,6 +92,27 @@ public class ServerConnection implements ConnectionAgent {
                 message.setGroupTitle("WooChat");
 
                 sendToServer(HandleXml.marshallingWriter(Message.class, message));
+
+            } else if (message.getMessage().startsWith("update")) {
+                logger.info("update");
+                Set<Group> groupSet = message.getGroupListUser();
+
+
+                // Если нужно вытащить список сообщений по группе
+                Queue<HistoryMessage> historyMessages;
+                // проверка
+                for (Group entry: groupSet) {
+
+                    // Если нужно вытащить список сообщений по группе
+                    System.out.println("groupSet: " + entry.toString());
+                    historyMessages =  entry.getQueue();
+                    if (historyMessages != null) {
+                        for (HistoryMessage entry1: historyMessages) {
+                            System.out.println("history: " + entry1.toString());
+                        }
+                    }
+                }
+
 
             } else {
                 if (message.getType() == 0) {

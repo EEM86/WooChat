@@ -1,22 +1,14 @@
-package ua.woochat.server.model;
-
-import ua.woochat.app.HandleXml;
-import ua.woochat.app.HistoryMessage;
-import ua.woochat.app.UsersAndGroups;
+package ua.woochat.app;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.util.LinkedHashSet;
+import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 
-//@XmlType(propOrder = {"groupID","usersList", "queue"})
 @XmlRootElement
 public class Group implements UsersAndGroups {
     @XmlElement
@@ -25,16 +17,9 @@ public class Group implements UsersAndGroups {
     @XmlElement(name="user")
     private Set<String> usersList = new LinkedHashSet<>();
 
-    @XmlElementWrapper(name="Online-Users-List", nillable = true)
-    @XmlElement(name="Online-user")
     private Set<String> onlineUsersList = new LinkedHashSet<>();
 
-    @XmlTransient
-    HistoryMessage historyMessage;
-    @XmlElement
-    private static ArrayBlockingQueue<HistoryMessage> queue = null;
-   // private String groupName;
-   // private User adminGroup;
+    private Queue<HistoryMessage> queue = null;
 
     public Group() {
     }
@@ -77,8 +62,13 @@ public class Group implements UsersAndGroups {
         return groupID;
     }
 
-    public static ArrayBlockingQueue<HistoryMessage> getQueue() {
+    @XmlElement(name="History-Message")
+    public Queue<HistoryMessage> getQueue() {
         return queue;
+    }
+
+    public void setQueue(Queue<HistoryMessage> queue) {
+        this.queue = queue;
     }
 
     public void addToListMessage(HistoryMessage historyMessage) {
@@ -104,6 +94,45 @@ public class Group implements UsersAndGroups {
             e.printStackTrace();
         }
 
+    }
+
+    // создает список групп юзера из файлов по списку стрингов
+    public static Set<Group> groupUser (Set<String> groups) {
+        Set<Group> groupSet = new LinkedHashSet<>();
+        String path = new File("").getAbsolutePath();
+        File file;
+        Group group;
+        for (String entry : groups) {
+            file = new File(path + "/Server/src/main/resources/Group/" + entry + ".xml");
+            if (file.isFile()) {
+                group = (Group) HandleXml.unMarshalling(file, Group.class);
+                groupSet.add(group);
+            }
+        }
+        return groupSet;
+    }
+
+    // создает очередь исторических сообщений по определенной группе
+    public static Queue<HistoryMessage> groupSingIn(Group group) {  //переделать, чтобы выводило нужное сообщение, когда пользователь уже подключен к чату
+        String path = new File("").getAbsolutePath();
+        File file = new File(path + "/Server/src/main/resources/Group/" + group.getGroupID() + ".xml");
+        Queue<HistoryMessage> historyMessages = null;
+        if (file.isFile()) {
+            group = (Group) HandleXml.unMarshalling(file, Group.class);
+            historyMessages = group.getQueue();
+        }
+        return historyMessages;
+    }
+
+    @Override
+    public String toString() {
+
+        return "Group{" +
+                "groupID='" + groupID + '\'' +
+                ", usersList=" + usersList +
+                ", onlineUsersList=" + onlineUsersList +
+                ", message=" + getQueue() +
+                '}';
     }
 
 }

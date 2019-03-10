@@ -3,7 +3,6 @@ package ua.woochat.server.controller;
 import org.apache.log4j.Logger;
 import ua.woochat.app.*;
 import ua.woochat.server.model.ConfigServer;
-import ua.woochat.server.model.Group;
 
 import javax.xml.bind.JAXBException;
 import java.io.File;
@@ -147,25 +146,25 @@ public final class Server implements ConnectionAgent {
         // вход
         else if (message.getType() == 1) {
             Message messageSend = new Message(1,"");
-            //messageSend.setType(1);
             if (verificationSingIn(message.getLogin(), message.getPassword())) { // проверка существует ли имя
                 connection.user = new User(message.getLogin(), message.getPassword());
-               // connection.user.addGroup("group000");                 // сэтим юзеру главный чат как группу, переделать стрингу
                 connection.user.setGroups(user.getGroups());
                 connection.user.toString();
                 connectionCreated(connection);
                 messageSend.setLogin(message.getLogin());
-                messageSend.setGroupID("group000");                          // переделать стрингу
-
-                Queue<HistoryMessage> historyMessages =  groupSingIn(groupsList.iterator().next());
-                for (HistoryMessage entry: historyMessages) {
-                    System.out.println("history: " + entry.toString());
-                }
-                //messageSend.setGroupList(connection.user.getGroups());                          // переделать стрингу
                 messageSend.setMessage("true, port=" + ConfigServer.getPort("portchatting"));
                 messageSend.setGroupList(getOnlineUsers());
-                connection.sendToOutStream(HandleXml.marshallingWriter(Message.class, messageSend)); // format of message: <?xml version="1.0" encoding="UTF-8" standalone="yes"?><message><password>1qa</password><login>Zhe</login><type>1</type></message>
+                connection.sendToOutStream(HandleXml.marshallingWriter(Message.class, messageSend));
                 moveToChattingSocket();
+
+                Message messageSend1 = new Message(1,"update");
+                Set<Group> groupSet = Group.groupUser(user.getGroups());
+/*                for (Group entry: groupSet) {
+                    System.out.println("Group: " + entry.toString());
+                }*/
+                messageSend1.setGroupListUser(groupSet); // для отправки списка объектов групп
+                connection.sendToOutStream(HandleXml.marshallingWriter(Message.class, messageSend1));
+
             } else {
                 messageSend.setLogin(message.getLogin());
                 messageSend.setMessage("false");
@@ -449,17 +448,6 @@ public final class Server implements ConnectionAgent {
             }
         }
         return false;
-    }
-
-    private Queue<HistoryMessage> groupSingIn(Group group) {  //переделать, чтобы выводило нужное сообщение, когда пользователь уже подключен к чату
-        String path = new File("").getAbsolutePath();
-        File file = new File(path + "/Server/src/main/resources/Group/" + group.getGroupID() + ".xml");
-        Queue<HistoryMessage> historyMessages = null;
-        if (file.isFile()) {
-            group = (Group) HandleXml.unMarshalling(file, Group.class);
-            historyMessages = group.getQueue();
-        }
-        return historyMessages;
     }
 
     // files in folder

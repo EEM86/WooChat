@@ -4,6 +4,8 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 @XmlRootElement
 public class Message implements Serializable {
@@ -22,6 +24,7 @@ public class Message implements Serializable {
 
     private String message;
     private ArrayList<String> groupList = new ArrayList<>();
+    private Set<Group> groupListUser = new HashSet<>();
 
     public Message() {
     }
@@ -106,6 +109,15 @@ public class Message implements Serializable {
 
     public void setGroupList(ArrayList<String> groupList) {
         this.groupList = groupList;
+    }
+
+    @XmlElement
+    public Set<Group> getGroupListUser() {
+        return groupListUser;
+    }
+
+    public void setGroupListUser(Set<Group> groupListUser) {
+        this.groupListUser = groupListUser;
     }
 
     public String getGroupTitle() {
