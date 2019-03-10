@@ -37,13 +37,13 @@ public class ConfigServer {
         return Integer.parseInt(properties.getProperty(value));
     }
 
-    public static String getAdmin() {
+    public static String getRootAdmin() {
         try {
             properties.load(ConfigServer.class.getClassLoader().getResourceAsStream("server.properties"));
         } catch (IOException e) {
             logger.error("IOException error " + e);
         }
-        return properties.getProperty("Admin");
+        return properties.getProperty("RootAdmin");
     }
 
 //    public static int getPortChatting() {

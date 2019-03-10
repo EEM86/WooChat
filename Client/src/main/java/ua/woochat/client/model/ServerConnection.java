@@ -212,6 +212,10 @@ public class ServerConnection implements ConnectionAgent {
             }
             leaveGroup(message.getGroupID());
         }
+
+        else if (message.getType() == 99) {           // На Сервере админ банит пользователя на время и присылает его данные сюда
+
+        }
     }
 
     private void removeCurrentUserFromOnline(String login) {
