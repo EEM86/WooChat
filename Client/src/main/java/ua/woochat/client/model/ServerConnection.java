@@ -125,15 +125,7 @@ public class ServerConnection implements ConnectionAgent {
                 logger.debug("ELSE сработал");
                 onlineState.put(message.getGroupID(),message.getGroupList());
             }
-
-            for (int i = 0; i < tabCount; i++) {
-                String tabTitle = chatForm.getConversationPanel().getTitleAt(i);
-                for(Map.Entry<String, ArrayList<String>> entry: onlineState.entrySet()){
-                    if(tabTitle.equals(entry.getKey())){
-                        reNewOnlineList(entry.getValue());
-                    }
-                }
-            }
+            reNewAllTabs();
             renderComplete = true;
         }
 
@@ -154,8 +146,12 @@ public class ServerConnection implements ConnectionAgent {
             String result = currentGroupList.get(currentGroupList.size() - 1);
             if (result.equals(connection.user.getLogin())) {
                 chatForm.addNewTab(tabCount++, currentGroupList.get(0), message.getGroupID(),true);
+                onlineState.put(message.getGroupID(), message.getGroupList());
+                reNewAllTabs();
             } else {
                 chatForm.addNewTab(tabCount++, currentGroupList.get(1), message.getGroupID(),true);
+                onlineState.put(message.getGroupID(), message.getGroupList());
+                reNewAllTabs();
             }
             logger.debug("делаю setID для вкладки: " + message.getGroupID());
         }
@@ -163,16 +159,62 @@ public class ServerConnection implements ConnectionAgent {
         else if (message.getType() == 7) {
             logger.debug("делаю setID для вкладки: " + message.getGroupID());
             chatForm.addNewTab(tabCount++, message.getGroupID(), message.getGroupID(),true);
+            onlineState.put(message.getGroupID(), message.getGroupList());
+            reNewAllTabs();
         }
 
         else if (message.getType() == 8) {
-            logger.debug("");
             ArrayList<String> onlineUsersWithoutPrivateGroups = message.getGroupList();
 
             for (String entry: onlineUsersWithoutPrivateGroups) {
                 logger.debug("Спиcок пользователей: " + entry);
             }
             chatForm.getChatListener().reNewAddList(onlineUsersWithoutPrivateGroups);
+        }
+        else if (message.getType() == 11) {
+            logger.debug("SERVER: user at  ==11"  + message.getLogin());
+            removeCurrentUserFromOnline(message.getLogin());
+        }
+    }
+
+    private void removeCurrentUserFromOnline(String login) {
+        ArrayList<String> temp = null;
+        for(Map.Entry<String, ArrayList<String>> entry: onlineState.entrySet()) {
+            temp = entry.getValue();
+            logger.debug("Пробегаю по группе:" + entry.getKey());
+
+            for (String user: temp ){
+                System.out.println("Before romoving:" + temp.toString());
+                if(user.equals(login)){
+                    System.out.println("GROUP:" + entry.getKey() + " USER:" + user);
+                    offlineMessage(entry.getKey(), login);
+                    logger.debug("Remove login: " + user);
+                    temp.remove(login);
+                    break;
+                }
+            }
+            System.out.println("After romoving:" + temp.toString());
+        }
+        reNewAllTabs();
+    }
+
+    private void offlineMessage(String key, String login) {
+         for (int i = 0; i < tabCount; i++){
+             String tabTitle = chatForm.getConversationPanel().getTitleAt(i);
+            if (tabTitle.equals(key)){
+                sendToChat(login, "вышел из сети",i);
+            }
+        }
+    }
+
+    private void reNewAllTabs(){
+        for (int i = 0; i < tabCount; i++) {
+            String tabTitle = chatForm.getConversationPanel().getTitleAt(i);
+            for(Map.Entry<String, ArrayList<String>> entry: onlineState.entrySet()){
+                if(tabTitle.equals(entry.getKey())){
+                    reNewOnlineList(entry.getValue());
+                }
+            }
         }
     }
 
@@ -271,7 +313,6 @@ public class ServerConnection implements ConnectionAgent {
     public void disconnectRequest() {
         Message msg = new Message(11, "");
         msg.setLogin(connection.user.getLogin());
-        logger.debug("Who is here: " + connection.user.getLogin());
         sendToServer(HandleXml.marshallingWriter(Message.class, msg));
         //connection.disconnect();
     }

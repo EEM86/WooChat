@@ -106,8 +106,9 @@ public final class Server implements ConnectionAgent {
             }
         }
         logger.debug("Sending to all info about connection closed");
-        Message msg = new Message(2, " has disconnected.");
+        Message msg = new Message(11, " has disconnected.");
         msg.setLogin(deletedUser);
+        logger.debug("SERVER: user before ==11"  + msg.getLogin());
         //msg.setGroupID("group000");
         sendToAll(HandleXml.marshallingWriter(Message.class, msg));
         data.disconnect();
@@ -237,6 +238,7 @@ public final class Server implements ConnectionAgent {
                             result.addAll(g.getUsersList());
                         }
                     }
+                    message.setGroupList(result);
                     entry.sendToOutStream(HandleXml.marshallingWriter(Message.class, message));
                 }
             }
