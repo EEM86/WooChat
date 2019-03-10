@@ -277,12 +277,15 @@ public class ChatForm {
         conversationPanel.setSelectedIndex(index);
     }
 
-    private class TabTitle extends JPanel{
+    public class TabTitle extends JPanel{
+
+        private JLabel lbl;
+
         private TabTitle(final String title, final int index, boolean closeable){
 
             setOpaque(false);
 
-            JLabel lbl = new JLabel(title);
+            lbl = new JLabel(title);
 
             lbl.setForeground(properties.getTextColor());
             lbl.setPreferredSize(new Dimension(55,13));
@@ -311,6 +314,10 @@ public class ChatForm {
                 add(lbl, BorderLayout.CENTER);
             }
         }
+
+        public JLabel getLbl() {
+            return lbl;
+        }
     }
 
     /**
@@ -324,7 +331,7 @@ public class ChatForm {
         newTab.setBackground(properties.getChatBackColor());
 
         JTextArea chatArea = new JTextArea();
-        chatArea.setFont(new Font(null, Font.ITALIC, 12));
+        chatArea.setFont(new Font(null, Font.BOLD, 12));
         chatArea.setCaretPosition(chatArea.getDocument().getLength());
         chatArea.setBackground(properties.getChatBackColor());
         chatArea.setForeground(properties.getTextColor());
@@ -440,8 +447,8 @@ public class ChatForm {
         return userOnlineLabel;
     }
 
-    public JButton getAddUserBtn() {
-        return addUserBtn;
+    public JTextField getGroupTextField() {
+        return groupTextField;
     }
 
     private Border border() {

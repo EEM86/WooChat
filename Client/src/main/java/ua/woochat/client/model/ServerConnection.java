@@ -91,6 +91,8 @@ public class ServerConnection implements ConnectionAgent {
                 loginFormListener.getLoginForm().getLoginWindow().setVisible(false); //закрывается окошко логин формы
                 chatWindow(connection.user.getLogin(), this);
 
+
+
                 chatForm.addNewTab(tabCount++, "WooChat", "group000", false);
 
                 message.setType(3);
@@ -157,10 +159,12 @@ public class ServerConnection implements ConnectionAgent {
         }
 
         else if (message.getType() == 7) {
-            logger.debug("делаю setID для вкладки: " + message.getGroupID());
-            chatForm.addNewTab(tabCount++, message.getGroupID(), message.getGroupID(),true);
+            logger.debug("Спиcок пользователей: ==7:" + message.getGroupList());
+            chatForm.addNewTab(tabCount++,message.getGroupTitle(), message.getGroupID(),true);
+            logger.debug("Обновляю с ==7 " + message.getGroupList());
             onlineState.put(message.getGroupID(), message.getGroupList());
             reNewAllTabs();
+
         }
 
         else if (message.getType() == 8) {
@@ -174,6 +178,13 @@ public class ServerConnection implements ConnectionAgent {
         else if (message.getType() == 11) {
             logger.debug("SERVER: user at  ==11"  + message.getLogin());
             removeCurrentUserFromOnline(message.getLogin());
+        }
+        else if (message.getType() == 12) {
+            logger.debug("Спиcок пользователей: ==12:" + message.getGroupList());
+            tabRename(message.getGroupTitle(), message.getGroupID());
+            logger.debug("Обновляю с ==12 " + message.getGroupList());
+            onlineState.put(message.getGroupID(),message.getGroupList());
+            reNewAllTabs();
         }
     }
 
@@ -310,10 +321,25 @@ public class ServerConnection implements ConnectionAgent {
         return renderComplete;
     }
 
+    public HashMap<String, ArrayList<String>> getOnlineState() {
+        return onlineState;
+    }
+
     public void disconnectRequest() {
         Message msg = new Message(11, "");
         msg.setLogin(connection.user.getLogin());
         sendToServer(HandleXml.marshallingWriter(Message.class, msg));
-        //connection.disconnect();
     }
-}
+    public void tabRename(String newTitle, String groupID){
+        for (int i = 0; i < tabCount; i++) {
+            String tabTitle = chatForm.getConversationPanel().getTitleAt(i);
+                if (tabTitle.equals(groupID)){
+                    ChatForm.TabTitle ob =  (ChatForm.TabTitle)chatForm.getConversationPanel().getTabComponentAt(i);
+                    JLabel jLabel = ob.getLbl();
+                    jLabel.setText(newTitle);
+                    break;
+                }
+            }
+        }
+    }
+

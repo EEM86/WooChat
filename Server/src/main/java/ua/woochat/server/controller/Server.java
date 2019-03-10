@@ -233,28 +233,39 @@ public final class Server implements ConnectionAgent {
                     entry.user.addGroup(message.getGroupID());
                     for (Group g : groupsList) {
                         if (g.getGroupID().equals(message.getGroupID())) {
-                            //g.addUser(entry.user.getLogin());
                             g.addUser(entry.user.getLogin());
                             result.addAll(g.getUsersList());
                         }
                     }
                     message.setGroupList(result);
+                    logger.debug("SERVER: Спиcок пользователей: ==7:" + message.getGroupList());
                     entry.sendToOutStream(HandleXml.marshallingWriter(Message.class, message));
                 }
             }
 
+            Message msg = new Message();
+            ArrayList<String> newUserList = new ArrayList<>();
 
-//            for (Group g: groupsList) {
-//                if (g.getGroupID().equals(message.getGroupID())) {
-//                    for (String line : g.getUsersList()) {
-//                        result.add(line);
-//                    }
-//                }
-//            }
-            message.setType(3);
-            message.setMessage(message.getLogin() + " has connected to group " + message.getGroupID());
-            message.setGroupList(result);
-            sendToAllGroup(message.getGroupID(), HandleXml.marshallingWriter(Message.class, message));
+            for (String userLogin: result){
+                newUserList.add(userLogin);
+            }
+
+            msg.setGroupList(newUserList);
+
+            msg.setType(12);
+
+            msg.setGroupID(message.getGroupID());
+            msg.setGroupTitle(message.getGroupTitle());
+
+            result.remove(message.getLogin());
+            for (String users: result){
+                for (Connection entry: connections){
+                    if(entry.user.getLogin().equals(users)){
+                        logger.debug("SERVER: Спиcок пользователей: ==12:" + msg.getGroupList());
+                        entry.sendToOutStream(HandleXml.marshallingWriter(Message.class, msg));
+                    }
+                }
+            }
         }
 
         else if (message.getType() == 8) { // возвращает список онлайн юзеров, которые не состоят в текущей группе
