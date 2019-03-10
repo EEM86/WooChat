@@ -3,6 +3,7 @@
     <id>3264</id>
     <login>ff</login>
     <password>11</password>
+    <timetoUnban>0</timetoUnban>
     <ListGroup>
         <group>group000</group>
         <group>group20190309224215645</group>
@@ -14,10 +15,9 @@
         <group>group20190310203448324</group>
         <group>group20190310210235505</group>
         <group>group20190310210444446</group>
-        <group>group20190310214037410</group>
-        <group>group20190310214425270</group>
+        <group>group20190311002621144</group>
     </ListGroup>
     <admin>false</admin>
     <ban>false</ban>
-    <lastActivity>2019-03-10T21:44:13.052+02:00</lastActivity>
+    <lastActivity>2019-03-11T00:35:04.797+02:00</lastActivity>
 </user>

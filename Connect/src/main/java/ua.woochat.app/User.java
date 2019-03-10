@@ -28,6 +28,7 @@ public class User implements UsersAndGroups {
     private boolean admin;
     private boolean isBanned;
     private Date lastActivity = new Date();
+    public long timetoUnban;
 
     @XmlElementWrapper(name="ListGroup", nillable = true)
     @XmlElement(name="group")
@@ -95,7 +96,8 @@ public class User implements UsersAndGroups {
     }
 
     public void setBan(boolean ban) {
-        this.isBanned = isBanned;
+        this.isBanned = ban;
+        //saveUser();
     }
 
     public void addGroup(String groupID) {
@@ -124,6 +126,30 @@ public class User implements UsersAndGroups {
     @XmlElementWrapper(nillable = true)
     public void setGroups(Set<String> groups) {
         this.groups = groups;
+    }
+
+    /**
+     * Sets ban interval for user.
+     * @param interval in minutes;
+     */
+    public void setBanInterval(int interval) {
+        setBan(true);
+        timetoUnban = System.currentTimeMillis() + interval * 60000;
+        //saveUser();
+    }
+
+    public void unban() {
+        timetoUnban = 0;
+        setBan(false);
+        //saveUser();
+    }
+
+    public boolean isUnbanned() {
+        if (!isBan()) return true;
+        if (timetoUnban <= System.currentTimeMillis()) {
+            unban();
+            return true;
+        } else return false;
     }
 
     @Override
