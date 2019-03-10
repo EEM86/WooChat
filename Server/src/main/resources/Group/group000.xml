@@ -3,4 +3,29 @@
     <groupID>group000</groupID>
     <Users-List/>
     <Online-Users-List/>
+    <queue>
+        <login>mm</login>
+        <message>dfgd</message>
+        <time>2019-03-10T15:59:52.354+02:00</time>
+    </queue>
+    <queue>
+        <login>mm</login>
+        <message>dfgd</message>
+        <time>2019-03-10T15:59:53.646+02:00</time>
+    </queue>
+    <queue>
+        <login>ff</login>
+        <message>dfgd</message>
+        <time>2019-03-10T15:59:55.674+02:00</time>
+    </queue>
+    <queue>
+        <login>ff</login>
+        <message>dfgd</message>
+        <time>2019-03-10T15:59:56.696+02:00</time>
+    </queue>
+    <queue>
+        <login>ff</login>
+        <message>qaqa</message>
+        <time>2019-03-10T15:59:59.878+02:00</time>
+    </queue>
 </group>

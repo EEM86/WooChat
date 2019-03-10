@@ -35,4 +35,13 @@ public class HistoryMessage {
     public Date getTime() {
         return time;
     }
+
+    @Override
+    public String toString() {
+        return "HistoryMessage{" +
+                "login='" + login + '\'' +
+                ", message='" + message + '\'' +
+                ", time=" + time +
+                '}';
+    }
 }
