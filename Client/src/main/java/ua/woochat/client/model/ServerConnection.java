@@ -187,7 +187,16 @@ public class ServerConnection implements ConnectionAgent {
             reNewAllTabs();
         }
 
-        else if (message.getType() == 13) {  // На Сервере админ кикает пользователя и присылает сюда его данные
+        else if (message.getType() == 13) {           // На Сервере админ кикает пользователя и присылает сюда его данные
+
+
+            for (int i = 0; i < tabCount; i++){
+                String tabTitle = chatForm.getConversationPanel().getTitleAt(i);
+                if (tabTitle.equals(message.getGroupID())){
+                    chatForm.getConversationPanel().removeTabAt(i);
+                    break;
+                }
+            }
             leaveGroup(message.getGroupID());
         }
     }

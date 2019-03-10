@@ -3,14 +3,4 @@
     <groupID>group000</groupID>
     <Users-List/>
     <Online-Users-List/>
-    <queue>
-        <login>qqqq</login>
-        <message>Hello</message>
-        <time>2019-03-10T21:04:52.567+02:00</time>
-    </queue>
-    <queue>
-        <login>ff</login>
-        <message>Hi</message>
-        <time>2019-03-10T21:04:56.679+02:00</time>
-    </queue>
 </group>
