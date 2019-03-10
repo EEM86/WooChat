@@ -4,7 +4,6 @@
     <login>mm</login>
     <password>11</password>
     <ListGroup>
-        <group>group000</group>
         <group>group20190309223523832</group>
         <group>group20190309224559795</group>
         <group>group20190309230616206</group>
@@ -12,5 +11,5 @@
     </ListGroup>
     <admin>false</admin>
     <ban>false</ban>
-    <lastActivity>2019-03-10T14:09:42.722+02:00</lastActivity>
+    <lastActivity>2019-03-10T19:55:09.028+02:00</lastActivity>
 </user>

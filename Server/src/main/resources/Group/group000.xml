@@ -4,28 +4,13 @@
     <Users-List/>
     <Online-Users-List/>
     <queue>
-        <login>mm</login>
-        <message>dfgd</message>
-        <time>2019-03-10T15:59:52.354+02:00</time>
-    </queue>
-    <queue>
-        <login>mm</login>
-        <message>dfgd</message>
-        <time>2019-03-10T15:59:53.646+02:00</time>
+        <login>qqqq</login>
+        <message>Hello</message>
+        <time>2019-03-10T21:04:52.567+02:00</time>
     </queue>
     <queue>
         <login>ff</login>
-        <message>dfgd</message>
-        <time>2019-03-10T15:59:55.674+02:00</time>
-    </queue>
-    <queue>
-        <login>ff</login>
-        <message>dfgd</message>
-        <time>2019-03-10T15:59:56.696+02:00</time>
-    </queue>
-    <queue>
-        <login>ff</login>
-        <message>qaqa</message>
-        <time>2019-03-10T15:59:59.878+02:00</time>
+        <message>Hi</message>
+        <time>2019-03-10T21:04:56.679+02:00</time>
     </queue>
 </group>

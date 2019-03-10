@@ -12,9 +12,9 @@ public class ConfigServer {
     private static final Logger logger = Logger.getLogger(ConfigServer.class);
     private static ConfigServer configServer;
     static Properties properties;
-    static String path = "Server" + File.separator + "src" + File.separator
-                            + "main" + File.separator + "resources" + File.separator
-                            + "server.properties";
+    //static String path = "Server/src/main/resources/server.properties"; // "Server" + File.separator + "src" + File.separator
+//                            + "main" + File.separator + "resources" + File.separator
+//                            + "server.properties";
 
     private ConfigServer() {
         properties = new Properties();
@@ -29,11 +29,21 @@ public class ConfigServer {
 
     public static int getPort(String value) {
         try {
-            properties.load(new FileInputStream(path));
+            properties.load(ConfigServer.class.getClassLoader().getResourceAsStream("server.properties"));
+                    //(new FileInputStream(path));
         } catch (IOException e) {
             logger.error("IOException error " + e);
         }
         return Integer.parseInt(properties.getProperty(value));
+    }
+
+    public static String getAdmin() {
+        try {
+            properties.load(ConfigServer.class.getClassLoader().getResourceAsStream("server.properties"));
+        } catch (IOException e) {
+            logger.error("IOException error " + e);
+        }
+        return properties.getProperty("Admin");
     }
 
 //    public static int getPortChatting() {

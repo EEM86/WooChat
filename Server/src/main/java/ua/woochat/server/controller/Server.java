@@ -175,22 +175,78 @@ public final class Server implements ConnectionAgent {
 
         // сообщение
         else if (message.getType() == 2)  {
-//            Message messageSend = new Message(2, message.getMessage());
-//            messageSend.setLogin(message.getLogin());
-            Set<String> result = null;
-            //Set<Connection> result = null;   -- меняем объект Коннекшн на стрингу логина
-            //Set<String> result = null;
-            for (Group entry: groupsList) {
-                if (entry.getGroupID().equalsIgnoreCase(message.getGroupID())) {
-                    logger.debug("time now " + new Date());
-                    HistoryMessage historyMessage = new HistoryMessage(message.getLogin(), message.getMessage());
-                    entry.addToListMessage(historyMessage);
-                    result = entry.getUsersList();
-                    //for (Connection c: result) {                    -- меняем объект Коннекшн на стрингу логина
-//                        c.sendToOutStream(HandleXml.marshallingWriter(Message.class, message));
-//                        logger.debug("Server sent to: [" + c.user.getLogin() + "] message: \"" + message.getMessage() + "\"");
-//                    }
-                    sendToAllGroup(entry.getGroupID(),HandleXml.marshallingWriter(Message.class, message)); // -- меняем объект Коннекшн на стрингу логина
+            if (message.getMessage().startsWith("/")) {
+                if (message.getLogin().equals(ConfigServer.getAdmin())) {
+
+//                    Message msg = new Message(2, "");
+//                    msg.setLogin(message.getLogin());
+//                    msg.setGroupID(message.getGroupID());
+//                    logger.debug("Message group ID: " + message.getGroupID());
+
+                    if (message.getMessage().startsWith("/kick")) {
+                        String[] whoKicked = message.getMessage().split(" ");
+
+
+
+                        for (Group g : groupsList) {
+                            if (g.getGroupID().equals(message.getGroupID())) {
+                                for (String c : g.getUsersList()) {
+                                    if (whoKicked[1].equals(c)) {
+                                        for (Connection findUser : connections) {
+                                            if (findUser.user.getLogin().equals(c)) {
+                                                Message msg = new Message(13, "");
+                                                msg.setLogin(findUser.user.getLogin());
+                                                msg.setGroupID(g.getGroupID());
+                                                logger.debug("Сервер отправляет в ServerConnection ==13 логин того кого надо кикнуть и группу откуда: " + g.getGroupID());
+                                                findUser.sendToOutStream(HandleXml.marshallingWriter(Message.class, msg));
+//                                                findUser.user.removeGroup(g.getGroupID());
+//                                                msg.setMessage("Admin kicked " + c);
+//                                                msg.setMessage("Was kicked by admin");
+//                                                findUser.sendToOutStream(HandleXml.marshallingWriter(Message.class, msg));
+//                                                g.removeUser(c);
+//                                                break;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+//                            sendToAllGroup(g.getGroupID(), HandleXml.marshallingWriter(Message.class, msg));
+//
+//                            ArrayList<String> res = new ArrayList<>();
+//                            for (String c2 : g.getUsersList()) {
+//                                logger.debug("Список юзеров после админовского кика " + c2);
+//                                res.add(c2);
+//                            }
+//
+//                            msg.setGroupList(res);
+//                            msg.setType(3);
+//                            sendToAllGroup(g.getGroupID(), HandleXml.marshallingWriter(Message.class, msg));
+//                        }
+
+                    }
+                //connection.sendToOutStream(HandleXml.marshallingWriter(Message.class, msg));
+                } else {
+
+                }
+            } else {
+    //            Message messageSend = new Message(2, message.getMessage());
+    //            messageSend.setLogin(message.getLogin());
+                Set<String> result = null;
+                //Set<Connection> result = null;   -- меняем объект Коннекшн на стрингу логина
+                //Set<String> result = null;
+                for (Group entry: groupsList) {
+                    if (entry.getGroupID().equalsIgnoreCase(message.getGroupID())) {
+                        logger.debug("time now " + new Date());
+                        HistoryMessage historyMessage = new HistoryMessage(message.getLogin(), message.getMessage());
+                        entry.addToListMessage(historyMessage);
+                        result = entry.getUsersList();
+                        //for (Connection c: result) {                    -- меняем объект Коннекшн на стрингу логина
+    //                        c.sendToOutStream(HandleXml.marshallingWriter(Message.class, message));
+    //                        logger.debug("Server sent to: [" + c.user.getLogin() + "] message: \"" + message.getMessage() + "\"");
+    //                    }
+                        sendToAllGroup(entry.getGroupID(), HandleXml.marshallingWriter(Message.class, message)); // -- меняем объект Коннекшн на стрингу логина
+                    }
                 }
             }
             logger.debug("Who wrote from server side: " + connection.user.getLogin() + "\n");
@@ -298,6 +354,7 @@ public final class Server implements ConnectionAgent {
         }
 
         else if (message.getType() == 9) { // отключение пользователя с группы
+            // userLeaveGroup(String login, String groupID);  добавить метод для уменьшения кода и повторного использования
             for (Group g: groupsList) {
                 if (message.getGroupID().equals(g.getGroupID())) {
                     for (String c : g.getUsersList()) {
@@ -316,13 +373,8 @@ public final class Server implements ConnectionAgent {
                     message.setType(2);
                     sendToAllGroup(g.getGroupID(), HandleXml.marshallingWriter(Message.class, message));
 
-                    ArrayList<String> res = new ArrayList<>();
-                    for (String c2 : g.getUsersList()) {
-                        logger.debug("Запаковываю товарищей в ==9: " + c2 );
-                        res.add(c2);
-                    }
 
-                    message.setGroupList(res);
+                    message.setGroupList(new ArrayList<>(g.getUsersList()));
                     message.setType(3);
                     sendToAllGroup(g.getGroupID(), HandleXml.marshallingWriter(Message.class, message));
                 }

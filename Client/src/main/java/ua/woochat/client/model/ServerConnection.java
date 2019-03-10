@@ -186,6 +186,10 @@ public class ServerConnection implements ConnectionAgent {
             onlineState.put(message.getGroupID(),message.getGroupList());
             reNewAllTabs();
         }
+
+        else if (message.getType() == 13) {  // На Сервере админ кикает пользователя и присылает сюда его данные
+            leaveGroup(message.getGroupID());
+        }
     }
 
     private void removeCurrentUserFromOnline(String login) {
@@ -306,7 +310,7 @@ public class ServerConnection implements ConnectionAgent {
             if (entry.getKey().equals(groupID)){
                 logger.debug("Удаляю значение по getKey" + groupID);
                 onlineState.remove(entry.getKey());
-                    break;
+                break;
             }
         }
 
