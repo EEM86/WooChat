@@ -41,7 +41,7 @@ public final class Server implements ConnectionAgent {
         try {
             serverConnectSocket = new ServerSocket(ConfigServer.getPort("portconnection"));
             serverChattingSocket = new ServerSocket(ConfigServer.getPort("portchatting"));
-            final Group groupMain = new Group("group000");
+            final Group groupMain = new Group("group000", "Main chat");
             groupsList.add(groupMain);
             while (true) {
                 try {
@@ -252,7 +252,7 @@ public final class Server implements ConnectionAgent {
 
         else if (message.getType() == 6) {   //приватный чат  + сделать чтобы группы в файл User.xml записывались
 
-            Group group = new Group("group" + getUniqueID());
+            Group group = new Group("group" + getUniqueID(), message.getGroupTitle());
             //Group group = new Group("group00" + groupsList.size());
             groupsList.add(group);
             message.setGroupID(group.getGroupID());
@@ -282,6 +282,9 @@ public final class Server implements ConnectionAgent {
                     for (Group g : groupsList) {
                         if (g.getGroupID().equals(message.getGroupID())) {
                             g.addUser(entry.user.getLogin());
+
+                            g.setGroupName(message.getGroupTitle());
+
                             result.addAll(g.getUsersList());
                         }
                     }

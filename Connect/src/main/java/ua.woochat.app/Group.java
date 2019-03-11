@@ -13,6 +13,8 @@ import java.util.concurrent.ArrayBlockingQueue;
 public class Group implements UsersAndGroups {
     @XmlElement
     private String groupID;
+
+    private String groupName;
     @XmlElementWrapper(name="Users-List", nillable = true)
     @XmlElement(name="user")
     private Set<String> usersList = new LinkedHashSet<>();
@@ -24,8 +26,9 @@ public class Group implements UsersAndGroups {
     public Group() {
     }
 
-    public Group(String idGroup) {
+    public Group(String idGroup, String groupName) {
         this.groupID = idGroup;
+        this.groupName = groupName;
         queue = new ArrayBlockingQueue<HistoryMessage>(20);
         saveGroup();
     }
@@ -62,6 +65,16 @@ public class Group implements UsersAndGroups {
         return groupID;
     }
 
+    public String getGroupName() {
+        return groupName;
+    }
+
+    @XmlElement(name="Title-group")
+    public void setGroupName(String groupName) {
+        this.groupName = groupName;
+        saveGroup();
+    }
+
     @XmlElement(name="History-Message")
     public Queue<HistoryMessage> getQueue() {
         return queue;
@@ -69,6 +82,7 @@ public class Group implements UsersAndGroups {
 
     public void setQueue(Queue<HistoryMessage> queue) {
         this.queue = queue;
+        saveGroup();
     }
 
     public void addToListMessage(HistoryMessage historyMessage) {
