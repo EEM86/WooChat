@@ -59,7 +59,8 @@ public class ServerConnection implements ConnectionAgent {
 
     @Override
     public void connectionDisconnect(Connection data) {
-
+        data.disconnect();
+        System.exit(0);
     }
 
     @Override
@@ -213,8 +214,25 @@ public class ServerConnection implements ConnectionAgent {
         }
 
         else if (message.getType() == 99) {           // На Сервере админ банит пользователя на время и присылает его данные сюда
-
+            if (message.isBanned()) {
+                new MessageView(message.getMessage(), chatForm.getChatForm());
+                setButtonsActive(false);
+            } else {
+                setButtonsActive(true);
+            }
         }
+
+        else if (message.getType() == 666) {           // На Сервере админ банит пользователя на время и присылает его данные сюда
+            disconnectRequest();
+            System.exit(0);
+        }
+    }
+
+    private void setButtonsActive(boolean value) {
+            chatForm.getSendButton().setEnabled(value);
+            chatForm.getMessageField().setEnabled(value);
+            chatForm.getAddUserBtn().setEnabled(value);
+            chatForm.getLeaveGroupBtn().setEnabled(value);
     }
 
     private void removeCurrentUserFromOnline(String login) {
@@ -242,7 +260,7 @@ public class ServerConnection implements ConnectionAgent {
          for (int i = 0; i < tabCount; i++){
              String tabTitle = chatForm.getConversationPanel().getTitleAt(i);
             if (tabTitle.equals(key)){
-                sendToChat(login, "вышел из сети",i);
+                sendToChat(login, "has left WooChat",i);
             }
         }
     }
@@ -291,7 +309,7 @@ public class ServerConnection implements ConnectionAgent {
 
         SimpleDateFormat sdf = new SimpleDateFormat("HH:MM:ss");
         Date date = new Date();
-        sdf.format(date);
+        //sdf.format(date);
 
         jta.append("[" + sdf.format(date) + "]" + "<" + login + ">: " + message + "\n");
         chatForm.getMessageField().setText("");
@@ -363,7 +381,9 @@ public class ServerConnection implements ConnectionAgent {
         Message msg = new Message(11, "");
         msg.setLogin(connection.user.getLogin());
         sendToServer(HandleXml.marshallingWriter(Message.class, msg));
+        connectionDisconnect(connection);
     }
+
     public void tabRename(String newTitle, String groupID){
         for (int i = 0; i < tabCount; i++) {
             String tabTitle = chatForm.getConversationPanel().getTitleAt(i);

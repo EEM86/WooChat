@@ -157,8 +157,10 @@ public class ChatFormListener implements ActionListener {
                 chatForm.getConversationPanel().getTitleAt(chatForm.getConversationPanel().getSelectedIndex()));
         try {
             chatForm.getServerConnection().sendToServer(HandleXml.marshallingWriter(Message.class, message));
-        }catch (NullPointerException e){
+        } catch (NullPointerException e){
             System.out.println("Сообщение не отправлено");
+        } finally {
+            chatForm.getMessageField().setText("");
         }
     }
     /**

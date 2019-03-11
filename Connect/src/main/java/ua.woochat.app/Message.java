@@ -15,6 +15,7 @@ public class Message implements Serializable {
     private String onlineUsers; //удалить?
     private String groupID;
     private String groupTitle;
+    private boolean isBanned;
 
     private int type;
     public static int REGISTER_TYPE = 0;  // сделать через enum?
@@ -109,6 +110,15 @@ public class Message implements Serializable {
 
     public void setGroupList(ArrayList<String> groupList) {
         this.groupList = groupList;
+    }
+
+    @XmlElement
+    public boolean isBanned() {
+        return isBanned;
+    }
+
+    public void setBanned(boolean banned) {
+        isBanned = banned;
     }
 
     @XmlElement

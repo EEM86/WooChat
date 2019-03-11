@@ -27,8 +27,9 @@ public class User implements UsersAndGroups {
     private Gender gender;
     private boolean admin;
     private boolean isBanned;
-    private Date lastActivity = new Date();
-    public long timetoUnban;
+    //private Date lastActivity = new Date();
+    private long lastActivity;
+    public long timetoUnban; //change to private
 
     @XmlElementWrapper(name="ListGroup", nillable = true)
     @XmlElement(name="group")
@@ -91,15 +92,6 @@ public class User implements UsersAndGroups {
         admin = true;  //admin по умолчанию false, помоему здесь надо присвоить true
     }
 
-    public boolean isBan() {
-        return isBanned;
-    }
-
-    public void setBan(boolean ban) {
-        this.isBanned = ban;
-        //saveUser();
-    }
-
     public void addGroup(String groupID) {
         groups.add(groupID);
         saveUser();
@@ -115,17 +107,26 @@ public class User implements UsersAndGroups {
         return groups;
     }
 
-    public Date getLastActivity() {
-        return lastActivity;
-    }
+//    public Date getLastActivity() {
+//        return lastActivity;
+//    }
 
-    public void setLastActivity(Date lastActivity) {
-        this.lastActivity = lastActivity;
-    }
+    //public void setLastActivity(Date lastActivity) {
+//        this.lastActivity = lastActivity;
+//    }
 
     @XmlElementWrapper(nillable = true)
     public void setGroups(Set<String> groups) {
         this.groups = groups;
+    }
+
+    public boolean isBan() {
+        return isBanned;
+    }
+
+    public void setBan(boolean ban) {
+        this.isBanned = ban;
+        //saveUser();
     }
 
     /**
@@ -150,6 +151,14 @@ public class User implements UsersAndGroups {
             unban();
             return true;
         } else return false;
+    }
+
+    public long getLastActivity() {
+        return lastActivity;
+    }
+
+    public void setLastActivity(long lastActivity) {
+        this.lastActivity = lastActivity;
     }
 
     @Override

@@ -43,8 +43,18 @@ public class ConfigServer {
         } catch (IOException e) {
             logger.error("IOException error " + e);
         }
-        return properties.getProperty("RootAdmin");
+        return properties.getProperty("rootAdmin");
     }
+
+    public static int getTimeOut() {
+        try {
+            properties.load(ConfigServer.class.getClassLoader().getResourceAsStream("server.properties"));
+        } catch (IOException e) {
+            logger.error("IOException error " + e);
+        }
+        return Integer.parseInt(properties.getProperty("timeout"));
+    }
+
 
 //    public static int getPortChatting() {
 //        try {

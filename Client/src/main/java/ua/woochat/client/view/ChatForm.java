@@ -84,7 +84,7 @@ public class ChatForm {
                 // Здесь будет реакция на кнопку EXIT_ON_CLOSE
                 logger.debug("Сработала кнопка \"закрыть приложение\"");
                 serverConnection.disconnectRequest();
-                System.exit(0);
+                //System.exit(0); - теперь выходим методом connectionDisconnect(Connection connection) в классе ServerConnection
             }
         } );
 
@@ -456,6 +456,10 @@ public class ChatForm {
         return messageField;
     }
 
+    public JButton getSendButton() {
+        return sendButton;
+    }
+
     public JScrollPane getScrollPane() {
         return scrollPane;
     }
@@ -466,6 +470,14 @@ public class ChatForm {
 
     public JTextField getGroupTextField() {
         return groupTextField;
+    }
+
+    public JButton getAddUserBtn() {
+        return addUserBtn;
+    }
+
+    public JButton getLeaveGroupBtn() {
+        return leaveGroupBtn;
     }
 
     private Border border() {
