@@ -74,6 +74,7 @@ public class ChatForm {
         chatForm.setBounds(700, 500, 700, 482);
         chatForm.setLocationRelativeTo(null);
         chatForm.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        chatForm.setIconImage(images.getLogo().getImage());
         chatForm.setResizable(false);
         chatForm.addWindowListener( new WindowAdapter()
         {
@@ -244,8 +245,14 @@ public class ChatForm {
 
         conversationPanel.addChangeListener(new ChangeListener() {
             public void stateChanged(ChangeEvent e) {
-                serverConnection.changeTabReNewOnlineList(conversationPanel.getSelectedIndex());
 
+                if (serverConnection.isRenderComplete()){
+                    ChatForm.TabTitle ob =  (ChatForm.TabTitle)conversationPanel.getTabComponentAt(conversationPanel.getSelectedIndex());
+                    JLabel jLabel = ob.getEnvelope();
+                    jLabel.setVisible(false);
+                }
+
+                serverConnection.changeTabReNewOnlineList(conversationPanel.getSelectedIndex());
                 if (serverConnection.isRenderComplete()){
                 if (conversationPanel.getTitleAt(conversationPanel.getSelectedIndex()).equals("group000")){
                     logger.debug("addUserBtn.setEnabled(false);");
@@ -280,12 +287,17 @@ public class ChatForm {
     public class TabTitle extends JPanel{
 
         private JLabel lbl;
+        private JLabel envelope;
 
         private TabTitle(final String title, final int index, boolean closeable){
 
             setOpaque(false);
 
             lbl = new JLabel(title);
+            envelope = new JLabel();
+            envelope.setPreferredSize(new Dimension(14,9));
+            envelope.setIcon(images.getEnvelope());
+            envelope.setVisible(false);
 
             lbl.setForeground(properties.getTextColor());
             lbl.setPreferredSize(new Dimension(55,13));
@@ -300,17 +312,17 @@ public class ChatForm {
                 @Override
                 public void actionPerformed(ActionEvent e)
                 {
-                    System.out.println("Tab at index: " + index + " removed");
                     chatListener.pressedCloseGroup(conversationPanel.getTitleAt(index));
-                    logger.debug("groupID вкладки которая закрывается :" + conversationPanel.getTitleAt(index));
                     conversationPanel.removeTabAt(index);
                 }
             });
 
             if (closeable){
+                add(envelope,BorderLayout.WEST);
                 add(lbl, BorderLayout.CENTER);
                 add(button, BorderLayout.EAST);
             }else {
+                add(envelope,BorderLayout.WEST);
                 add(lbl, BorderLayout.CENTER);
             }
         }
@@ -318,7 +330,12 @@ public class ChatForm {
         public JLabel getLbl() {
             return lbl;
         }
+
+        public JLabel getEnvelope() {
+            return envelope;
+        }
     }
+
 
     /**
      *

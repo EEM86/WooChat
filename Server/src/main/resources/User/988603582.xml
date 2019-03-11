@@ -3,6 +3,7 @@
     <id>988603582</id>
     <login>rayvoid</login>
     <password>2788</password>
+    <timetoUnban>0</timetoUnban>
     <ListGroup>
         <group>group000</group>
         <group>group20190309140000547</group>
@@ -66,8 +67,10 @@
         <group>group20190310192507951</group>
         <group>group20190310193019037</group>
         <group>group20190310193507456</group>
+        <group>group20190311104521639</group>
+        <group>group20190311110948835</group>
     </ListGroup>
     <admin>false</admin>
     <ban>false</ban>
-    <lastActivity>2019-03-10T21:44:21.161+02:00</lastActivity>
+    <lastActivity>2019-03-11T11:09:13.138+02:00</lastActivity>
 </user>

@@ -84,7 +84,6 @@ public class ServerConnection implements ConnectionAgent {
                 chatWindow(connection.user.getLogin(), this);
 
 
-
                 chatForm.addNewTab(tabCount++, "WooChat", "group000", false);
 
                 message.setType(3);
@@ -284,7 +283,6 @@ public class ServerConnection implements ConnectionAgent {
         JScrollPane sp;
         JTextArea jta;
         JViewport jva;
-        logger.debug("Обновляю компонент по индексу: "+ tabNumber);
         temp = (JPanel) chatForm.getConversationPanel().getComponentAt(tabNumber);
 
         sp = (JScrollPane) temp.getComponent(0);
@@ -297,6 +295,12 @@ public class ServerConnection implements ConnectionAgent {
 
         jta.append("[" + sdf.format(date) + "]" + "<" + login + ">: " + message + "\n");
         chatForm.getMessageField().setText("");
+
+        if (chatForm.getConversationPanel().getSelectedIndex() != tabNumber){
+            ChatForm.TabTitle ob =  (ChatForm.TabTitle)chatForm.getConversationPanel().getTabComponentAt(tabNumber);
+            JLabel jLabel = ob.getEnvelope();
+            jLabel.setVisible(true);
+        }
     }
 
     public void changeTabReNewOnlineList(int index){
