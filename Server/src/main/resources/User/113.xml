@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<user>
+    <id>113</id>
+    <login>q</login>
+    <password>1</password>
+    <timetoUnban>0</timetoUnban>
+    <ListGroup>
+        <group>group000</group>
+        <group>group20190311104521639</group>
+        <group>group20190311110948835</group>
+    </ListGroup>
+    <admin>false</admin>
+    <ban>false</ban>
+    <lastActivity>2019-03-11T11:09:43.746+02:00</lastActivity>
+</user>
