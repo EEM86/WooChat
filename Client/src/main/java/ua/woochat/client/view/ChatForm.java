@@ -406,10 +406,13 @@ public class ChatForm {
                     String user1 = serverConnection.connection.user.getLogin();
                     String user2 = model.get(index);
 
-                    if (user1.equals(user2)){
-                        new MessageView("Вы не можете создать диалог с собой", chatForm);
-                    }else {
-                        chatListener.privateGroupCreate(user1,user2);
+                    if (serverConnection.isChatFounded(user2)){
+                    }else{
+                        if (user1.equals(user2)){
+                            new MessageView("Вы не можете создать диалог с собой", chatForm);
+                        }else {
+                            chatListener.privateGroupCreate(user1,user2);
+                        }
                     }
                 }
             }
