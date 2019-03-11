@@ -134,8 +134,9 @@ public class User implements UsersAndGroups {
      * @param interval in minutes;
      */
     public void setBanInterval(int interval) {
+        int minuteToMillisecs = 60000;
         setBan(true);
-        timetoUnban = System.currentTimeMillis() + interval * 60000;
+        timetoUnban = System.currentTimeMillis() + interval * minuteToMillisecs;
         //saveUser();
     }
 
@@ -145,8 +146,7 @@ public class User implements UsersAndGroups {
         //saveUser();
     }
 
-    public boolean isUnbanned() {
-        if (!isBan()) return true;
+    public boolean readyForUnban() {
         if (timetoUnban <= System.currentTimeMillis()) {
             unban();
             return true;

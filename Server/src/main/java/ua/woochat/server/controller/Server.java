@@ -30,6 +30,8 @@ public final class Server implements ConnectionAgent {
     ServerSocket serverChattingSocket;
     public LinkedHashSet<Group> groupsList = new LinkedHashSet<>();
 
+    final ScheduledExecutorService ses = Executors.newSingleThreadScheduledExecutor();
+
     /**
      * Constructor creates Server socket which waits for connections.
      */
@@ -60,13 +62,22 @@ public final class Server implements ConnectionAgent {
 
     }
 
-    final ScheduledExecutorService ses = Executors.newSingleThreadScheduledExecutor();
-
     public static Server startServer() {
         if (server == null) {
             server = new Server();
         }
         return server;
+    }
+
+    private void stopServer() {
+        for (Connection entry : connections) {
+            if (!entry.user.getLogin().equals(ConfigServer.getRootAdmin())) {
+                Message msg = new Message(23, "Server was stopped. Try to connect later");
+                msg.setLogin(entry.user.getLogin());
+                entry.sendToOutStream(HandleXml.marshallingWriter(Message.class, msg));
+                connectionDisconnect(entry);
+            }
+        }
     }
 
     public synchronized boolean userCreated(Connection data) {
@@ -177,6 +188,11 @@ public final class Server implements ConnectionAgent {
         else if (message.getType() == 2)  {
 
             if ((message.getLogin().equals(ConfigServer.getRootAdmin()))
+                    && (message.getMessage().equals("/stopServer"))) {
+                stopServer();
+            }
+
+            if ((message.getLogin().equals(ConfigServer.getRootAdmin()))
                     && (message.getMessage().startsWith("/kick")
                     || message.getMessage().startsWith("/ban")
                     || message.getMessage().startsWith("/unban")
@@ -202,7 +218,7 @@ public final class Server implements ConnectionAgent {
                                                     else if ((message.getMessage().startsWith("/ban")) && (command.length > 3)) {
                                                         msg.setType(99);
                                                         msg.setBanned(true);
-                                                        msg.setMessage("You've been banned for " + command[2] + " minutes. Reason: " + command[command.length - 1]);
+                                                        msg.setMessage("You've banned for " + command[2] + " minutes. Reason: " + command[command.length - 1]);
                                                         logger.debug("Cервер забанил юзера " + msg.getLogin() + " на " + command[2] + " минут");
                                                         findUser.user.setBanInterval(Integer.parseInt(command[2]));
                                                         findUser.sendToOutStream(HandleXml.marshallingWriter(Message.class, msg));
@@ -244,10 +260,6 @@ public final class Server implements ConnectionAgent {
         else if (message.getType() == 3) { //обновляет список всех пользователей онлайн в чате
            message.setGroupList(getOnlineUsers());
            sendToAllGroup(message.getGroupID(), HandleXml.marshallingWriter(Message.class, message));
-        }
-
-        else if (message.getType() == 4) { //обновляет список пользователей в текущей группе
-
         }
 
         else if (message.getType() == 6) {   //приватный чат  + сделать чтобы группы в файл User.xml записывались
@@ -404,7 +416,7 @@ public final class Server implements ConnectionAgent {
             if (groupID.equals(g.getGroupID())) {
                 for (String line: g.getUsersList()) {
                     for (Connection entry: connections) {
-                        if (entry.user.getLogin().equals(line) && entry.user.isUnbanned()) {
+                        if (entry.user.getLogin().equals(line)) {
                             logger.info("Method sendToAllGroup is working now. Who is in this group now: " + line + ", message: " + text);
                             entry.sendToOutStream(text);
                         }
@@ -477,30 +489,41 @@ public final class Server implements ConnectionAgent {
      * Метод запускает таймер отслеживания активности пользователей
      */
     private void verifyUsersActivityTimer() {
-        logger.debug("Таймер запустился");
+        logger.debug("Timer has started");
         //if (connections.size() > 0) {
             ses.scheduleWithFixedDelay(new Runnable() {
                 @Override
                 public void run() {
-                    logger.debug("SERVER: Один раз в минуту проверяю активность всех пользователей");
-                    for (Connection entry : connections) {
-                        if (connections.size() > 0 && connection != null) {
-                            if ((!entry.user.getLogin().equals(ConfigServer.getRootAdmin()) && ((System.currentTimeMillis() - entry.user.getLastActivity()) >= ConfigServer.getTimeOut()))) {
-                                Message msg = new Message(666, "");
-                                msg.setLogin(entry.user.getLogin());
-                                entry.sendToOutStream(HandleXml.marshallingWriter(Message.class, msg));
-                                logger.debug(entry.user.getLogin() + "\'s inactivity has reached " + ConfigServer.getTimeOut() + " milliseconds. "
-                                        + entry.user.getLogin() + " has disconnected.");
-                            }
-                        }
-                    }
+                    logger.debug("SERVER: Checks activity and unban-status every minute.");
+                    checkActivityAndUnbans();
                 }
             }, 0, 1, TimeUnit.MINUTES);
         //}
     }
 
+    private void checkActivityAndUnbans() {
+        if (connections.size() > 0) {
+            for (Connection entry : connections) {
+                    if ((!entry.user.getLogin().equals(ConfigServer.getRootAdmin()) && ((System.currentTimeMillis() - entry.user.getLastActivity()) >= ConfigServer.getTimeOut()))) {
+                        Message msg = new Message(23, "");
+                        msg.setLogin(entry.user.getLogin());
+                        entry.sendToOutStream(HandleXml.marshallingWriter(Message.class, msg));
+                        logger.debug(entry.user.getLogin() + "\'s inactivity has reached " + ConfigServer.getTimeOut() + " milliseconds. "
+                                + entry.user.getLogin() + " has disconnected.");
+                    }
+                if (entry.user.isBan() && entry.user.readyForUnban()) {
+                    Message msg = new Message(99, entry.user.getLogin() + " was unbanned.");
+                    msg.setLogin(entry.user.getLogin());
+                    msg.setBanned(false);
+                    entry.sendToOutStream(HandleXml.marshallingWriter(Message.class, msg));
+                    connection.sendToOutStream(HandleXml.marshallingWriter(Message.class, message));
+                }
+            }
+        }
+    }
+
     /**
-     * В этом методе обновляеться время последнего действия конкретного пользователя,
+     * В этом методе обновляется время последнего действия конкретного пользователя,
      * в данном случае по отправке сообщения
      * @param connect конкретный конекшн
      */

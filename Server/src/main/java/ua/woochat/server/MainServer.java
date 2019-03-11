@@ -3,7 +3,7 @@ package ua.woochat.server;
 import ua.woochat.server.controller.Server;
 
 /**
- * class MainServer to run the application
+ * class MainServer to run the Server
  */
 public class MainServer {
 

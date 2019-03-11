@@ -222,9 +222,8 @@ public class ServerConnection implements ConnectionAgent {
             }
         }
 
-        else if (message.getType() == 666) {           // На Сервере админ банит пользователя на время и присылает его данные сюда
+        else if (message.getType() == 23) {           // В данном методе происходит дисконнект юзера
             disconnectRequest();
-            System.exit(0);
         }
     }
 
