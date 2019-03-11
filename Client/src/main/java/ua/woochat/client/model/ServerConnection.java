@@ -395,5 +395,20 @@ public class ServerConnection implements ConnectionAgent {
                 }
             }
         }
+
+    public boolean isChatFounded(String user) {
+        for (int i = 0; i < tabCount; i++){
+            ChatForm.TabTitle ob =  (ChatForm.TabTitle)chatForm.getConversationPanel().getTabComponentAt(i);
+            JLabel jLabel = ob.getLbl();
+
+            if (jLabel.getText().equals(user)){
+                logger.debug("Сработало: 3" + chatForm.getConversationPanel().getTitleAt(i));
+                chatForm.getConversationPanel().setSelectedIndex(i);
+                return true;
+            }
+            logger.debug("Сработало: 4");
+        }
+        return false;
     }
+}
 
