@@ -28,7 +28,9 @@ public final class Server implements ConnectionAgent {
     private Map<Integer, ArrayList<String>> onlineUsers = new HashMap<>();
     ServerSocket serverConnectSocket;
     ServerSocket serverChattingSocket;
+    Socket clientConnectionSocket;
     public LinkedHashSet<Group> groupsList = new LinkedHashSet<>();
+    private boolean socketForConnectionListens = true;
 
     final ScheduledExecutorService ses = Executors.newSingleThreadScheduledExecutor();
 
@@ -45,9 +47,9 @@ public final class Server implements ConnectionAgent {
             serverChattingSocket = new ServerSocket(ConfigServer.getPort("portchatting"));
             final Group groupMain = new Group("group000", "Main chat");
             groupsList.add(groupMain);
-            while (true) {
+            while (socketForConnectionListens) {
                 try {
-                    Socket clientConnectionSocket = serverConnectSocket.accept();
+                    clientConnectionSocket = serverConnectSocket.accept();
                     connection = new Connection(this, clientConnectionSocket);
                         logger.debug("Client's socket was accepted: [" + clientConnectionSocket.getInetAddress().getHostAddress()
                                 + ":" + clientConnectionSocket.getPort() + "]. Connection success.");
@@ -189,10 +191,41 @@ public final class Server implements ConnectionAgent {
 
             if ((message.getLogin().equals(ConfigServer.getRootAdmin()))
                     && (message.getMessage().equals("/stopServer"))) {
+                message.setMessage("Server was stopped. For change config, use: /set portconnection int, /set portchatting int, /set timeout int");
+                connection.sendToOutStream(HandleXml.marshallingWriter(Message.class, message));
                 stopServer();
+//                socketForConnectionListens = false;
+//                try {
+//                    serverConnectSocket.close();
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+//                try {
+//                    Thread.sleep(20000);
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                }
+//
+//                socketForConnectionListens = true;
+//
+//                try {
+//                    serverConnectSocket = new ServerSocket(ConfigServer.getPort("portconnection"));
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+            }
+            else if ((message.getLogin().equals(ConfigServer.getRootAdmin()))
+                    && (message.getMessage().startsWith("/set portconnection")
+                    || message.getMessage().startsWith("/set portchatting")
+                    || message.getMessage().startsWith("/set timeout"))
+                    && connections.size() == 1) {
+                String[] command = message.getMessage().split(" ");
+                if (command.length == 3) {
+                   ConfigServer.setConfig(command[1], command[2]);
+                }
             }
 
-            if ((message.getLogin().equals(ConfigServer.getRootAdmin()))
+            else if ((message.getLogin().equals(ConfigServer.getRootAdmin()))
                     && (message.getMessage().startsWith("/kick")
                     || message.getMessage().startsWith("/ban")
                     || message.getMessage().startsWith("/unban")

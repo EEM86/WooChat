@@ -3,14 +3,4 @@
     <groupID>group000</groupID>
     <Users-List/>
     <Title-group>Main chat</Title-group>
-    <History-Message>
-        <login>ff</login>
-        <message>123</message>
-        <time>2019-03-12T00:05:08.003+02:00</time>
-    </History-Message>
-    <History-Message>
-        <login>mm</login>
-        <message>45</message>
-        <time>2019-03-12T00:05:10.026+02:00</time>
-    </History-Message>
 </group>
