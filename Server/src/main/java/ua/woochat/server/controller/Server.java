@@ -2,6 +2,7 @@ package ua.woochat.server.controller;
 
 import org.apache.log4j.Logger;
 import ua.woochat.app.*;
+import ua.woochat.server.MainServer;
 import ua.woochat.server.model.ConfigServer;
 
 import javax.xml.bind.JAXBException;
@@ -9,6 +10,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.Executors;
@@ -21,16 +23,16 @@ public final class Server implements ConnectionAgent {
     private static Server server;
     private Set<Connection> connections = new LinkedHashSet<>();
     private Message message;
-    private ArrayList<User> listRegisteredUsers = new ArrayList<>();
+    //private ArrayList<User> listRegisteredUsers = new ArrayList<>();
     private Set<File> listFilesUsers = new HashSet<>();
     private User user;
     private Connection connection;
-    private Map<Integer, ArrayList<String>> onlineUsers = new HashMap<>();
+    //private Map<Integer, ArrayList<String>> onlineUsers = new HashMap<>();
     ServerSocket serverConnectSocket;
     ServerSocket serverChattingSocket;
     Socket clientConnectionSocket;
-    public LinkedHashSet<Group> groupsList = new LinkedHashSet<>();
-    private boolean socketForConnectionListens = true;
+    public Set<Group> groupsList = new LinkedHashSet<>();
+    private boolean socketListensForConnections = true;
 
     final ScheduledExecutorService ses = Executors.newSingleThreadScheduledExecutor();
 
@@ -47,7 +49,7 @@ public final class Server implements ConnectionAgent {
             serverChattingSocket = new ServerSocket(ConfigServer.getPort("portchatting"));
             final Group groupMain = new Group("group000", "Main chat");
             groupsList.add(groupMain);
-            while (socketForConnectionListens) {
+            while (socketListensForConnections) {
                 try {
                     clientConnectionSocket = serverConnectSocket.accept();
                     connection = new Connection(this, clientConnectionSocket);
@@ -106,21 +108,21 @@ public final class Server implements ConnectionAgent {
     @Override
     public synchronized void connectionDisconnect(Connection data) {
         connections.remove(data);
-        String deletedUser = "";
-        for (Group g: groupsList) {
-            //for (Connection entry: g.getUsersList()) {     -- меняем объект connection на стрингу с логином
-            for (String entry: g.getUsersList()) {
-                //if (data.user.getLogin().equals(entry.user.getLogin())) { -- меняем объект connection на стрингу с логином
-                if (data.user.getLogin().equals(entry)) {
-                    deletedUser = entry;
-                    g.removeUser(entry);
-                    break;
-                }
-            }
-        }
+//        String deletedUser = "";
+//        for (Group g: groupsList) {
+//            //for (Connection entry: g.getUsersList()) {     -- меняем объект connection на стрингу с логином
+//            for (String entry: g.getUsersList()) {
+//                //if (data.user.getLogin().equals(entry.user.getLogin())) { -- меняем объект connection на стрингу с логином
+//                if (data.user.getLogin().equals(entry)) {
+//                    deletedUser = entry;
+//                    //g.removeUser(entry);
+//                    break;
+//                }
+//            }
+//        }
         logger.debug("Sending to all info about connection closed");
         Message msg = new Message(11, " has disconnected.");
-        msg.setLogin(deletedUser);
+        msg.setLogin(data.user.getLogin());
         logger.debug("SERVER: user before ==11"  + msg.getLogin());
         //msg.setGroupID("group000");
         sendToAll(HandleXml.marshallingWriter(Message.class, msg));
@@ -129,7 +131,7 @@ public final class Server implements ConnectionAgent {
     }
 
     @Override
-    public void receivedMessage(Connection data, String text) { //добавить синхронайзд
+    public synchronized void receivedMessage(Connection data, String text) { //добавить синхронайзд
         connection = data;
         try {
             message = HandleXml.unMarshallingMessage(text);
@@ -173,6 +175,10 @@ public final class Server implements ConnectionAgent {
 
                 Message messageSend1 = new Message(1,"update");
                 Set<Group> groupSet = Group.groupUser(user.getGroups());
+
+                groupsList.addAll(groupSet);
+
+                logger.debug("GroupsList after user connected: " + groupsList.toString());
 /*                for (Group entry: groupSet) {
                     System.out.println("Group: " + entry.toString());
                 }*/
@@ -194,19 +200,19 @@ public final class Server implements ConnectionAgent {
                 message.setMessage("Server was stopped. For change config, use: /set portconnection int, /set portchatting int, /set timeout int");
                 connection.sendToOutStream(HandleXml.marshallingWriter(Message.class, message));
                 stopServer();
-//                socketForConnectionListens = false;
-//                try {
-//                    serverConnectSocket.close();
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
+                socketListensForConnections = false;
+                try {
+                    serverConnectSocket.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
 //                try {
 //                    Thread.sleep(20000);
 //                } catch (InterruptedException e) {
 //                    e.printStackTrace();
 //                }
 //
-//                socketForConnectionListens = true;
+//                socketListensForConnections = true;
 //
 //                try {
 //                    serverConnectSocket = new ServerSocket(ConfigServer.getPort("portconnection"));
@@ -278,6 +284,7 @@ public final class Server implements ConnectionAgent {
                         }
             } else {
                 for (Group entry: groupsList) {
+                    logger.debug("Какие группы хранятся в груплисте при получении сообщения сервер==2" + groupsList.toString());
                     if (entry.getGroupID().equalsIgnoreCase(message.getGroupID())) {
                         logger.debug("time now " + new Date());
                         HistoryMessage historyMessage = new HistoryMessage(message.getLogin(), message.getMessage());
@@ -564,4 +571,5 @@ public final class Server implements ConnectionAgent {
         logger.debug("SERVER: Обновляю активность пользователю: " + connect.user.getLogin());
         connect.user.setLastActivity(System.currentTimeMillis());
     }
+
 }

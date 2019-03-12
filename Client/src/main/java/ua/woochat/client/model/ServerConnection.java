@@ -100,6 +100,13 @@ public class ServerConnection implements ConnectionAgent {
 
                 // Если нужно вытащить список сообщений по группе
                 Queue<HistoryMessage> historyMessages;
+                for (Group entry: groupSet) {
+                    if (!entry.getGroupID().equals("group000")) {
+                        chatForm.addNewTab(tabCount++, entry.getGroupID(), entry.getGroupID(), true);
+                    }
+
+                }
+
                 // проверка
                 for (Group entry: groupSet) {
 

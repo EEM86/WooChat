@@ -86,15 +86,20 @@ public class Group implements UsersAndGroups {
     }
 
     public void addToListMessage(HistoryMessage historyMessage) {
-        if (!queue.offer(historyMessage)) {
-            queue.poll();
-            queue.offer(historyMessage);
+        if (queue != null) {                       // заглушка нулпоинтера
+            if (!queue.offer(historyMessage)) {
+                queue.poll();
+                queue.offer(historyMessage);
+            }
+            saveGroup();
         }
-        saveGroup();
     }
 
     public void saveGroup() {
         String path = new File("").getAbsolutePath();
+//        File tmp = new File("resources/Group/" + this.getGroupID() + ".xml");
+//        String path = tmp.getAbsolutePath();
+//        File file = new File(path + tmp);
         File file = new File(path + "/Server/src/main/resources/Group/" + this.getGroupID() + ".xml");
         try {
             file.createNewFile();
@@ -149,4 +154,22 @@ public class Group implements UsersAndGroups {
                 '}';
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        }
+        if (obj == null || obj.getClass() != this.getClass()) {
+            return false;
+        }
+
+        Group compare = (Group) obj;
+        return ((groupID.equals(compare.groupID)) && (this.hashCode() == compare.hashCode()));
+    }
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        return result = prime * result + groupID.hashCode();
+    }
 }
