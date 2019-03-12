@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <group>
     <groupID>group000</groupID>
-    <Users-List/>
+    <Users-List>
+        <user>mm</user>
+        <user>ff</user>
+    </Users-List>
     <Title-group>Main chat</Title-group>
 </group>

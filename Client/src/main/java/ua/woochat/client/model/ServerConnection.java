@@ -97,29 +97,22 @@ public class ServerConnection implements ConnectionAgent {
                 logger.info("update");
                 Set<Group> groupSet = message.getGroupListUser();
 
-
                 // Если нужно вытащить список сообщений по группе
                 Queue<HistoryMessage> historyMessages;
+                int i;
                 for (Group entry: groupSet) {
                     if (!entry.getGroupID().equals("group000")) {
-                        chatForm.addNewTab(tabCount++, entry.getGroupID(), entry.getGroupID(), true);
-                    }
-
-                }
-
-                // проверка
-                for (Group entry: groupSet) {
-
-                    // Если нужно вытащить список сообщений по группе
-                    System.out.println("groupSet: " + entry.toString());
-                    historyMessages =  entry.getQueue();
-                    if (historyMessages != null) {
-                        for (HistoryMessage entry1: historyMessages) {
-                            System.out.println("history: " + entry1.toString());
+                        chatForm.addNewTab(tabCount++, entry.getGroupName(), entry.getGroupID(), true);
+                        i = chatForm.getConversationPanel().getSelectedIndex();
+                        historyMessages =  entry.getQueue();
+                        if (historyMessages != null) {
+                            for (HistoryMessage entry1 : historyMessages) {
+                                sendToChat(entry1.getLogin(), entry1.getMessage(), i, entry1.getTime());
+                            }
                         }
                     }
-                }
 
+                }
 
             } else {
                 if (message.getType() == 0) {
@@ -158,7 +151,7 @@ public class ServerConnection implements ConnectionAgent {
 
                 if (chatForm.getConversationPanel().getTitleAt(i).equals(message.getGroupID())) {
                     logger.debug("Нашли ID: " + message.getGroupID());
-                    sendToChat(message.getLogin(), message.getMessage(), i);
+                    sendToChat(message.getLogin(), message.getMessage(), i, null);
                 }
             }
         }
@@ -266,7 +259,7 @@ public class ServerConnection implements ConnectionAgent {
          for (int i = 0; i < tabCount; i++){
              String tabTitle = chatForm.getConversationPanel().getTitleAt(i);
             if (tabTitle.equals(key)){
-                sendToChat(login, "has left WooChat",i);
+                sendToChat(login, "has left WooChat",i, null);
             }
         }
     }
@@ -302,7 +295,7 @@ public class ServerConnection implements ConnectionAgent {
         }
     }
 
-    private void sendToChat(String login, String message, int tabNumber){
+    private void sendToChat(String login, String message, int tabNumber, Date timeMessage){
         JPanel temp;
         JScrollPane sp;
         JTextArea jta;
@@ -313,8 +306,13 @@ public class ServerConnection implements ConnectionAgent {
         jva = (JViewport) sp.getComponent(0);
         jta = (JTextArea)jva.getComponent(0);
 
-        SimpleDateFormat sdf = new SimpleDateFormat("HH:MM:ss");
-        Date date = new Date();
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+        Date date;
+        if (timeMessage == null) {
+            date = new Date();
+        } else {
+            date = timeMessage;
+        }
         //sdf.format(date);
 
         jta.append("[" + sdf.format(date) + "]" + "<" + login + ">: " + message + "\n");

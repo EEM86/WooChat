@@ -86,13 +86,13 @@ public class Group implements UsersAndGroups {
     }
 
     public void addToListMessage(HistoryMessage historyMessage) {
-        if (queue != null) {                       // заглушка нулпоинтера
+        //if (queue != null) {                       // заглушка нулпоинтера
             if (!queue.offer(historyMessage)) {
                 queue.poll();
                 queue.offer(historyMessage);
             }
             saveGroup();
-        }
+        //}
     }
 
     public void saveGroup() {

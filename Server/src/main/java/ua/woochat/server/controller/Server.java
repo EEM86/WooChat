@@ -2,7 +2,6 @@ package ua.woochat.server.controller;
 
 import org.apache.log4j.Logger;
 import ua.woochat.app.*;
-import ua.woochat.server.MainServer;
 import ua.woochat.server.model.ConfigServer;
 
 import javax.xml.bind.JAXBException;
@@ -10,7 +9,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.Executors;
@@ -304,7 +302,7 @@ public final class Server implements ConnectionAgent {
 
         else if (message.getType() == 6) {   //приватный чат  + сделать чтобы группы в файл User.xml записывались
 
-            Group group = new Group("group" + getUniqueID(), message.getGroupTitle());
+            Group group = new Group("group" + getUniqueID(), "Private");
             //Group group = new Group("group00" + groupsList.size());
             groupsList.add(group);
             message.setGroupID(group.getGroupID());
@@ -406,7 +404,7 @@ public final class Server implements ConnectionAgent {
                                     findUser.user.removeGroup(g.getGroupID());
                                 }
                             }
-                            message.setMessage(c + " has left the " + message.getGroupID());
+                            message.setMessage(c + " has left from the group ");
                             g.removeUser(c);
                             //c.user.getGroups().remove(g.getGroupID());
                             break;
