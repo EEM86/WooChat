@@ -43,6 +43,7 @@ public class LoginForm {
     private void createWindow() {
         loginWindow = new JFrame("Login chat");
         loginWindow.getContentPane().setBackground(properties.getBgColor());
+        loginWindow.setIconImage(images.getLogo().getImage());
         loginWindow.setBounds(500, 200, 250, 300);
         loginWindow.setLocationRelativeTo(null);
         loginWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

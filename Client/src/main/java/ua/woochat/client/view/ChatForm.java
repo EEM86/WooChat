@@ -44,7 +44,6 @@ public class ChatForm {
     private JLabel addUserOnlineLabel;
     private JButton sendButton;
     private JButton addUserBtn;
-    private JButton leaveGroupBtn;
     private JButton addUser;
 
     private JTabbedPane conversationPanel;
@@ -107,6 +106,7 @@ public class ChatForm {
 
         addUserListForm = new JFrame("Add user");
         addUserListForm.getContentPane().setBackground(properties.getBgColor());
+        addUserListForm.setIconImage(images.getLogo().getImage());
         addUserListForm.setBounds(700, 500, 170, 370);
         addUserListForm.setLocationRelativeTo(null);
         addUserListForm.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
@@ -196,7 +196,7 @@ public class ChatForm {
         messageContainer.setPreferredSize(new Dimension(687,40));
 
         messageField = new JTextField();
-        messageField.setPreferredSize(new Dimension(405,30));
+        messageField.setPreferredSize(new Dimension(500,30));
         messageField.setActionCommand("enterPressed");
         messageField.addActionListener(chatListener);
 
@@ -207,17 +207,13 @@ public class ChatForm {
 
         addUserBtn = new JButton("Add");
         addUserBtn.setEnabled(false);
-        leaveGroupBtn = new JButton("Leave");
         addUserBtn.setActionCommand("addUserBtn");
-        leaveGroupBtn.setActionCommand("leaveGroupBtn");
 
         btnConfig(addUserBtn);
-        btnConfig(leaveGroupBtn);
 
         messageContainer.add(messageField);
         messageContainer.add(sendButton);
         messageContainer.add(addUserBtn);
-        messageContainer.add(leaveGroupBtn);
     }
 
     /**
@@ -477,10 +473,6 @@ public class ChatForm {
 
     public JButton getAddUserBtn() {
         return addUserBtn;
-    }
-
-    public JButton getLeaveGroupBtn() {
-        return leaveGroupBtn;
     }
 
     private Border border() {

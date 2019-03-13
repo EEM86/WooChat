@@ -231,7 +231,6 @@ public class ServerConnection implements ConnectionAgent {
             chatForm.getSendButton().setEnabled(value);
             chatForm.getMessageField().setEnabled(value);
             chatForm.getAddUserBtn().setEnabled(value);
-            chatForm.getLeaveGroupBtn().setEnabled(value);
     }
 
     private void removeCurrentUserFromOnline(String login) {

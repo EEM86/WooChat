@@ -56,17 +56,12 @@ public class ChatFormListener implements ActionListener {
 
             chatForm.getGroupTextField().setText("");
 
-            logger.debug("Размер МАССИВА:" + s1.size());
             if (s1.size() > 2) {
                 chatForm.getGroupTextField().setEnabled(false);
                 chatForm.getGroupTextField().setText("Недоступно");
             }else {
                 chatForm.getGroupTextField().setEnabled(true);
             }
-        }
-
-        if (e.getActionCommand().equals("leaveGroupBtn")) {
-
         }
 
         if (e.getActionCommand().equals("addUser")) {
