@@ -7,7 +7,6 @@ import ua.woochat.client.view.ChatForm;
 import ua.woochat.client.view.MessageView;
 import ua.woochat.client.view.WindowImages;
 import ua.woochat.client.view.WindowProperties;
-
 import javax.swing.*;
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
@@ -15,40 +14,39 @@ import java.net.Socket;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+/**
+ * class describes methods for processing transfers and receiving requests to the server
+ */
 public class ServerConnection implements ConnectionAgent {
 
-    private Socket socket;
-    private Socket socketChatting;
     public Connection connection;
     private LoginFormListener loginFormListener;
     private ChatForm chatForm;
     private Message message;
-    private WindowProperties windowProperties;
-    private WindowImages windowImages;
     private int tabCount;
     private HashMap<String, ArrayList<String>> onlineState = new HashMap<>();
     private boolean renderComplete;
 
-    final static Logger logger = Logger.getLogger(ServerConnection.class);
-
-    private ArrayList<String> testOnlineList;
+    private final static Logger logger = Logger.getLogger(ServerConnection.class);
 
     public ServerConnection(LoginFormListener loginFormListener){
 
         this.loginFormListener = loginFormListener;
-
         onlineState.put("group000", new ArrayList<>());
 
         try {
-            socket = new Socket(ConfigClient.getServerIP(), ConfigClient.getPortConnection());
+            Socket socket = new Socket(ConfigClient.getServerIP(), ConfigClient.getPortConnection());
             this.connection = new Connection(this, socket);
         } catch (Exception e) {
-
+            e.printStackTrace();
         }
-
     }
 
-    public void sendToServer(String text){ //убрать этот метод, вместо него использовать connection.sendToOutStream(text);
+    /**
+     * Method send message to server
+     * @param text text message
+     */
+    public void sendToServer(String text){
         connection.sendToOutStream(text);
     }
 
@@ -57,12 +55,21 @@ public class ServerConnection implements ConnectionAgent {
 
     }
 
+    /**
+     * Method performs disconnect current connection
+     * @param data current connection
+     */
     @Override
     public void connectionDisconnect(Connection data) {
         data.disconnect();
         System.exit(0);
     }
 
+    /**
+     * Method receive a response from the server and process it.
+     * @param data connection with server
+     * @param text message response
+     */
     @Override
     public void receivedMessage(Connection data, String text) {
         connection = data;
@@ -72,19 +79,15 @@ public class ServerConnection implements ConnectionAgent {
             logger.error("unMarshallingMessage " + e);
         }
 
-        // регистрация либо вход
+        // authorisation or create an account
         if ((message.getType() == 0) || (message.getType() == 1)) {
             if (message.getMessage().startsWith("true")) {
                 int chattingPort = Integer.parseInt(message.getMessage().substring(message.getMessage().indexOf('=') + 1));
                 moveToChattingSocket(chattingPort);
 
                 connection.user = new User(message.getLogin(), message.getPassword());
-                testOnlineList = message.getGroupList();
-
-                loginFormListener.getLoginForm().getLoginWindow().setVisible(false); //закрывается окошко логин формы
+                loginFormListener.getLoginForm().getLoginWindow().setVisible(false);
                 chatWindow(connection.user.getLogin(), this);
-
-
                 chatForm.addNewTab(tabCount++, "WooChat", "group000", false);
 
                 message.setType(3);
@@ -97,7 +100,6 @@ public class ServerConnection implements ConnectionAgent {
                 logger.info("update");
                 Set<Group> groupSet = message.getGroupListUser();
 
-                // Если нужно вытащить список сообщений по группе
                 Queue<HistoryMessage> historyMessages;
                 int i;
                 for (Group entry: groupSet) {
@@ -111,44 +113,35 @@ public class ServerConnection implements ConnectionAgent {
                             }
                         }
                     }
-
                 }
 
             } else {
                 if (message.getType() == 0) {
                     loginFormListener.getLoginForm().getLoginWindow().setEnabled(false);
-                    new MessageView("Пользователь с таким именем уже существует!",
+                    new MessageView("User with the same name already exists!",
                             loginFormListener.getLoginForm().getLoginWindow());
                 } else {
                     loginFormListener.getLoginForm().getLoginWindow().setEnabled(false);
-                    new MessageView("Неверно введен логин или пароль!",
+                    new MessageView("Invalid username or password!",
                             loginFormListener.getLoginForm().getLoginWindow());
                 }
             }
         }
 
-        else if (message.getType() == 3) { //обновляет список юзеров онлайн
-            logger.debug("Пришло название группы " + message.getGroupTitle());
-            logger.debug("Список пользователей: " + message.getGroupList().toString());
-            logger.debug("Пришел groupID: " + message.getGroupID());
-
+        //User list update
+        else if (message.getType() == 3) {
             if (message.getGroupID().equals("group000")){
                 onlineState.put("group000",message.getGroupList());
-                logger.debug("Записываю в group000: " + message.getGroupID());
-                logger.debug("Значение: " + message.getGroupList().toString());
             }else{
-                logger.debug("ELSE сработал");
                 onlineState.put(message.getGroupID(),message.getGroupList());
             }
             reNewAllTabs();
-            renderComplete = true;
+            renderComplete = true; //custom form is completely drawn
         }
 
-        // сообщение
+        //Text message received
         else if (message.getType() == 2) {
-
             for (int i = 0; i < tabCount; i++){
-
                 if (chatForm.getConversationPanel().getTitleAt(i).equals(message.getGroupID())) {
                     logger.debug("Нашли ID: " + message.getGroupID());
                     sendToChat(message.getLogin(), message.getMessage(), i, null);
@@ -156,7 +149,8 @@ public class ServerConnection implements ConnectionAgent {
             }
         }
 
-        else if (message.getType() == 6) {   // работает только для приватного чата, когда пользователей 2!!!
+        //Server response to creating a private chat
+        else if (message.getType() == 6) {
             ArrayList<String> currentGroupList = message.getGroupList();
             String result = currentGroupList.get(currentGroupList.size() - 1);
             if (result.equals(connection.user.getLogin())) {
@@ -168,41 +162,42 @@ public class ServerConnection implements ConnectionAgent {
                 onlineState.put(message.getGroupID(), message.getGroupList());
                 reNewAllTabs();
             }
-            logger.debug("делаю setID для вкладки: " + message.getGroupID());
         }
 
+        //Add user to private chat
         else if (message.getType() == 7) {
-            logger.debug("Спиcок пользователей: ==7:" + message.getGroupList());
+            logger.debug("List of users to ==7:" + message.getGroupList());
             chatForm.addNewTab(tabCount++,message.getGroupTitle(), message.getGroupID(),true);
-            logger.debug("Обновляю с ==7 " + message.getGroupList());
+            logger.debug("Update onlineState " + message.getGroupList());
             onlineState.put(message.getGroupID(), message.getGroupList());
             reNewAllTabs();
-
         }
 
+        //Getting a list of users who are not in a current group
         else if (message.getType() == 8) {
             ArrayList<String> onlineUsersWithoutPrivateGroups = message.getGroupList();
 
             for (String entry: onlineUsersWithoutPrivateGroups) {
-                logger.debug("Спиcок пользователей: " + entry);
+                logger.debug("list of users who are not in a current group: " + entry);
             }
             chatForm.getChatListener().reNewAddList(onlineUsersWithoutPrivateGroups);
         }
+
+        //Chat disconnecting response
         else if (message.getType() == 11) {
-            logger.debug("SERVER: user at  ==11"  + message.getLogin());
+            logger.debug("Login of user who disconnect: "  + message.getLogin());
             removeCurrentUserFromOnline(message.getLogin());
         }
+
+        //Response of tab rename
         else if (message.getType() == 12) {
-            logger.debug("Спиcок пользователей: ==12:" + message.getGroupList());
             tabRename(message.getGroupTitle(), message.getGroupID());
-            logger.debug("Обновляю с ==12 " + message.getGroupList());
             onlineState.put(message.getGroupID(),message.getGroupList());
             reNewAllTabs();
         }
 
-        else if (message.getType() == 13) {           // На Сервере админ кикает пользователя и присылает сюда его данные
-
-
+        //User kick response
+        else if (message.getType() == 13) {
             for (int i = 0; i < tabCount; i++){
                 String tabTitle = chatForm.getConversationPanel().getTitleAt(i);
                 if (tabTitle.equals(message.getGroupID())){
@@ -213,7 +208,8 @@ public class ServerConnection implements ConnectionAgent {
             leaveGroup(message.getGroupID());
         }
 
-        else if (message.getType() == 99) {           // На Сервере админ банит пользователя на время и присылает его данные сюда
+        //User ban response
+        else if (message.getType() == 99) {
             if (message.isBanned()) {
                 new MessageView(message.getMessage(), chatForm.getChatForm());
                 setButtonsActive(false);
@@ -222,38 +218,51 @@ public class ServerConnection implements ConnectionAgent {
             }
         }
 
+        //User disconnect response
         else if (message.getType() == 23) {           // В данном методе происходит дисконнект юзера
             disconnectRequest();
+            }
         }
-    }
 
+    /**
+     * Method sets the buttons enable
+      * @param value boolean value
+     */
     private void setButtonsActive(boolean value) {
             chatForm.getSendButton().setEnabled(value);
             chatForm.getMessageField().setEnabled(value);
             chatForm.getAddUserBtn().setEnabled(value);
     }
 
+    /**
+     * Methods remove current user from online list
+     * @param login login of removed user
+     */
     private void removeCurrentUserFromOnline(String login) {
-        ArrayList<String> temp = null;
+        ArrayList<String> temp;
         for(Map.Entry<String, ArrayList<String>> entry: onlineState.entrySet()) {
             temp = entry.getValue();
-            logger.debug("Пробегаю по группе:" + entry.getKey());
+            logger.debug("Find user in group:" + entry.getKey());
 
             for (String user: temp ){
-                System.out.println("Before romoving:" + temp.toString());
+                System.out.println("Before remove:" + temp.toString());
                 if(user.equals(login)){
-                    System.out.println("GROUP:" + entry.getKey() + " USER:" + user);
                     offlineMessage(entry.getKey(), login);
                     logger.debug("Remove login: " + user);
                     temp.remove(login);
                     break;
                 }
             }
-            System.out.println("After romoving:" + temp.toString());
+            System.out.println("After remove:" + temp.toString());
         }
         reNewAllTabs();
     }
 
+    /**
+     * Method send a message to chat if user is offline
+     * @param key value of tab title
+     * @param login user login
+     */
     private void offlineMessage(String key, String login) {
          for (int i = 0; i < tabCount; i++){
              String tabTitle = chatForm.getConversationPanel().getTitleAt(i);
@@ -263,6 +272,9 @@ public class ServerConnection implements ConnectionAgent {
         }
     }
 
+    /**
+     * Method renew online list of all tabs
+     */
     private void reNewAllTabs(){
         for (int i = 0; i < tabCount; i++) {
             String tabTitle = chatForm.getConversationPanel().getTitleAt(i);
@@ -275,18 +287,22 @@ public class ServerConnection implements ConnectionAgent {
     }
 
     /**
-     * Метод создает новое окно чата для авторизированного/зарегистрированного пользователя
-     * @param user пользователь который успешно авторизирован
+     * The method creates a new chat window for an authorized / registered user.
+     * @param user user who is logged/registered in successfully
      */
     private void chatWindow(String user, ServerConnection serverConnection) {
-        windowProperties = loginFormListener.getLoginForm().getProperties();
-        windowImages = loginFormListener.getLoginForm().getImages();
+        WindowProperties windowProperties = loginFormListener.getLoginForm().getProperties();
+        WindowImages windowImages = loginFormListener.getLoginForm().getImages();
         chatForm = new ChatForm(windowProperties, windowImages, user, serverConnection);
     }
 
+    /**
+     * Method move the client to new port
+     * @param chattingPort new server port
+     */
     private void moveToChattingSocket(int chattingPort) {
         try {
-            socketChatting = new Socket(ConfigClient.getServerIP(), chattingPort);
+            Socket socketChatting = new Socket(ConfigClient.getServerIP(), chattingPort);
             connection.setSocket(socketChatting);
             logger.debug("Client has changed connection socket to chatting socket:" + socketChatting.getInetAddress() + ":" + socketChatting.getPort());
         } catch (IOException e) {
@@ -294,6 +310,13 @@ public class ServerConnection implements ConnectionAgent {
         }
     }
 
+    /**
+     * Method send text message to the current chat
+     * @param login login of user who send a text message
+     * @param message text message
+     * @param tabNumber tab number
+     * @param timeMessage time of message
+     */
     private void sendToChat(String login, String message, int tabNumber, Date timeMessage){
         JPanel temp;
         JScrollPane sp;
@@ -312,7 +335,6 @@ public class ServerConnection implements ConnectionAgent {
         } else {
             date = timeMessage;
         }
-        //sdf.format(date);
 
         jta.append("[" + sdf.format(date) + "]" + "<" + login + ">: " + message + "\n");
         chatForm.getMessageField().setText("");
@@ -324,6 +346,10 @@ public class ServerConnection implements ConnectionAgent {
         }
     }
 
+    /**
+     * Method update online list for current tab
+     * @param index tab index
+     */
     public void changeTabReNewOnlineList(int index){
         logger.debug("Обновляю список по вкладке с groupID: "  + chatForm.getConversationPanel().getTitleAt(index));
         if (renderComplete) {
@@ -334,8 +360,8 @@ public class ServerConnection implements ConnectionAgent {
     }
 
     /**
-     * Метод обновляет список онлайн пользователей
-     * @param tOl список пользователей
+     * Method update online list
+     * @param tOl new list of users
      */
     private void reNewOnlineList(ArrayList<String> tOl) {
         chatForm.getScrollPane().setVisible(false);
@@ -343,23 +369,22 @@ public class ServerConnection implements ConnectionAgent {
         int i=0;
 
         for (String entry: tOl) {
-            logger.debug("Inside: " + entry);
             chatForm.getModel().add(i, entry);
             i++;
         }
-
         chatForm.getScrollPane().setVisible(true);
         chatForm.getUserOnlineLabel().setText("Online users: (" + Integer.toString(tOl.size()) + ")");
     }
 
     /**
-     * При нажатии на кнопку закрытия вкладки, метод отправляет серверу запрос на удаление пользователя с группы
-     * @param groupID ID группы которую пользователь хочет покинуть
+     * When clicking on the close button of the tab, the method sends the server a request to delete the user
+     * from the group
+     * @param groupID id of the group
      */
     public void leaveGroup(String groupID){
         for(Map.Entry<String, ArrayList<String>> entry: onlineState.entrySet()){
             if (entry.getKey().equals(groupID)){
-                logger.debug("Удаляю значение по getKey" + groupID);
+                logger.debug("remove value of getKey" + groupID);
                 onlineState.remove(entry.getKey());
                 break;
             }
@@ -372,6 +397,10 @@ public class ServerConnection implements ConnectionAgent {
         sendToServer(HandleXml.marshallingWriter(Message.class, msg));
     }
 
+    /**
+     * Method returns true if all of customer form is drawing
+     * @return true or false value
+     */
     public boolean isRenderComplete() {
         return renderComplete;
     }
@@ -380,6 +409,9 @@ public class ServerConnection implements ConnectionAgent {
         return onlineState;
     }
 
+    /**
+     * Method send a disconnect request to server
+     */
     public void disconnectRequest() {
         Message msg = new Message(11, "");
         msg.setLogin(connection.user.getLogin());
@@ -387,7 +419,12 @@ public class ServerConnection implements ConnectionAgent {
         connectionDisconnect(connection);
     }
 
-    public void tabRename(String newTitle, String groupID){
+    /**
+     * Method rename tab of current group id
+     * @param newTitle new tab name
+     * @param groupID current tab id
+     */
+    private void tabRename(String newTitle, String groupID){
         for (int i = 0; i < tabCount; i++) {
             String tabTitle = chatForm.getConversationPanel().getTitleAt(i);
                 if (tabTitle.equals(groupID)){
@@ -399,17 +436,20 @@ public class ServerConnection implements ConnectionAgent {
             }
         }
 
+    /**
+     * Find and select tab if we try to create new private chat
+      * @param user private chatting user name
+     * @return true if tab is found and false if not
+     */
     public boolean isChatFounded(String user) {
         for (int i = 0; i < tabCount; i++){
             ChatForm.TabTitle ob =  (ChatForm.TabTitle)chatForm.getConversationPanel().getTabComponentAt(i);
             JLabel jLabel = ob.getLbl();
 
             if (jLabel.getText().equals(user)){
-                logger.debug("Сработало: 3" + chatForm.getConversationPanel().getTitleAt(i));
                 chatForm.getConversationPanel().setSelectedIndex(i);
                 return true;
             }
-            logger.debug("Сработало: 4");
         }
         return false;
     }

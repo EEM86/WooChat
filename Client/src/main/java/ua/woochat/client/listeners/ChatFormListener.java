@@ -6,28 +6,32 @@ import ua.woochat.app.Message;
 import ua.woochat.client.model.ServerConnection;
 import ua.woochat.client.view.ChatForm;
 import ua.woochat.client.view.MessageView;
-
-
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
+/**
+ * Class describes methods for handling chat form events
+ */
 public class ChatFormListener implements ActionListener {
     private ChatForm chatForm;
-    final static Logger logger = Logger.getLogger(ServerConnection.class);
+    private final static Logger logger = Logger.getLogger(ServerConnection.class);
 
     public ChatFormListener(ChatForm chatForm) {
         this.chatForm = chatForm;
     }
 
+    /**
+     * Method handles the events that occurred when clicking on buttons and switching tabs
+     * @param e event
+     */
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getActionCommand().equals("sendButton")) {
             String message = chatForm.getMessageField().getText();
             if (message.equals("")){}
             else {
-                logger.debug("Клиент:Сработала кнопка отправить: " + chatForm.getServerConnection().connection.user.getLogin());
                 sendMessage(message);
             }
         }
@@ -41,7 +45,6 @@ public class ChatFormListener implements ActionListener {
         }
 
         if (e.getActionCommand().equals("addUserBtn")) {
-
             String group = chatForm.getConversationPanel().getTitleAt(chatForm.getConversationPanel().getSelectedIndex());
 
             Message msg = new Message(8, "");
@@ -58,7 +61,7 @@ public class ChatFormListener implements ActionListener {
 
             if (s1.size() > 2) {
                 chatForm.getGroupTextField().setEnabled(false);
-                chatForm.getGroupTextField().setText("Недоступно");
+                chatForm.getGroupTextField().setText("Unavailable");
             }else {
                 chatForm.getGroupTextField().setEnabled(true);
             }
@@ -67,11 +70,11 @@ public class ChatFormListener implements ActionListener {
         if (e.getActionCommand().equals("addUser")) {
             int idx = chatForm.getAddUserList().getSelectedIndex();
             if (idx == -1){
-                new MessageView("Выберите пользователя", chatForm.getAddUserListForm());
+                new MessageView("Select a user", chatForm.getAddUserListForm());
             }else{
                 if(chatForm.getGroupTextField().isEnabled()){
                     if(chatForm.getGroupTextField().getText().equals("")) {
-                         new MessageView("Введите название группы", chatForm.getAddUserListForm());
+                         new MessageView("Enter group name", chatForm.getAddUserListForm());
                 }else{
                         String user2 = chatForm.getAddUserModel().get(idx);
                         String groupID = chatForm.getConversationPanel().getTitleAt(chatForm.getConversationPanel().getSelectedIndex());
@@ -100,11 +103,10 @@ public class ChatFormListener implements ActionListener {
     }
 
     /**
-     * Метод обновляет список доступных для добавления пользователей
-     * @param list спикок пользователей доступных для добавления
+     * Method updates the list of users to add.
+     * @param list list of users available to add
      */
     public void reNewAddList(ArrayList<String> list) {
-
         chatForm.getAddUserScrollPane().setVisible(false);
         chatForm.getAddUserModel().clear();
 
@@ -117,9 +119,9 @@ public class ChatFormListener implements ActionListener {
     }
 
     /**
-     * Метод отправляет запрос на создание приватного чата с другим пользователем
-     * @param user1 имя текущего пользователя
-     * @param user2 имя пользователя с которым создается приватный чат
+     * Method sends a request to create a private chat with another user.
+     * @param user1 current user name
+     * @param user2 username with which a private chat is being created
      */
     public void privateGroupCreate(String user1, String user2) {
         Message message = new Message(6, "");
@@ -130,7 +132,13 @@ public class ChatFormListener implements ActionListener {
         chatForm.getServerConnection().sendToServer(HandleXml.marshallingWriter(Message.class, message));
     }
 
-    public void addUserToCurrentGroup(String name, String groupID, String groupName) {
+    /**
+     * Method adds a user to an existing group
+     * @param name name of user to add
+     * @param groupID group id
+     * @param groupName group title
+     */
+    private void addUserToCurrentGroup(String name, String groupID, String groupName) {
         Message msg = new Message(7, "Connected" + name + " to " + groupID);
         msg.setLogin(name);
         msg.setGroupID(groupID);
@@ -139,10 +147,10 @@ public class ChatFormListener implements ActionListener {
     }
 
     /**
-     * Метод отправляет текстовое сообщение на сервер
-     * @param text текст сообщения
+     * Method sends a text message to the server.
+     * @param text text message
      */
-    public void sendMessage(String text) {
+    private void sendMessage(String text) {
 
         String name = chatForm.getServerConnection().connection.user.getLogin();
         Message message = new Message(2, text);
@@ -158,9 +166,10 @@ public class ChatFormListener implements ActionListener {
             chatForm.getMessageField().setText("");
         }
     }
+
     /**
-     * Метод вызывается когда пользователь покидает группу
-     * @param groupID имя группы которую покидает пользователь
+     * Method is called when the user leaves the group.
+     * @param groupID id of the group that the user leaves
      */
     public void pressedCloseGroup(String groupID){
         chatForm.getServerConnection().leaveGroup(groupID);
