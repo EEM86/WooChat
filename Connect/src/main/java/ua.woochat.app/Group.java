@@ -30,7 +30,6 @@ public class Group implements UsersAndGroups {
         this.groupID = idGroup;
         this.groupName = groupName;
         queue = new ArrayBlockingQueue<HistoryMessage>(20);
-        saveGroup();
     }
 
     public Set<String> getUsersList() {
@@ -39,12 +38,10 @@ public class Group implements UsersAndGroups {
 
     public void addUser (String login){
         usersList.add(login);
-        saveGroup();
     }
 
     public void removeUser (String login){
         usersList.remove(login);
-        saveGroup();
     }
 
     public Set<String> getOnlineUsersList () {
@@ -53,12 +50,10 @@ public class Group implements UsersAndGroups {
 
     public void addOnlineUser (String login){
         onlineUsersList.add(login);
-        saveGroup();
     }
 
     public void removeOnlineUser (String login){
         onlineUsersList.remove(login);
-        saveGroup();
     }
 
     public String getGroupID() {
@@ -72,7 +67,6 @@ public class Group implements UsersAndGroups {
     @XmlElement(name="Title-group")
     public void setGroupName(String groupName) {
         this.groupName = groupName;
-        saveGroup();
     }
 
     @XmlElement(name="History-Message")
@@ -81,18 +75,14 @@ public class Group implements UsersAndGroups {
     }
 
     public void setQueue(Queue<HistoryMessage> queue) {
-        this.queue = queue;
-        saveGroup();
+        this.queue = queue;;
     }
 
     public void addToListMessage(HistoryMessage historyMessage) {
-        //if (queue != null) {                       // заглушка нулпоинтера
             if (!queue.offer(historyMessage)) {
                 queue.poll();
                 queue.offer(historyMessage);
             }
-            saveGroup();
-        //}
     }
 
     public void saveGroup() {
@@ -120,11 +110,13 @@ public class Group implements UsersAndGroups {
         Set<Group> groupSet = new LinkedHashSet<>();
         String path = new File("").getAbsolutePath();
         File file;
-        Group group;
         for (String entry : groups) {
             file = new File(path + "/Server/src/main/resources/Group/" + entry + ".xml");
             if (file.isFile()) {
-                group = (Group) HandleXml.unMarshalling(file, Group.class);
+                //newGroup = (Group) HandleXml.unMarshalling(file, Group.class);
+                //newGroup = (Group) HandleXml.unMarshalling(file, Group.class);
+                //groupSet.add(newGroup);
+                Group group = (Group) HandleXml.unMarshalling(file, Group.class);
                 groupSet.add(group);
             }
         }
@@ -166,6 +158,7 @@ public class Group implements UsersAndGroups {
         Group compare = (Group) obj;
         return ((groupID.equals(compare.groupID)) && (this.hashCode() == compare.hashCode()));
     }
+
     @Override
     public int hashCode() {
         final int prime = 31;

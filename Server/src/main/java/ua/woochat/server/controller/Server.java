@@ -46,6 +46,7 @@ public final class Server implements ConnectionAgent {
             serverConnectSocket = new ServerSocket(ConfigServer.getPort("portconnection"));
             serverChattingSocket = new ServerSocket(ConfigServer.getPort("portchatting"));
             final Group groupMain = new Group("group000", "Main chat");
+            groupMain.saveGroup();
             groupsList.add(groupMain);
             while (socketListensForConnections) {
                 try {
@@ -96,6 +97,7 @@ public final class Server implements ConnectionAgent {
                 if (entry.equalsIgnoreCase(group.getGroupID())) {
                     //group.addUser(data);   -- меняем объект connection на стрингу с логином
                     group.addUser(data.user.getLogin());
+                    group.saveGroup();
                     logger.debug("Users in group \"" + group.getGroupID() + "\": ");
                     group.getUsersList().stream().forEach(x -> System.out.println(x)); //печатает в консоль список юзеров в группе
                 }
@@ -287,6 +289,7 @@ public final class Server implements ConnectionAgent {
                         logger.debug("time now " + new Date());
                         HistoryMessage historyMessage = new HistoryMessage(message.getLogin(), message.getMessage());
                         entry.addToListMessage(historyMessage);
+                        entry.saveGroup();
                         sendToAllGroup(entry.getGroupID(), HandleXml.marshallingWriter(Message.class, message)); // -- меняем объект Коннекшн на стрингу логина
                     }
                 }
@@ -300,9 +303,10 @@ public final class Server implements ConnectionAgent {
            sendToAllGroup(message.getGroupID(), HandleXml.marshallingWriter(Message.class, message));
         }
 
-        else if (message.getType() == 6) {   //приватный чат  + сделать чтобы группы в файл User.xml записывались
+        else if (message.getType() == 6) {   //приватный чат
 
             Group group = new Group("group" + getUniqueID(), "Private");
+            group.saveGroup();
             //Group group = new Group("group00" + groupsList.size());
             groupsList.add(group);
             message.setGroupID(group.getGroupID());
@@ -314,6 +318,7 @@ public final class Server implements ConnectionAgent {
                         //group.addUser(entry.user.getLogin());
                         //group.addUser(entry);  -- меняем объект Коннекшн на стрингу логина
                         group.addUser(entry.user.getLogin()); // -- меняем объект Коннекшн на стрингу логина
+                        group.saveGroup();
                         entry.sendToOutStream(HandleXml.marshallingWriter(Message.class, message));
                         logger.debug("Who is in group list: ");
                         group.getUsersList().stream().forEach(x -> System.out.println(x));
@@ -332,9 +337,8 @@ public final class Server implements ConnectionAgent {
                     for (Group g : groupsList) {
                         if (g.getGroupID().equals(message.getGroupID())) {
                             g.addUser(entry.user.getLogin());
-
                             g.setGroupName(message.getGroupTitle());
-
+                            g.saveGroup();
                             result.addAll(g.getUsersList());
                         }
                     }
@@ -406,13 +410,17 @@ public final class Server implements ConnectionAgent {
                             }
                             message.setMessage(c + " has left from the group ");
                             g.removeUser(c);
+                            g.saveGroup();
+                            if (g.getUsersList().size() == 0) {
+                                removeGroup(g.getGroupID());
+                                groupsList.remove(g);
+                            }
                             //c.user.getGroups().remove(g.getGroupID());
                             break;
                         }
                     }
                     message.setType(2);
                     sendToAllGroup(g.getGroupID(), HandleXml.marshallingWriter(Message.class, message));
-
 
                     message.setGroupList(new ArrayList<>(g.getUsersList()));
                     message.setType(3);
@@ -568,6 +576,15 @@ public final class Server implements ConnectionAgent {
     private void updateUserActivity(Connection connect){
         logger.debug("SERVER: Обновляю активность пользователю: " + connect.user.getLogin());
         connect.user.setLastActivity(System.currentTimeMillis());
+    }
+
+    public void removeGroup(String group) {
+        String path = new File("").getAbsolutePath();
+//        File tmp = new File("resources/Group/" + this.getGroupID() + ".xml");
+//        String path = tmp.getAbsolutePath();
+//        File file = new File(path + tmp);
+        File file = new File(path + "/Server/src/main/resources/Group/" + group + ".xml");
+        file.delete();
     }
 
 }
