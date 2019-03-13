@@ -5,6 +5,9 @@ import java.io.*;
 
 public class HandleXml {
 
+    /**
+     * Method marshalling instance of the class to XML file
+     */
     public static void marshalling(Class marshalClass, Object user, FileOutputStream stream) {
         try {
             JAXBContext context = JAXBContext.newInstance(marshalClass);
@@ -18,6 +21,10 @@ public class HandleXml {
         }
     }
 
+    /**
+     * Method marshalling instance of the class to XML string
+     * @return writer.toString()
+     */
     public static String marshallingWriter(Class marshClass, Object user) {
         StringWriter writer = new StringWriter();
         try {
@@ -33,6 +40,10 @@ public class HandleXml {
         return writer.toString();
     }
 
+    /**
+     * Method unMarshalling XML string to instance of the class Message
+     * @return instance of the class Message
+     */
     public static Message unMarshallingMessage(String str) throws JAXBException {
         StringReader reader = new StringReader(str);
         JAXBContext context = JAXBContext.newInstance(Message.class);
@@ -42,6 +53,10 @@ public class HandleXml {
         return message;
     }
 
+    /**
+     * Method unMarshalling XML file to instance of the class UserAndGroups
+     * @return instance of the class UserAndGroups
+     */
     public static UsersAndGroups unMarshalling(File file, Class unMarshalClas) {
         UsersAndGroups user = null;
         try {
