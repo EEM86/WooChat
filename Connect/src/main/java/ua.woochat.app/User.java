@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -43,11 +44,7 @@ public class User implements UsersAndGroups {
     public User() {
     }
 
-    /**
-     * Method saves user in XML file
-     */
-    @Override
-    public void save() {
+    public void saveUser() {
         HandleXml handleXml = new HandleXml();
         String path = new File("").getAbsolutePath();
         File file = new File(path + "/Server/src/main/resources/User/" + this.getId() + ".xml");
@@ -97,12 +94,12 @@ public class User implements UsersAndGroups {
 
     public void addGroup(String groupID) {
         groups.add(groupID);
-        save();
+        saveUser();
     }
 
     public void removeGroup(String groupID) {
         groups.remove(groupID);
-        save();
+        saveUser();
     }
 
 
@@ -129,7 +126,7 @@ public class User implements UsersAndGroups {
 
     public void setBan(boolean ban) {
         this.isBanned = ban;
-        //save();
+        //saveUser();
     }
 
     /**
@@ -140,13 +137,13 @@ public class User implements UsersAndGroups {
         int minuteToMillisecs = 60000;
         setBan(true);
         timetoUnban = System.currentTimeMillis() + interval * minuteToMillisecs;
-        //save();
+        //saveUser();
     }
 
     public void unban() {
         timetoUnban = 0;
         setBan(false);
-        //save();
+        //saveUser();
     }
 
     public boolean readyForUnban() {
@@ -164,10 +161,6 @@ public class User implements UsersAndGroups {
         this.lastActivity = lastActivity;
     }
 
-    /**
-     * Method user to String
-     * @return String for user
-     */
     @Override
     public String toString() {
         return "User{" +

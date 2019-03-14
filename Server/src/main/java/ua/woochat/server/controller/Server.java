@@ -46,14 +46,14 @@ public final class Server implements ConnectionAgent {
             serverConnectSocket = new ServerSocket(ConfigServer.getPort("portconnection"));
             serverChattingSocket = new ServerSocket(ConfigServer.getPort("portchatting"));
             final Group groupMain = new Group("group000", "Main chat");
-            groupMain.save();
+            groupMain.saveGroup();
             groupsList.add(groupMain);
             while (socketListensForConnections) {
                 try {
                     clientConnectionSocket = serverConnectSocket.accept();
                     connection = new Connection(this, clientConnectionSocket);
-                        logger.debug("Client's socket was accepted: [" + clientConnectionSocket.getInetAddress().getHostAddress()
-                                + ":" + clientConnectionSocket.getPort() + "]. Connection success.");
+                    logger.debug("Client's socket was accepted: [" + clientConnectionSocket.getInetAddress().getHostAddress()
+                            + ":" + clientConnectionSocket.getPort() + "]. Connection success.");
                 } catch (IOException e) {
                     logger.error("Connection exception " + e);
                 }
@@ -97,7 +97,7 @@ public final class Server implements ConnectionAgent {
                 if (entry.equalsIgnoreCase(group.getGroupID())) {
                     //group.addUser(data);   -- меняем объект connection на стрингу с логином
                     group.addUser(data.user.getLogin());
-                    group.save();
+                    group.saveGroup();
                     logger.debug("Users in group \"" + group.getGroupID() + "\": ");
                     group.getUsersList().stream().forEach(x -> System.out.println(x)); //печатает в консоль список юзеров в группе
                 }
@@ -145,7 +145,7 @@ public final class Server implements ConnectionAgent {
             if (verificationName(message.getLogin())) { // проверка существует ли имя
                 connection.user = new User(message.getLogin(), message.getPassword());
                 connection.user.addGroup("group000");
-               // groupsList.iterator().next().addUser(connection);
+                // groupsList.iterator().next().addUser(connection);
                 connectionCreated(connection);
                 messageSend.setLogin(message.getLogin());
                 messageSend.setMessage("true, port=" + ConfigServer.getPort("portchatting"));
@@ -227,7 +227,7 @@ public final class Server implements ConnectionAgent {
                     && connections.size() == 1) {
                 String[] command = message.getMessage().split(" ");
                 if (command.length == 3) {
-                   ConfigServer.setConfig(command[1], command[2]);
+                    ConfigServer.setConfig(command[1], command[2]);
                 }
             }
 
@@ -237,51 +237,51 @@ public final class Server implements ConnectionAgent {
                     || message.getMessage().startsWith("/unban")
                     || message.getMessage().startsWith("/help"))) {
 
-                        String[] command = message.getMessage().split(" ");
+                String[] command = message.getMessage().split(" ");
 
-                        if (command.length > 1) {
-                            for (Group g : groupsList) {
-                                if (g.getGroupID().equals(message.getGroupID())) {
-                                    for (String c : g.getUsersList()) {
-                                        if (command[1] != null && command[1].equals(c)) {
-                                            for (Connection findUser : connections) {
-                                                if (findUser.user.getLogin().equals(c) && !c.equals(ConfigServer.getRootAdmin())) {
-                                                    Message msg = new Message(2, "");
-                                                    msg.setLogin(findUser.user.getLogin());
-                                                    msg.setGroupID(g.getGroupID());
-                                                    if ((message.getMessage().startsWith("/kick")) && (command.length > 1)) {
-                                                        msg.setType(13);
-                                                        logger.debug("Сервер отправляет в ServerConnection ==13 логин того кого надо кикнуть и группу откуда: " + g.getGroupID());
-                                                        findUser.sendToOutStream(HandleXml.marshallingWriter(Message.class, msg));
-                                                    }
-                                                    else if ((message.getMessage().startsWith("/ban")) && (command.length > 3)) {
-                                                        msg.setType(99);
-                                                        msg.setBanned(true);
-                                                        msg.setMessage("You've banned for " + command[2] + " minutes. Reason: " + command[command.length - 1]);
-                                                        logger.debug("Cервер забанил юзера " + msg.getLogin() + " на " + command[2] + " минут");
-                                                        findUser.user.setBanInterval(Integer.parseInt(command[2]));
-                                                        findUser.sendToOutStream(HandleXml.marshallingWriter(Message.class, msg));
-                                                        message.setMessage(findUser.user.getLogin() + " was banned.");
-                                                        connection.sendToOutStream(HandleXml.marshallingWriter(Message.class, message));
-                                                    }
-                                                    else if ((message.getMessage().startsWith("/unban")) && (command.length > 1)) {
-                                                        findUser.user.unban();
-                                                        msg.setType(99);
-                                                        msg.setBanned(false);
-                                                        findUser.sendToOutStream(HandleXml.marshallingWriter(Message.class, msg));
-                                                        message.setMessage(findUser.user.getLogin() + " was unbanned.");
-                                                        connection.sendToOutStream(HandleXml.marshallingWriter(Message.class, message));
-                                                    }
-                                                }
+                if (command.length > 1) {
+                    for (Group g : groupsList) {
+                        if (g.getGroupID().equals(message.getGroupID())) {
+                            for (String c : g.getUsersList()) {
+                                if (command[1] != null && command[1].equals(c)) {
+                                    for (Connection findUser : connections) {
+                                        if (findUser.user.getLogin().equals(c) && !c.equals(ConfigServer.getRootAdmin())) {
+                                            Message msg = new Message(2, "");
+                                            msg.setLogin(findUser.user.getLogin());
+                                            msg.setGroupID(g.getGroupID());
+                                            if ((message.getMessage().startsWith("/kick")) && (command.length > 1)) {
+                                                msg.setType(13);
+                                                logger.debug("Сервер отправляет в ServerConnection ==13 логин того кого надо кикнуть и группу откуда: " + g.getGroupID());
+                                                findUser.sendToOutStream(HandleXml.marshallingWriter(Message.class, msg));
+                                            }
+                                            else if ((message.getMessage().startsWith("/ban")) && (command.length > 3)) {
+                                                msg.setType(99);
+                                                msg.setBanned(true);
+                                                msg.setMessage("You've banned for " + command[2] + " minutes. Reason: " + command[command.length - 1]);
+                                                logger.debug("Cервер забанил юзера " + msg.getLogin() + " на " + command[2] + " минут");
+                                                findUser.user.setBanInterval(Integer.parseInt(command[2]));
+                                                findUser.sendToOutStream(HandleXml.marshallingWriter(Message.class, msg));
+                                                message.setMessage(findUser.user.getLogin() + " was banned.");
+                                                connection.sendToOutStream(HandleXml.marshallingWriter(Message.class, message));
+                                            }
+                                            else if ((message.getMessage().startsWith("/unban")) && (command.length > 1)) {
+                                                findUser.user.unban();
+                                                msg.setType(99);
+                                                msg.setBanned(false);
+                                                findUser.sendToOutStream(HandleXml.marshallingWriter(Message.class, msg));
+                                                message.setMessage(findUser.user.getLogin() + " was unbanned.");
+                                                connection.sendToOutStream(HandleXml.marshallingWriter(Message.class, message));
                                             }
                                         }
                                     }
                                 }
                             }
-                        } else {
-                            message.setMessage("Kick format: /kick user. Ban format: /ban user time(in minutes) reason(only 1 word). Unban format: unban user");
-                            connection.sendToOutStream(HandleXml.marshallingWriter(Message.class, message));
                         }
+                    }
+                } else {
+                    message.setMessage("Kick format: /kick user. Ban format: /ban user time(in minutes) reason(only 1 word). Unban format: unban user");
+                    connection.sendToOutStream(HandleXml.marshallingWriter(Message.class, message));
+                }
             } else {
                 for (Group entry: groupsList) {
                     logger.debug("Какие группы хранятся в груплисте при получении сообщения сервер==2" + groupsList.toString());
@@ -289,7 +289,7 @@ public final class Server implements ConnectionAgent {
                         logger.debug("time now " + new Date());
                         HistoryMessage historyMessage = new HistoryMessage(message.getLogin(), message.getMessage());
                         entry.addToListMessage(historyMessage);
-                        entry.save();
+                        entry.saveGroup();
                         sendToAllGroup(entry.getGroupID(), HandleXml.marshallingWriter(Message.class, message)); // -- меняем объект Коннекшн на стрингу логина
                     }
                 }
@@ -299,14 +299,14 @@ public final class Server implements ConnectionAgent {
         }
 
         else if (message.getType() == 3) { //обновляет список всех пользователей онлайн в чате
-           message.setGroupList(getOnlineUsers());
-           sendToAllGroup(message.getGroupID(), HandleXml.marshallingWriter(Message.class, message));
+            message.setGroupList(getOnlineUsers());
+            sendToAllGroup(message.getGroupID(), HandleXml.marshallingWriter(Message.class, message));
         }
 
         else if (message.getType() == 6) {   //приватный чат
 
             Group group = new Group("group" + getUniqueID(), "Private");
-            group.save();
+            group.saveGroup();
             //Group group = new Group("group00" + groupsList.size());
             groupsList.add(group);
             message.setGroupID(group.getGroupID());
@@ -318,7 +318,7 @@ public final class Server implements ConnectionAgent {
                         //group.addUser(entry.user.getLogin());
                         //group.addUser(entry);  -- меняем объект Коннекшн на стрингу логина
                         group.addUser(entry.user.getLogin()); // -- меняем объект Коннекшн на стрингу логина
-                        group.save();
+                        group.saveGroup();
                         entry.sendToOutStream(HandleXml.marshallingWriter(Message.class, message));
                         logger.debug("Who is in group list: ");
                         group.getUsersList().stream().forEach(x -> System.out.println(x));
@@ -338,7 +338,7 @@ public final class Server implements ConnectionAgent {
                         if (g.getGroupID().equals(message.getGroupID())) {
                             g.addUser(entry.user.getLogin());
                             g.setGroupName(message.getGroupTitle());
-                            g.save();
+                            g.saveGroup();
                             result.addAll(g.getUsersList());
                         }
                     }
@@ -410,7 +410,7 @@ public final class Server implements ConnectionAgent {
                             }
                             message.setMessage(c + " has left from the group ");
                             g.removeUser(c);
-                            g.save();
+                            g.saveGroup();
                             if (g.getUsersList().size() == 0) {
                                 removeGroup(g.getGroupID());
                                 groupsList.remove(g);
@@ -438,12 +438,12 @@ public final class Server implements ConnectionAgent {
      * Method generate an unique ID
      * @return String type of unique ID
      */
-        private  String getUniqueID() {
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmssSSS");
-            Date now = new Date();
-            String uniqueID = dateFormat.format(now);
-            return uniqueID;
-        }
+    private  String getUniqueID() {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmssSSS");
+        Date now = new Date();
+        String uniqueID = dateFormat.format(now);
+        return uniqueID;
+    }
 
     public void sendToAll(String text) { //сделать отправку не стрингой, а месседжем
         for (Connection entry: connections) {
@@ -520,9 +520,9 @@ public final class Server implements ConnectionAgent {
             logger.error("Error socket creation" + e);
         }
     }
-/*
-Временно сделал вывод строки, в дальнейшем хмл файл со списком надо будет передавать.
- */
+    /*
+    Временно сделал вывод строки, в дальнейшем хмл файл со списком надо будет передавать.
+     */
     public ArrayList<String> getOnlineUsers() { // возвращает список всех онлайн пользователей
         ArrayList<String> result = new ArrayList<>();
         for (Connection entry : connections) {
@@ -537,26 +537,26 @@ public final class Server implements ConnectionAgent {
     private void verifyUsersActivityTimer() {
         logger.debug("Timer has started");
         //if (connections.size() > 0) {
-            ses.scheduleWithFixedDelay(new Runnable() {
-                @Override
-                public void run() {
-                    logger.debug("SERVER: Checks activity and unban-status every minute.");
-                    checkActivityAndUnbans();
-                }
-            }, 0, 1, TimeUnit.MINUTES);
+        ses.scheduleWithFixedDelay(new Runnable() {
+            @Override
+            public void run() {
+                logger.debug("SERVER: Checks activity and unban-status every minute.");
+                checkActivityAndUnbans();
+            }
+        }, 0, 1, TimeUnit.MINUTES);
         //}
     }
 
     private void checkActivityAndUnbans() {
         if (connections.size() > 0) {
             for (Connection entry : connections) {
-                    if ((!entry.user.getLogin().equals(ConfigServer.getRootAdmin()) && ((System.currentTimeMillis() - entry.user.getLastActivity()) >= ConfigServer.getTimeOut()))) {
-                        Message msg = new Message(23, "");
-                        msg.setLogin(entry.user.getLogin());
-                        entry.sendToOutStream(HandleXml.marshallingWriter(Message.class, msg));
-                        logger.debug(entry.user.getLogin() + "\'s inactivity has reached " + ConfigServer.getTimeOut() + " milliseconds. "
-                                + entry.user.getLogin() + " has disconnected.");
-                    }
+                if ((!entry.user.getLogin().equals(ConfigServer.getRootAdmin()) && ((System.currentTimeMillis() - entry.user.getLastActivity()) >= ConfigServer.getTimeOut()))) {
+                    Message msg = new Message(23, "");
+                    msg.setLogin(entry.user.getLogin());
+                    entry.sendToOutStream(HandleXml.marshallingWriter(Message.class, msg));
+                    logger.debug(entry.user.getLogin() + "\'s inactivity has reached " + ConfigServer.getTimeOut() + " milliseconds. "
+                            + entry.user.getLogin() + " has disconnected.");
+                }
                 if (entry.user.isBan() && entry.user.readyForUnban()) {
                     Message msg = new Message(99, entry.user.getLogin() + " was unbanned.");
                     msg.setLogin(entry.user.getLogin());

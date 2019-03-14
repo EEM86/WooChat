@@ -114,14 +114,41 @@ public class Group implements UsersAndGroups {
         return queue;
     }
 
+    public void setQueue(Queue<HistoryMessage> queue) {
+        this.queue = queue;;
+    }
+
     /**
      * Method adds one history message to the list of history messages
      */
     public void addToListMessage(HistoryMessage historyMessage) {
-            if (!queue.offer(historyMessage)) {
-                queue.poll();
-                queue.offer(historyMessage);
-            }
+        if (!queue.offer(historyMessage)) {
+            queue.poll();
+            queue.offer(historyMessage);
+        }
+    }
+
+    /**
+     * Method saves group in XML file
+     */
+    public void saveGroup() {
+        String path = new File("").getAbsolutePath();
+//        File tmp = new File("resources/Group/" + this.getGroupID() + ".xml");
+//        String path = tmp.getAbsolutePath();
+//        File file = new File(path + tmp);
+        File file = new File(path + "/Server/src/main/resources/Group/" + this.getGroupID() + ".xml");
+        try {
+            file.createNewFile();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        try {
+            FileOutputStream stream = new FileOutputStream(file);
+            HandleXml.marshalling(Group.class, this, stream);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
     }
 
     /**
@@ -135,6 +162,9 @@ public class Group implements UsersAndGroups {
         for (String entry : groups) {
             file = new File(path + "/Server/src/main/resources/Group/" + entry + ".xml");
             if (file.isFile()) {
+                //newGroup = (Group) HandleXml.unMarshalling(file, Group.class);
+                //newGroup = (Group) HandleXml.unMarshalling(file, Group.class);
+                //groupSet.add(newGroup);
                 Group group = (Group) HandleXml.unMarshalling(file, Group.class);
                 groupSet.add(group);
             }
@@ -146,7 +176,7 @@ public class Group implements UsersAndGroups {
      * Method creates a list of historical messages for one group
      * @return historyMessages list of historical messages
      */
-    public static Queue<HistoryMessage> groupSingIn(Group group) {
+    public static Queue<HistoryMessage> groupSingIn(Group group) {  //переделать, чтобы выводило нужное сообщение, когда пользователь уже подключен к чату
         String path = new File("").getAbsolutePath();
         File file = new File(path + "/Server/src/main/resources/Group/" + group.getGroupID() + ".xml");
         Queue<HistoryMessage> historyMessages = null;
@@ -155,6 +185,21 @@ public class Group implements UsersAndGroups {
             historyMessages = group.getQueue();
         }
         return historyMessages;
+    }
+
+    /**
+     * Method group to String
+     * @return String for group
+     */
+    @Override
+    public String toString() {
+
+        return "Group{" +
+                "groupID='" + groupID + '\'' +
+                ", usersList=" + usersList +
+                ", onlineUsersList=" + onlineUsersList +
+                ", message=" + getQueue() +
+                '}';
     }
 
     /**
@@ -183,43 +228,5 @@ public class Group implements UsersAndGroups {
         final int prime = 31;
         int result = 1;
         return result = prime * result + groupID.hashCode();
-    }
-
-    /**
-     * Method saves group in XML file
-     */
-    @Override
-    public void save() {
-        String path = new File("").getAbsolutePath();
-//        File tmp = new File("resources/Group/" + this.getGroupID() + ".xml");
-//        String path = tmp.getAbsolutePath();
-//        File file = new File(path + tmp);
-        File file = new File(path + "/Server/src/main/resources/Group/" + this.getGroupID() + ".xml");
-        try {
-            file.createNewFile();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        try {
-            FileOutputStream stream = new FileOutputStream(file);
-            HandleXml.marshalling(Group.class, this, stream);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * Method group to String
-     * @return String for group
-     */
-    @Override
-    public String toString() {
-
-        return "Group{" +
-                "groupID='" + groupID + '\'' +
-                ", usersList=" + usersList +
-                ", onlineUsersList=" + onlineUsersList +
-                ", message=" + getQueue() +
-                '}';
     }
 }
