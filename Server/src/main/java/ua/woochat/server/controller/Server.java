@@ -15,36 +15,35 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * This class implements ConnectionAgent. Crates server socket and wait connection from a clients. After connection and authorization throws clients to the chatting socket.
+ * Each connection creates in new thread.
+ * Server checks activity of connections and disconnects inactive users. Timeout is defined in server.properties file.
+ */
 public final class Server implements ConnectionAgent {
 
     final static Logger logger = Logger.getLogger(Server.class);
     private static Server server;
+
+    private final ScheduledExecutorService ses = Executors.newSingleThreadScheduledExecutor();
     private Set<Connection> connections = new LinkedHashSet<>();
     private Message message;
-    //private ArrayList<User> listRegisteredUsers = new ArrayList<>();
-    private Set<File> listFilesUsers = new HashSet<>();
     private User user;
     private Connection connection;
-    //private Map<Integer, ArrayList<String>> onlineUsers = new HashMap<>();
-    ServerSocket serverConnectSocket;
-    ServerSocket serverChattingSocket;
-    Socket clientConnectionSocket;
+    private ServerSocket serverConnectSocket;
+    private ServerSocket serverChattingSocket;
+    private Socket clientConnectionSocket;
     public Set<Group> groupsList = new LinkedHashSet<>();
     private boolean socketListensForConnections = true;
 
-    final ScheduledExecutorService ses = Executors.newSingleThreadScheduledExecutor();
-
-    /**
-     * Constructor creates Server socket which waits for connections.
-     */
     private Server() {
         ConfigServer.getConfigServer();
-        logger.debug("Server starting ....");
+        logger.debug("Server started .... ");
         verifyUsersActivityTimer(); //- стартуем таймер для проверки активности юзера
 
         try {
-            serverConnectSocket = new ServerSocket(ConfigServer.getPort("portconnection"));
-            serverChattingSocket = new ServerSocket(ConfigServer.getPort("portchatting"));
+            serverConnectSocket = new ServerSocket(Integer.parseInt(ConfigServer.getPortConnection()));
+            serverChattingSocket = new ServerSocket(Integer.parseInt(ConfigServer.getPortChatting()));
             final Group groupMain = new Group("group000", "Main chat");
             groupMain.saveGroup();
             groupsList.add(groupMain);
@@ -59,12 +58,15 @@ public final class Server implements ConnectionAgent {
                 }
             }
         } catch (IOException e) {
-            //System.out.println("ConfigServer.setUserId(user.getId());" + user.getId());
             logger.error("Server socket exception " + e);
         }
 
     }
 
+    /**
+     * Uses Singleton pattern.
+     * @return created Server object or new Server object if server is not yet created.
+     */
     public static Server startServer() {
         if (server == null) {
             server = new Server();
@@ -72,34 +74,30 @@ public final class Server implements ConnectionAgent {
         return server;
     }
 
+    /**
+     * Stops the server. Only admin can started this method.
+     */
     private void stopServer() {
         for (Connection entry : connections) {
-            if (!entry.user.getLogin().equals(ConfigServer.getRootAdmin())) {
-                Message msg = new Message(23, "Server was stopped. Try to connect later");
-                msg.setLogin(entry.user.getLogin());
+            if (!entry.getUser().getLogin().equals(ConfigServer.getRootAdmin())) {
+                Message msg = new Message(Message.QUIT_TYPE, "Server was stopped. Try to connect later");
+                msg.setLogin(entry.getUser().getLogin());
                 entry.sendToOutStream(HandleXml.marshallingWriter(Message.class, msg));
                 connectionDisconnect(entry);
             }
         }
     }
 
-    public synchronized boolean userCreated(Connection data) {
-        return true;
-    }
-
     @Override
     public synchronized void connectionCreated(Connection data) {
         connections.add(data);
         updateUserActivity(data);
-        Set<String> currentUserGroups = data.user.getGroups();
+        Set<String> currentUserGroups = data.getUser().getGroups();
         for (String entry: currentUserGroups) {
             for (Group group: groupsList) {
                 if (entry.equalsIgnoreCase(group.getGroupID())) {
-                    //group.addUser(data);   -- меняем объект connection на стрингу с логином
-                    group.addUser(data.user.getLogin());
+                    group.addUser(data.getUser().getLogin());
                     group.saveGroup();
-                    logger.debug("Users in group \"" + group.getGroupID() + "\": ");
-                    group.getUsersList().stream().forEach(x -> System.out.println(x)); //печатает в консоль список юзеров в группе
                 }
             }
         }
@@ -108,47 +106,36 @@ public final class Server implements ConnectionAgent {
     @Override
     public synchronized void connectionDisconnect(Connection data) {
         connections.remove(data);
-//        String deletedUser = "";
-//        for (Group g: groupsList) {
-//            //for (Connection entry: g.getUsersList()) {     -- меняем объект connection на стрингу с логином
-//            for (String entry: g.getUsersList()) {
-//                //if (data.user.getLogin().equals(entry.user.getLogin())) { -- меняем объект connection на стрингу с логином
-//                if (data.user.getLogin().equals(entry)) {
-//                    deletedUser = entry;
-//                    //g.removeUser(entry);
-//                    break;
-//                }
-//            }
-//        }
-        logger.debug("Sending to all info about connection closed");
-        Message msg = new Message(11, " has disconnected.");
-        msg.setLogin(data.user.getLogin());
-        logger.debug("SERVER: user before ==11"  + msg.getLogin());
-        //msg.setGroupID("group000");
+        logger.debug("Sending to all info about connection closed from " + data.getUser().getLogin());
+        Message msg = new Message(Message.EXIT_TYPE, " has disconnected.");
+        msg.setLogin(data.getUser().getLogin());
         sendToAll(HandleXml.marshallingWriter(Message.class, msg));
         data.disconnect();
-        //receivedMessage("Client disconnected " + data);
     }
 
+    /**
+     * Server logic of work with inputstreams from clients.
+     * @param data current connection.
+     * @param text text from a current connection (client).
+     */
     @Override
-    public synchronized void receivedMessage(Connection data, String text) { //добавить синхронайзд
+    public synchronized void receivedMessage(Connection data, String text) {
         connection = data;
         try {
             message = HandleXml.unMarshallingMessage(text);
         } catch (JAXBException e) {
             logger.error("unMarshallingMessage " + e);
         }
-        // регистрация
-        if (message.getType() == 0) {
-            Message messageSend = new Message(0,"");
-            //        messageSend.setType(0);
+
+        /* Registration block */
+        if (message.getType() == Message.REGISTER_TYPE) {
+            Message messageSend = new Message(Message.REGISTER_TYPE,"");
             if (verificationName(message.getLogin())) { // проверка существует ли имя
-                connection.user = new User(message.getLogin(), message.getPassword());
-                connection.user.addGroup("group000");
-                // groupsList.iterator().next().addUser(connection);
+                connection.setUser(new User(message.getLogin(), message.getPassword()));
+                connection.getUser().addGroup("group000");
                 connectionCreated(connection);
                 messageSend.setLogin(message.getLogin());
-                messageSend.setMessage("true, port=" + ConfigServer.getPort("portchatting"));
+                messageSend.setMessage("true, port=" + ConfigServer.getPortChatting());
                 messageSend.setGroupList(getOnlineUsers());
                 connection.sendToOutStream(HandleXml.marshallingWriter(Message.class, messageSend));
                 moveToChattingSocket();
@@ -159,29 +146,24 @@ public final class Server implements ConnectionAgent {
             }
         }
 
-        // вход
-        else if (message.getType() == 1) {
-            Message messageSend = new Message(1,"");
+        /* Sign in block */
+        else if (message.getType() == Message.SINGIN_TYPE) {
+            Message messageSend = new Message(Message.SINGIN_TYPE,"");
             if (verificationSingIn(message.getLogin(), message.getPassword())) { // проверка существует ли имя
-                connection.user = new User(message.getLogin(), message.getPassword());
-                connection.user.setGroups(user.getGroups());
-                connection.user.toString();
+                connection.setUser(new User(message.getLogin(), message.getPassword()));
+                connection.getUser().setGroups(user.getGroups());
                 connectionCreated(connection);
                 messageSend.setLogin(message.getLogin());
-                messageSend.setMessage("true, port=" + ConfigServer.getPort("portchatting"));
+                messageSend.setMessage("true, port=" + ConfigServer.getPortChatting());
                 messageSend.setGroupList(getOnlineUsers());
                 connection.sendToOutStream(HandleXml.marshallingWriter(Message.class, messageSend));
                 moveToChattingSocket();
 
-                Message messageSend1 = new Message(1,"update");
+                Message messageSend1 = new Message(Message.SINGIN_TYPE,"update");
                 Set<Group> groupSet = Group.groupUser(user.getGroups());
-
                 groupsList.addAll(groupSet);
-
                 logger.debug("GroupsList after user connected: " + groupsList.toString());
-/*                for (Group entry: groupSet) {
-                    System.out.println("Group: " + entry.toString());
-                }*/
+
                 messageSend1.setGroupListUser(groupSet); // для отправки списка объектов групп
                 connection.sendToOutStream(HandleXml.marshallingWriter(Message.class, messageSend1));
 
@@ -192,12 +174,13 @@ public final class Server implements ConnectionAgent {
             }
         }
 
-        // сообщение
-        else if (message.getType() == 2)  {
+        /* Here chatting between users works.*/
+        else if (message.getType() == Message.CHATTING_TYPE)  {
 
+            /* Admin's block of commands*/
             if ((message.getLogin().equals(ConfigServer.getRootAdmin()))
                     && (message.getMessage().equals("/stopServer"))) {
-                message.setMessage("Server was stopped. For change config, use: /set portconnection int, /set portchatting int, /set timeout int");
+                message.setMessage("Server was stopped. To change server config, use: /set portconnection int, /set portchatting int, /set timeout int");
                 connection.sendToOutStream(HandleXml.marshallingWriter(Message.class, message));
                 stopServer();
                 socketListensForConnections = false;
@@ -206,29 +189,23 @@ public final class Server implements ConnectionAgent {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-//                try {
-//                    Thread.sleep(20000);
-//                } catch (InterruptedException e) {
-//                    e.printStackTrace();
-//                }
-//
-//                socketListensForConnections = true;
-//
-//                try {
-//                    serverConnectSocket = new ServerSocket(ConfigServer.getPort("portconnection"));
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
             }
+
             else if ((message.getLogin().equals(ConfigServer.getRootAdmin()))
-                    && (message.getMessage().startsWith("/set portconnection")
+                    &&(message.getMessage().startsWith("/set portconnection")
                     || message.getMessage().startsWith("/set portchatting")
-                    || message.getMessage().startsWith("/set timeout"))
-                    && connections.size() == 1) {
+                    || message.getMessage().startsWith("/set timeout")
+                    && connections.size() == 1)) {
                 String[] command = message.getMessage().split(" ");
                 if (command.length == 3) {
-                    ConfigServer.setConfig(command[1], command[2]);
+                   ConfigServer.setConfig(command[1], command[2]);
+                   logger.debug("Server Config field" + command[1] + " changed to: " + command[2]);
                 }
+            }
+
+            else if ((message.getLogin().equals(ConfigServer.getRootAdmin()))
+                    &&(message.getMessage().equals("/relaunchServer"))) {
+                relaunchServer();
             }
 
             else if ((message.getLogin().equals(ConfigServer.getRootAdmin()))
@@ -237,39 +214,39 @@ public final class Server implements ConnectionAgent {
                     || message.getMessage().startsWith("/unban")
                     || message.getMessage().startsWith("/help"))) {
 
-                String[] command = message.getMessage().split(" ");
+                String[] commands = message.getMessage().split(" ");
 
-                if (command.length > 1) {
+                if (commands.length > 1) {
                     for (Group g : groupsList) {
                         if (g.getGroupID().equals(message.getGroupID())) {
                             for (String c : g.getUsersList()) {
-                                if (command[1] != null && command[1].equals(c)) {
+                                if (commands[1] != null && commands[1].equals(c)) {
                                     for (Connection findUser : connections) {
-                                        if (findUser.user.getLogin().equals(c) && !c.equals(ConfigServer.getRootAdmin())) {
-                                            Message msg = new Message(2, "");
-                                            msg.setLogin(findUser.user.getLogin());
+                                        if (findUser.getUser().getLogin().equals(c) && !c.equals(ConfigServer.getRootAdmin())) {
+                                            Message msg = new Message(Message.CHATTING_TYPE, "");
+                                            msg.setLogin(findUser.getUser().getLogin());
                                             msg.setGroupID(g.getGroupID());
-                                            if ((message.getMessage().startsWith("/kick")) && (command.length > 1)) {
-                                                msg.setType(13);
-                                                logger.debug("Сервер отправляет в ServerConnection ==13 логин того кого надо кикнуть и группу откуда: " + g.getGroupID());
+                                            if ((message.getMessage().startsWith("/kick")) && (commands.length > 1)) {
+                                                msg.setType(Message.KICK_TYPE);
+                                                logger.debug("Server sends to Client into ServerConnection kick_type message with login and groupID: " + g.getGroupID());
                                                 findUser.sendToOutStream(HandleXml.marshallingWriter(Message.class, msg));
                                             }
-                                            else if ((message.getMessage().startsWith("/ban")) && (command.length > 3)) {
-                                                msg.setType(99);
+                                            else if ((message.getMessage().startsWith("/ban")) && (commands.length > 3)) {
+                                                msg.setType(Message.BAN_TYPE);
                                                 msg.setBanned(true);
-                                                msg.setMessage("You've banned for " + command[2] + " minutes. Reason: " + command[command.length - 1]);
-                                                logger.debug("Cервер забанил юзера " + msg.getLogin() + " на " + command[2] + " минут");
-                                                findUser.user.setBanInterval(Integer.parseInt(command[2]));
+                                                msg.setMessage("You've banned for " + commands[2] + " minutes. Reason: " + commands[commands.length - 1]);
+                                                logger.debug("Cервер забанил юзера " + msg.getLogin() + " на " + commands[2] + " минут");
+                                                findUser.getUser().setBanInterval(Integer.parseInt(commands[2]));
                                                 findUser.sendToOutStream(HandleXml.marshallingWriter(Message.class, msg));
-                                                message.setMessage(findUser.user.getLogin() + " was banned.");
+                                                message.setMessage(findUser.getUser().getLogin() + " was banned.");
                                                 connection.sendToOutStream(HandleXml.marshallingWriter(Message.class, message));
                                             }
-                                            else if ((message.getMessage().startsWith("/unban")) && (command.length > 1)) {
-                                                findUser.user.unban();
-                                                msg.setType(99);
+                                            else if ((message.getMessage().startsWith("/unban")) && (commands.length > 1)) {
+                                                findUser.getUser().unban();
+                                                msg.setType(Message.BAN_TYPE);
                                                 msg.setBanned(false);
                                                 findUser.sendToOutStream(HandleXml.marshallingWriter(Message.class, msg));
-                                                message.setMessage(findUser.user.getLogin() + " was unbanned.");
+                                                message.setMessage(findUser.getUser().getLogin() + " was unbanned.");
                                                 connection.sendToOutStream(HandleXml.marshallingWriter(Message.class, message));
                                             }
                                         }
@@ -279,14 +256,14 @@ public final class Server implements ConnectionAgent {
                         }
                     }
                 } else {
-                    message.setMessage("Kick format: /kick user. Ban format: /ban user time(in minutes) reason(only 1 word). Unban format: unban user");
+                    message.setMessage("Kick format: /kick user. Ban format: /ban user time(in minutes) reason(only 1 word). Unban format: /unban user. Relaunch server: /relaunchServer");
                     connection.sendToOutStream(HandleXml.marshallingWriter(Message.class, message));
                 }
+            /* Chatting block user to user works here.*/
             } else {
                 for (Group entry: groupsList) {
-                    logger.debug("Какие группы хранятся в груплисте при получении сообщения сервер==2" + groupsList.toString());
+                    logger.debug("Groups in groupsList when received chatting_type message: " + groupsList.toString());
                     if (entry.getGroupID().equalsIgnoreCase(message.getGroupID())) {
-                        logger.debug("time now " + new Date());
                         HistoryMessage historyMessage = new HistoryMessage(message.getLogin(), message.getMessage());
                         entry.addToListMessage(historyMessage);
                         entry.saveGroup();
@@ -294,17 +271,17 @@ public final class Server implements ConnectionAgent {
                     }
                 }
             }
-            logger.debug("Who wrote from server side: " + connection.user.getLogin() + "\n");
+            logger.debug("Who wrote from server side: " + connection.getUser().getLogin() + "\n");
             updateUserActivity(connection);
         }
-
-        else if (message.getType() == 3) { //обновляет список всех пользователей онлайн в чате
-            message.setGroupList(getOnlineUsers());
-            sendToAllGroup(message.getGroupID(), HandleXml.marshallingWriter(Message.class, message));
+        /* Updates list of online users in the chat. */
+        else if (message.getType() == Message.UPDATE_USERS_TYPE) { //обновляет список всех пользователей онлайн в чате
+           message.setGroupList(getOnlineUsers());
+           sendToAllGroup(message.getGroupID(), HandleXml.marshallingWriter(Message.class, message));
         }
 
-        else if (message.getType() == 6) {   //приватный чат
-
+        /* Makes a private chat with one user */
+        else if (message.getType() == Message.PRIVATE_CHAT_TYPE) {
             Group group = new Group("group" + getUniqueID(), "Private");
             group.saveGroup();
             //Group group = new Group("group00" + groupsList.size());
@@ -313,102 +290,93 @@ public final class Server implements ConnectionAgent {
             ArrayList<String> usersInCurrentGroup = message.getGroupList();
             for (String s: usersInCurrentGroup) {
                 for (Connection entry: connections) {
-                    if (entry.user.getLogin().equals(s)) {
-                        entry.user.addGroup(group.getGroupID());
-                        //group.addUser(entry.user.getLogin());
-                        //group.addUser(entry);  -- меняем объект Коннекшн на стрингу логина
-                        group.addUser(entry.user.getLogin()); // -- меняем объект Коннекшн на стрингу логина
+                    if (entry.getUser().getLogin().equals(s)) {
+                        entry.getUser().addGroup(group.getGroupID());
+                        group.addUser(entry.getUser().getLogin());
                         group.saveGroup();
                         entry.sendToOutStream(HandleXml.marshallingWriter(Message.class, message));
-                        logger.debug("Who is in group list: ");
-                        group.getUsersList().stream().forEach(x -> System.out.println(x));
+                        group.getUsersList().stream().forEach(x -> logger.debug("Who is in group list: " + x));
                     }
                 }
             }
         }
 
-        else if (message.getType() == 7) { //добавление юзера в приватный чат (где уже общаются как минимум двое)
-            logger.debug("Сервер: я принял запрос на добавление: " + message.getLogin() + " в группу " + message.getGroupID());
-            ArrayList<String> result = new ArrayList<>(); // заменить Аррей на Сет?
+        /* Adding user(s) to a private chat. A private group starts here. */
+        else if (message.getType() == Message.PRIVATE_GROUP_TYPE) {
+            logger.debug("Adding " + message.getLogin() + " to the group " + message.getGroupID());
+            ArrayList<String> result = new ArrayList<>(); // заменить Аррей на Сет/Мапу?
 
             for (Connection entry: connections) {
-                if (entry.user.getLogin().equals(message.getLogin())) {
-                    entry.user.addGroup(message.getGroupID());
+                if (entry.getUser().getLogin().equals(message.getLogin())) {
+                    entry.getUser().addGroup(message.getGroupID());
                     for (Group g : groupsList) {
                         if (g.getGroupID().equals(message.getGroupID())) {
-                            g.addUser(entry.user.getLogin());
+                            g.addUser(entry.getUser().getLogin());
                             g.setGroupName(message.getGroupTitle());
                             g.saveGroup();
                             result.addAll(g.getUsersList());
                         }
                     }
                     message.setGroupList(result);
-                    logger.debug("SERVER: Спиcок пользователей: ==7:" + message.getGroupList());
+                    logger.debug("Users list after adding a new member to the group: " + message.getGroupList());
                     entry.sendToOutStream(HandleXml.marshallingWriter(Message.class, message));
                 }
             }
 
             Message msg = new Message();
             ArrayList<String> newUserList = new ArrayList<>();
-
             for (String userLogin: result){
                 newUserList.add(userLogin);
             }
-
             msg.setGroupList(newUserList);
-
-            msg.setType(12);
-
+            msg.setType(Message.TAB_RENAME_TYPE);
             msg.setGroupID(message.getGroupID());
             msg.setGroupTitle(message.getGroupTitle());
-
             result.remove(message.getLogin());
+
             for (String users: result){
                 for (Connection entry: connections){
-                    if(entry.user.getLogin().equals(users)){
-                        logger.debug("SERVER: Спиcок пользователей: ==12:" + msg.getGroupList());
+                    if(entry.getUser().getLogin().equals(users)){
+                        logger.debug("SERVER: Users list when started tab rename tab: " + msg.getGroupList());
                         entry.sendToOutStream(HandleXml.marshallingWriter(Message.class, msg));
                     }
                 }
             }
         }
 
-        else if (message.getType() == 8) { // возвращает список онлайн юзеров, которые не состоят в текущей группе
+        /* Finds online users that are not members of a current group */
+        else if (message.getType() == Message.UNIQUE_ONLINE_USERS_TYPE) {
             ArrayList<String> result = new ArrayList<>();
-            for (Group g: groupsList) {  //groupsList - список всех групп, которые есть в WooChat
+            for (Group g: groupsList) {
                 if (message.getGroupID().equals(g.getGroupID())) {
-                    //Set<Connection> usersInGroup = g.getUsersList();  -- меняем объект Коннекшн на стрингу логина
-                    //Set<Connection> tmp = new LinkedHashSet<>(connections); //connections - это список всех соединений(по сути клиентов), которые подключены к серверу
-                    //Group mainGroup = groupsList.stream().filter(x -> Objects.equals(x, "group000")).findFirst().get();
-
                     Set<String> tmp = new LinkedHashSet<>(groupsList.iterator().next().getUsersList());
-                    for (String c: g.getUsersList()) {  //  -- меняем объект Коннекшн на стрингу логина
+                    for (String c: g.getUsersList()) {
                         if (!tmp.add(c)) {
                             tmp.remove(c);
                         }
                     }
                     for (String c : tmp) {
                         result.add(c);
-                        logger.debug("Юзер, не состоящий ни в одной из приватных групп: " + c);
+                        logger.debug("Online user, that is not presented in current group: " + c);
                     }
                 }
             }
-            message.setGroupList(result); // сэтим эррей онлайн пользователей, которые не являются участниками приватной группы
+            message.setGroupList(result);
             connection.sendToOutStream(HandleXml.marshallingWriter(Message.class, message));
         }
 
-        else if (message.getType() == 9) { // отключение пользователя с группы
-            // userLeaveGroup(String login, String groupID);  добавить метод для уменьшения кода и повторного использования
+        /* User leaves the current group and stays online in a chat */
+        else if (message.getType() == Message.LEAVE_GROUP_TYPE) {
             for (Group g: groupsList) {
                 if (message.getGroupID().equals(g.getGroupID())) {
                     for (String c : g.getUsersList()) {
                         if (message.getLogin().equals(c)) {
                             for (Connection findUser: connections) {
-                                if (findUser.user.getLogin().equals(c)) {
-                                    findUser.user.removeGroup(g.getGroupID());
+                                if (findUser.getUser().getLogin().equals(c)) {
+                                    findUser.getUser().removeGroup(g.getGroupID());
                                 }
                             }
-                            message.setMessage(c + " has left from the group ");
+                            message.setMessage(c + " has left from the group.");
                             g.removeUser(c);
                             g.saveGroup();
                             if (g.getUsersList().size() == 0) {
@@ -419,17 +387,17 @@ public final class Server implements ConnectionAgent {
                             break;
                         }
                     }
-                    message.setType(2);
+                    message.setType(Message.CHATTING_TYPE);
                     sendToAllGroup(g.getGroupID(), HandleXml.marshallingWriter(Message.class, message));
-
                     message.setGroupList(new ArrayList<>(g.getUsersList()));
-                    message.setType(3);
+                    message.setType(Message.UPDATE_USERS_TYPE);
                     sendToAllGroup(g.getGroupID(), HandleXml.marshallingWriter(Message.class, message));
                 }
             }
         }
 
-        else if (message.getType() == 11) { // выход из чата крестиком
+        /* Quit the client */
+        else if (message.getType() == Message.EXIT_TYPE) {
             connectionDisconnect(connection);
         }
     }
@@ -445,11 +413,12 @@ public final class Server implements ConnectionAgent {
         return uniqueID;
     }
 
-    public void sendToAll(String text) { //сделать отправку не стрингой, а месседжем
+
+    public void sendToAll(String text) {
         for (Connection entry: connections) {
             for (Group g : groupsList) {
                 for (String s : g.getUsersList()) {
-                    if (entry.user.getLogin().equals(s)) {
+                    if (entry.getUser().getLogin().equals(s)) {
                         entry.sendToOutStream(text);
                     }
                 }
@@ -457,12 +426,12 @@ public final class Server implements ConnectionAgent {
         }
     }
 
-    public void sendToAllGroup(String groupID, String text) { // отправляет сообщение всем юзерам в текущей группе
+    public void sendToAllGroup(String groupID, String text) {
         for (Group g: groupsList) {
             if (groupID.equals(g.getGroupID())) {
                 for (String line: g.getUsersList()) {
                     for (Connection entry: connections) {
-                        if (entry.user.getLogin().equals(line)) {
+                        if (entry.getUser().getLogin().equals(line)) {
                             logger.info("Method sendToAllGroup is working now. Who is in this group now: " + line + ", message: " + text);
                             entry.sendToOutStream(text);
                         }
@@ -473,8 +442,9 @@ public final class Server implements ConnectionAgent {
     }
 
     private boolean verificationName(String login) {
-        String path = new File("").getAbsolutePath();
-        File file = new File(path + "/Server/src/main/resources/User/" + login.hashCode() + ".xml");
+        String appPath = System.getProperty("user.dir");
+        String userFilesPath= appPath + File.separator + "User";
+        File file = new File(userFilesPath + login.hashCode() + ".xml");
         if (file.isFile()) {
             return false;
         }
@@ -482,13 +452,12 @@ public final class Server implements ConnectionAgent {
     }
 
     private boolean verificationSingIn(String login, String password) {  //переделать, чтобы выводило нужное сообщение, когда пользователь уже подключен к чату
-        String path = new File("").getAbsolutePath();
-        File file = new File(path + "/Server/src/main/resources/User/" + login.hashCode() + ".xml");
+        File file = new File("User" + File.separator + login.hashCode() + ".xml");
 
         if (file.isFile()) {
             user = (User) HandleXml.unMarshalling(file, User.class);
             for (Connection connect : connections) {
-                if (connect.user.getLogin().equals(login)) {
+                if (connect.getUser().getLogin().equals(login)) {
                     return false;
                 }
             }
@@ -499,18 +468,22 @@ public final class Server implements ConnectionAgent {
         return false;
     }
 
-    // files in folder
-    public Set<File> filesFromFolder() {
-        String path = new File("").getAbsolutePath();
-        File folder = new File(path + "/Server/src/main/resources/User");
-        File[] folderEntries = folder.listFiles();
-        for (File entry : folderEntries) {
-            listFilesUsers.add(entry);
-            //listRegisteredUsers.add(handleXml.unMarshalling(entry));
-        }
-        return listFilesUsers;
-    }
+//    public Set<File> filesFromFolder() {
+//        String path = new File("").getAbsolutePath();
+//
+//
+//        File folder = new File(path + "/Server/src/main/resources/User");
+//        File[] folderEntries = folder.listFiles();
+//        for (File entry : folderEntries) {
+//            listFilesUsers.add(entry);
+//            //listRegisteredUsers.add(handleXml.unMarshalling(entry));
+//        }
+//        return listFilesUsers;
+//    }
 
+    /**
+     * Method moves connection to another socket where chatting starts.
+     */
     private void moveToChattingSocket() {
         try {
             Socket clientChatSocket = serverChattingSocket.accept();
@@ -520,46 +493,53 @@ public final class Server implements ConnectionAgent {
             logger.error("Error socket creation" + e);
         }
     }
-    /*
-    Временно сделал вывод строки, в дальнейшем хмл файл со списком надо будет передавать.
+    /**
+     * Method returns an ArrayList of all online users
      */
-    public ArrayList<String> getOnlineUsers() { // возвращает список всех онлайн пользователей
+    public ArrayList<String> getOnlineUsers() {
         ArrayList<String> result = new ArrayList<>();
         for (Connection entry : connections) {
-            result.add(entry.user.getLogin());
+            result.add(entry.getUser().getLogin());
         }
         return result;
     }
 
     /**
-     * Метод запускает таймер отслеживания активности пользователей
+     * Method starts the timer
      */
     private void verifyUsersActivityTimer() {
-        logger.debug("Timer has started");
+        logger.debug("Timer started");
         //if (connections.size() > 0) {
-        ses.scheduleWithFixedDelay(new Runnable() {
-            @Override
-            public void run() {
-                logger.debug("SERVER: Checks activity and unban-status every minute.");
-                checkActivityAndUnbans();
-            }
-        }, 0, 1, TimeUnit.MINUTES);
+            ses.scheduleWithFixedDelay(new Runnable() {
+                @Override
+                public void run() {
+                    logger.debug("SERVER: Checks activity and unban-status every minute.");
+                    checkActivityAndUnbans();
+                }
+            }, 0, 1, TimeUnit.MINUTES);
         //}
     }
 
+    /**
+     * Method checks for user's activity and checks if it is needed to unban user.
+     * User's inactive period defines in server.properties file.
+     */
     private void checkActivityAndUnbans() {
         if (connections.size() > 0) {
             for (Connection entry : connections) {
-                if ((!entry.user.getLogin().equals(ConfigServer.getRootAdmin()) && ((System.currentTimeMillis() - entry.user.getLastActivity()) >= ConfigServer.getTimeOut()))) {
-                    Message msg = new Message(23, "");
-                    msg.setLogin(entry.user.getLogin());
+                logger.debug("Searching inactive person");
+                if ((!entry.getUser().getLogin().equals(ConfigServer.getRootAdmin()) && ((System.currentTimeMillis() - entry.getUser().getLastActivity()) >= Long.parseLong(ConfigServer.getTimeOut())))) {
+                    logger.debug("Check activity: " + System.currentTimeMillis() + "user's lastActivity: " + entry.getUser().getLastActivity());
+                    Message msg = new Message(Message.QUIT_TYPE, "");
+                    msg.setLogin(entry.getUser().getLogin());
                     entry.sendToOutStream(HandleXml.marshallingWriter(Message.class, msg));
-                    logger.debug(entry.user.getLogin() + "\'s inactivity has reached " + ConfigServer.getTimeOut() + " milliseconds. "
-                            + entry.user.getLogin() + " has disconnected.");
+                    logger.debug(entry.getUser().getLogin() + "\'s inactivity has reached " + ConfigServer.getTimeOut() + " milliseconds. "
+                            + entry.getUser().getLogin() + " has disconnected.");
                 }
-                if (entry.user.isBan() && entry.user.readyForUnban()) {
-                    Message msg = new Message(99, entry.user.getLogin() + " was unbanned.");
-                    msg.setLogin(entry.user.getLogin());
+                if (entry.getUser().isBan() && entry.getUser().readyForUnban()) {
+                    logger.debug("Unbanning user: " + entry.getUser().getLogin());
+                    Message msg = new Message(Message.BAN_TYPE, entry.getUser().getLogin() + " was unbanned.");
+                    msg.setLogin(entry.getUser().getLogin());
                     msg.setBanned(false);
                     entry.sendToOutStream(HandleXml.marshallingWriter(Message.class, msg));
                     connection.sendToOutStream(HandleXml.marshallingWriter(Message.class, message));
@@ -569,13 +549,12 @@ public final class Server implements ConnectionAgent {
     }
 
     /**
-     * В этом методе обновляется время последнего действия конкретного пользователя,
-     * в данном случае по отправке сообщения
-     * @param connect конкретный конекшн
+     * Method updates user's activity.
+     * @param connect current connection
      */
     private void updateUserActivity(Connection connect){
-        logger.debug("SERVER: Обновляю активность пользователю: " + connect.user.getLogin());
-        connect.user.setLastActivity(System.currentTimeMillis());
+        logger.debug("SERVER: Update user's activity: " + connect.getUser().getLogin());
+        connect.getUser().setLastActivity(System.currentTimeMillis());
     }
 
     public void removeGroup(String group) {
@@ -583,8 +562,41 @@ public final class Server implements ConnectionAgent {
 //        File tmp = new File("resources/Group/" + this.getGroupID() + ".xml");
 //        String path = tmp.getAbsolutePath();
 //        File file = new File(path + tmp);
-        File file = new File(path + "/Server/src/main/resources/Group/" + group + ".xml");
+        File file = new File(System.getProperty("user.dir") + File.separator + "Group" + File.separator + group + ".xml");
+        logger.debug("Deleting " + System.getProperty("user.dir") + File.separator + "Group" + File.separator + group + ".xml");
         file.delete();
     }
 
+    /**
+     * Method just closes the program.
+     */
+    public void relaunchServer() {
+//        try {
+//            final String javaBin = System.getProperty("java.home") + File.separator + "bin" + File.separator + "java";
+//            final String path = System.getProperty("user.dir") + File.separator + "Server" + File.separator + "target"
+//                                + File.separator + "Server-1.0-SNAPSHOT-jar-with-dependencies.jar";
+//            final File currentJar = new File(path);
+//            logger.debug("Path for restarting server: " + currentJar);
+//
+//            /* is it a jar file? */
+//            if(!currentJar.getName().endsWith(".jar")) return;
+//
+//            /* Build command: java -jar application.jar */
+//            final ArrayList<String> command = new ArrayList<String>();
+//            command.add(javaBin);
+//            command.add("-jar");
+//            command.add(currentJar.getPath());
+//
+//
+//            final ProcessBuilder builder = new ProcessBuilder(command);
+//            logger.debug(command.toString());
+//            builder.start();
+//        }
+//        catch (IOException e) {
+//            e.printStackTrace();
+//        }
+        Message msg = new Message(Message.QUIT_TYPE, "");
+        connection.sendToOutStream(HandleXml.marshallingWriter(Message.class, msg));
+        System.exit(0);
+    }
 }

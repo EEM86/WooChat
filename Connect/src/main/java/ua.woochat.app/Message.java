@@ -20,8 +20,17 @@ public class Message implements Serializable {
     private int type;
     public static int REGISTER_TYPE = 0;  // сделать через enum?
     public static int SINGIN_TYPE = 1;
-    public static int MESSAGE_TYPE = 2;
-    public static int UPDATE_USERS = 3;
+    public static int CHATTING_TYPE = 2;
+    public static int UPDATE_USERS_TYPE = 3;
+    public static int PRIVATE_CHAT_TYPE = 6;
+    public static int PRIVATE_GROUP_TYPE = 7;
+    public static int UNIQUE_ONLINE_USERS_TYPE = 8;
+    public static int LEAVE_GROUP_TYPE = 9;
+    public static int EXIT_TYPE = 11;
+    public static int TAB_RENAME_TYPE = 12;
+    public static int KICK_TYPE = 13;
+    public static int BAN_TYPE = 99;
+    public static int QUIT_TYPE = 23;
 
     private String message;
     private ArrayList<String> groupList = new ArrayList<>();

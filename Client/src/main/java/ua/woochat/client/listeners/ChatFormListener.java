@@ -152,7 +152,7 @@ public class ChatFormListener implements ActionListener {
      */
     private void sendMessage(String text) {
 
-        String name = chatForm.getServerConnection().connection.user.getLogin();
+        String name = chatForm.getServerConnection().connection.getUser().getLogin();
         Message message = new Message(2, text);
         message.setLogin(name);
         message.setGroupID(chatForm.getConversationPanel().getTitleAt(chatForm.getConversationPanel().getSelectedIndex()));

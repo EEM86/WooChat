@@ -6,9 +6,12 @@ import java.io.*;
 import java.net.Socket;
 import java.nio.charset.Charset;
 
-public class Connection implements Connect, Runnable {
+/**
+ * This class handles communication between sockets.
+ */
+public class Connection implements Runnable {
 
-    public User user;
+    private User user;
     private Socket socket;
     private BufferedReader socketIn;
     private BufferedWriter socketOut;
@@ -40,7 +43,7 @@ public class Connection implements Connect, Runnable {
     }
 
     /**
-     * Reads socket's input stream data and sends it to all clients.
+     * Reads socket's input stream data and sends it to connection agent (server or client).
      */
     @Override
     public void run() {
@@ -65,7 +68,7 @@ public class Connection implements Connect, Runnable {
      * Sends data to socket's output stream.
      * @param text - data for send to output stream.
      */
-    @Override
+    //@Override
     public void sendToOutStream(String text) {
         try {
             socketOut.write(text + "\r\n");
@@ -76,7 +79,7 @@ public class Connection implements Connect, Runnable {
         }
     }
 
-    @Override
+    //@Override
     public void disconnect() {
         thread.interrupt();
         socketIsOpened = false;
@@ -95,7 +98,15 @@ public class Connection implements Connect, Runnable {
         return thread;
     }
 
-//    @Override
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    //    @Override
 //    public String toString() {
 //        return "user: \"" + user.getLogin() + "\"";
 //    }

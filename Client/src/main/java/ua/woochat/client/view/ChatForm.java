@@ -368,7 +368,7 @@ public class ChatForm {
                 JList list = (JList)evt.getSource();
                 if (evt.getClickCount() == 2) {
                     int index = list.locationToIndex(evt.getPoint());
-                    String user1 = serverConnection.connection.user.getLogin();
+                    String user1 = serverConnection.connection.getUser().getLogin();
                     String user2 = model.get(index);
 
                     if (serverConnection.isChatFounded(user2)){

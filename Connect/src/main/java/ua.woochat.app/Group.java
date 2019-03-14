@@ -1,5 +1,7 @@
 package ua.woochat.app;
 
+import org.apache.log4j.Logger;
+
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -11,6 +13,8 @@ import java.util.concurrent.ArrayBlockingQueue;
 
 @XmlRootElement
 public class Group implements UsersAndGroups {
+
+    final static Logger logger = Logger.getLogger(Group.class);
     @XmlElement
     private String groupID;
 
@@ -33,15 +37,15 @@ public class Group implements UsersAndGroups {
     }
 
     /**
-     * Method gets the list of users
-     * @return usersList list of users
+     * Method gets the list of users.
+     * @return usersList list of users.
      */
     public Set<String> getUsersList() {
         return usersList;
     }
 
     /**
-     * Method add one user to the group
+     * Method adds one user to the group.
      * @param login login of user
      */
     public void addUser (String login){
@@ -49,7 +53,7 @@ public class Group implements UsersAndGroups {
     }
 
     /**
-     * Method remove one user to the group
+     * Method removes one user from the group.
      * @param login login of user
      */
     public void removeUser (String login){
@@ -57,8 +61,8 @@ public class Group implements UsersAndGroups {
     }
 
     /**
-     * Method gets the list of online users in group
-     * @return onlineUsersList list of online users in group
+     * Method gets the list of online users in the group.
+     * @return onlineUsersList list of online users in the group.
      */
     public Set<String> getOnlineUsersList () {
         return onlineUsersList;
@@ -81,24 +85,24 @@ public class Group implements UsersAndGroups {
     }
 
     /**
-     * Method gets id of group
-     * @return groupID id of group
+     * Method gets id of the group.
+     * @return groupID id of the group.
      */
     public String getGroupID() {
         return groupID;
     }
 
     /**
-     * Method gets title of group
-     * @return groupName name of group
+     * Method gets title of the group.
+     * @return groupName name of the group.
      */
     public String getGroupName() {
         return groupName;
     }
 
     /**
-     * Method sets title group
-     * @param groupName name of group
+     * Method sets group title.
+     * @param groupName name of the group.
      */
     @XmlElement(name="Title-group")
     public void setGroupName(String groupName) {
@@ -122,9 +126,11 @@ public class Group implements UsersAndGroups {
      * Method adds one history message to the list of history messages
      */
     public void addToListMessage(HistoryMessage historyMessage) {
-        if (!queue.offer(historyMessage)) {
-            queue.poll();
-            queue.offer(historyMessage);
+        if (queue != null) {
+            if (!queue.offer(historyMessage)) {
+                queue.poll();
+                queue.offer(historyMessage);
+            }
         }
     }
 
@@ -132,11 +138,12 @@ public class Group implements UsersAndGroups {
      * Method saves group in XML file
      */
     public void saveGroup() {
-        String path = new File("").getAbsolutePath();
-//        File tmp = new File("resources/Group/" + this.getGroupID() + ".xml");
-//        String path = tmp.getAbsolutePath();
-//        File file = new File(path + tmp);
-        File file = new File(path + "/Server/src/main/resources/Group/" + this.getGroupID() + ".xml");
+        File file = new File("Group" + File.separator + this.getGroupID() + ".xml");
+        logger.debug("Saving a Group: " + this.getGroupID() + ".xml");
+        File directory = new File("Group");
+        if (!directory.exists()){
+            directory.mkdir();
+        }
         try {
             file.createNewFile();
         } catch (IOException e) {
@@ -152,7 +159,7 @@ public class Group implements UsersAndGroups {
     }
 
     /**
-     * Method creates a list of user groups from files in the list of strings
+     * Method creates a list of user's groups from files in the list of strings
      * @return groupSet list of user groups
      */
     public static Set<Group> groupUser (Set<String> groups) {
@@ -160,7 +167,7 @@ public class Group implements UsersAndGroups {
         String path = new File("").getAbsolutePath();
         File file;
         for (String entry : groups) {
-            file = new File(path + "/Server/src/main/resources/Group/" + entry + ".xml");
+            file = new File("Group" + File.separator + entry + ".xml");
             if (file.isFile()) {
                 //newGroup = (Group) HandleXml.unMarshalling(file, Group.class);
                 //newGroup = (Group) HandleXml.unMarshalling(file, Group.class);
@@ -177,8 +184,7 @@ public class Group implements UsersAndGroups {
      * @return historyMessages list of historical messages
      */
     public static Queue<HistoryMessage> groupSingIn(Group group) {  //переделать, чтобы выводило нужное сообщение, когда пользователь уже подключен к чату
-        String path = new File("").getAbsolutePath();
-        File file = new File(path + "/Server/src/main/resources/Group/" + group.getGroupID() + ".xml");
+        File file = new File("Group" + File.separator + group.getGroupID() + ".xml");
         Queue<HistoryMessage> historyMessages = null;
         if (file.isFile()) {
             group = (Group) HandleXml.unMarshalling(file, Group.class);
@@ -203,8 +209,8 @@ public class Group implements UsersAndGroups {
     }
 
     /**
-     * Method object equals other object
-     * @return true if objects are equals
+     * Method checks if the object equals to other object.
+     * @return true if objects are equals.
      */
     @Override
     public boolean equals(Object obj) {
@@ -220,8 +226,8 @@ public class Group implements UsersAndGroups {
     }
 
     /**
-     * Method hashCode of group
-     * @return int hashCode of group
+     * Method returns hashCode of the group.
+     * @return int hashCode of group.
      */
     @Override
     public int hashCode() {

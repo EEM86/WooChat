@@ -4,6 +4,9 @@ import org.apache.log4j.Logger;
 import java.io.IOException;
 import java.util.Properties;
 
+/**
+ * This class handles client properties.
+ */
 public class ConfigClient {
     private static final Logger logger = Logger.getLogger(ConfigClient.class);
     static Properties properties = new Properties();
