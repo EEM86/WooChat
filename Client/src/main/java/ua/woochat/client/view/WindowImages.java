@@ -2,6 +2,9 @@ package ua.woochat.client.view;
 
 import javax.swing.*;
 
+/**
+ * Class describe a ImageIcon resources
+ */
 public class WindowImages {
 
     private ImageIcon logoImage;
@@ -24,7 +27,7 @@ public class WindowImages {
         return envelope;
     }
 
-    public ImageIcon getLogo() {
+    ImageIcon getLogo() {
         return logo;
     }
 

@@ -2,6 +2,9 @@ package ua.woochat.client.view;
 
 import java.awt.*;
 
+/**
+ * Class describe a color properties
+ */
 public class WindowProperties {
 
     private Color bgColor;
@@ -20,27 +23,27 @@ public class WindowProperties {
         userListColor  = new Color(230, 196, 221);
     }
 
-    public Color getBgColor() {
+    Color getBgColor() {
         return bgColor;
     }
 
-    public Color getTextColor() {
+    Color getTextColor() {
         return textColor;
     }
 
-    public Color getBtnColor() {
+    Color getBtnColor() {
         return btnColor;
     }
 
-    public Color getChatBackColor() {
+    Color getChatBackColor() {
         return chatBackColor;
     }
 
-    public Color getLabelTextColor() {
+    Color getLabelTextColor() {
         return labelTextColor;
     }
 
-    public Color getUserListColor() {
+    Color getUserListColor() {
         return userListColor;
     }
 }
