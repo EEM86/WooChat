@@ -5,31 +5,25 @@ import ua.woochat.app.Message;
 import ua.woochat.client.model.ServerConnection;
 import ua.woochat.client.view.LoginForm;
 import ua.woochat.client.view.MessageView;
-
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 /**
  * class defines the functionality associated with the events of pressing the buttons
  */
-
 public class LoginFormListener implements ActionListener {
 
-    LoginForm loginForm;
-
+    private LoginForm loginForm;
     private ServerConnection serverConnection;
-
     private HandleXml handleXml = new HandleXml();
+
     public LoginFormListener(LoginForm loginForm){
-
         serverConnection = new ServerConnection(this);
-
         this.loginForm = loginForm;
     }
 
     /**
      * Invoked when an action occurs.
-     *
      * @param e event associated with the push of a button
      */
     @Override
@@ -88,7 +82,6 @@ public class LoginFormListener implements ActionListener {
         /**
          * event handling associated with pressing the button cancelNewUserButton
          */
-
         if (e.getActionCommand().equals("cancel")) {
             loginForm.getLoginWindow().setVisible(false);
             loginForm.getLoginWindow().setTitle("Login chat");
@@ -99,6 +92,9 @@ public class LoginFormListener implements ActionListener {
 
     }
 
+    /**
+     * Method sends data to server
+     */
     private void signIn() {
         String account = loginForm.getUserName().getText();
         String password = loginForm.getUserPassword().getText();
@@ -110,8 +106,13 @@ public class LoginFormListener implements ActionListener {
         }
     }
 
+    /**
+     * Method send user login and password to server
+     * @param account user login
+     * @param password user password
+     * @param type type of message
+     */
     private void sendMessage(String account, String password, int type) {
-
         Message message = new Message(account, password, type);
         String str = handleXml.marshallingWriter(Message.class, message);
 

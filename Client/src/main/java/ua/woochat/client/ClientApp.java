@@ -14,7 +14,6 @@ import ua.woochat.client.view.WindowProperties;
 
 public class ClientApp {
     public static void main(String[] args) {
-
         WindowProperties properties = new WindowProperties();
         WindowImages images = new WindowImages();
         new LoginForm(properties, images);

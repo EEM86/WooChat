@@ -1,14 +1,14 @@
 package ua.woochat.client.view;
 
 import ua.woochat.client.listeners.LoginFormListener;
-import ua.woochat.client.model.ServerConnection;
-
 import javax.swing.*;
 import java.awt.*;
 
 /**
  * Class describes the login form of WooChat application
- * @autor Yevhen Yermolenko, Maryia Romanovych, Sergey Skidan
+ * @autor Yevhen Yermolenko
+ * @autor Maryia Romanovych
+ * @autor Sergey Skidan
  */
 
 public class LoginForm {
@@ -16,14 +16,9 @@ public class LoginForm {
     private JFrame loginWindow;
     private JTextField userName;
     private JTextField userPassword;
-    private JLabel newLoginText;
-    private JLabel newPasswordText;
-    private JLabel newConfirmPasswordText;
     private JTextField newLogin;
     private JTextField newPassword;
     private JTextField newConfirmPassword;
-    private JLabel dummyComponent;
-    private JLabel newUserDummyComponent;
     private JPanel loginPanel;
     private JPanel registrationPanel;
     private WindowProperties properties;
@@ -43,6 +38,7 @@ public class LoginForm {
     private void createWindow() {
         loginWindow = new JFrame("Login chat");
         loginWindow.getContentPane().setBackground(properties.getBgColor());
+        loginWindow.setIconImage(images.getLogo().getImage());
         loginWindow.setBounds(500, 200, 250, 300);
         loginWindow.setLocationRelativeTo(null);
         loginWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -68,24 +64,17 @@ public class LoginForm {
         loginPanel = new JPanel();
         loginPanel.setBackground(properties.getBgColor());
         loginPanel.setLayout(new FlowLayout());
-
         userName = new JTextField(20);
         userPassword = new JTextField(20);
         userPassword.setActionCommand("passwordEnterPressed");
-
-
-        dummyComponent = new JLabel();
+        JLabel dummyComponent = new JLabel();
         dummyComponent.setPreferredSize(new Dimension(200,15));
-
         JButton signInButton = new JButton("Sign in");
         JButton registerButton = new JButton("Register");
-
         signInButton.setActionCommand("signInButton");
         registerButton.setActionCommand("registerButton");
-
         btnConfig(signInButton);
         btnConfig(registerButton);
-
         loginPanel.add(logo);
         loginPanel.add(userNameText);
         loginPanel.add(userName);
@@ -101,31 +90,23 @@ public class LoginForm {
         registrationPanel = new JPanel();
         registrationPanel.setBackground(properties.getBgColor());
         registrationPanel.setLayout(new FlowLayout());
-
         JLabel newUserLogo = new JLabel();
         newUserLogo.setIcon(images.getNewUserLogo());
-
-        newLoginText = new JLabel("User name:");
-        newPasswordText = new JLabel("Password:");
-        newConfirmPasswordText = new JLabel("Confirm password:");
-
-        newUserDummyComponent = new JLabel();
+        JLabel newLoginText = new JLabel("User name:");
+        JLabel newPasswordText = new JLabel("Password:");
+        JLabel newConfirmPasswordText = new JLabel("Confirm password:");
+        JLabel newUserDummyComponent = new JLabel();
         newUserDummyComponent.setPreferredSize(new Dimension(200,15));
-
         newLoginText.setForeground(properties.getTextColor());
         newPasswordText.setForeground(properties.getTextColor());
         newConfirmPasswordText.setForeground(properties.getTextColor());
-
         newLogin = new JTextField(20);
         newPassword = new JTextField(20);
         newConfirmPassword = new JTextField(20);
-
         JButton newUserButton = new JButton("Create");
         JButton cancelNewUserButton = new JButton("Cancel");
-
         btnConfig(newUserButton);
         btnConfig(cancelNewUserButton);
-
         newUserButton.setActionCommand("create");
         cancelNewUserButton.setActionCommand("cancel");
 
@@ -139,7 +120,6 @@ public class LoginForm {
         registrationPanel.add(newUserDummyComponent);
         registrationPanel.add(newUserButton);
         registrationPanel.add(cancelNewUserButton);
-
         loginWindow.getContentPane().add(loginPanel);
 
         /**
@@ -147,14 +127,11 @@ public class LoginForm {
          */
 
         loginFormListener = new LoginFormListener(this);
-
         signInButton.addActionListener(loginFormListener);
         registerButton.addActionListener(loginFormListener);
         newUserButton.addActionListener(loginFormListener);
         cancelNewUserButton.addActionListener(loginFormListener);
         userPassword.addActionListener(loginFormListener);
-
-
         loginWindow.setVisible(true);
     }
 

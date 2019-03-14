@@ -25,33 +25,20 @@ public class ChatForm {
     private WindowImages images;
     private JFrame chatForm;
     private JFrame addUserListForm;
-
-    private JPanel container;
     private JPanel chatContainer;
     private JPanel listContainer;
     private JPanel messageContainer;
-    private JPanel addUserListPanel;
-
     private DefaultListModel<String> model = new DefaultListModel();
     private DefaultListModel<String> addUserModel = new DefaultListModel();
-
     private JScrollPane scrollPane;
     private JScrollPane addUserScrollPane;
-    private JList userList;
     private JList addUserList;
-
     private JLabel userOnlineLabel;
-    private JLabel addUserOnlineLabel;
     private JButton sendButton;
     private JButton addUserBtn;
-    private JButton leaveGroupBtn;
-    private JButton addUser;
-
     private JTabbedPane conversationPanel;
-
     private JTextField messageField;
     private JTextField groupTextField;
-
     private ServerConnection serverConnection;
     private String user;
     private ChatFormListener chatListener;
@@ -67,6 +54,9 @@ public class ChatForm {
         createWindow();
     }
 
+    /**
+     * Method create main window form
+     */
     private void createWindow() {
 
         chatForm = new JFrame("Woo Chat | " + user);
@@ -81,14 +71,12 @@ public class ChatForm {
             @Override
             public void windowClosing( WindowEvent e )
             {
-                // Здесь будет реакция на кнопку EXIT_ON_CLOSE
                 logger.debug("Сработала кнопка \"закрыть приложение\"");
                 serverConnection.disconnectRequest();
-                //System.exit(0); - теперь выходим методом connectionDisconnect(Connection connection) в классе ServerConnection
             }
         } );
 
-        container = new JPanel();
+        JPanel container = new JPanel();
         container.setBackground(properties.getBgColor());
 
         createChatContainer();
@@ -103,10 +91,14 @@ public class ChatForm {
         chatForm.setVisible(true);
     }
 
+    /**
+     * Method create a form for user list
+     */
     private void createAddUserListForm() {
 
         addUserListForm = new JFrame("Add user");
         addUserListForm.getContentPane().setBackground(properties.getBgColor());
+        addUserListForm.setIconImage(images.getLogo().getImage());
         addUserListForm.setBounds(700, 500, 170, 370);
         addUserListForm.setLocationRelativeTo(null);
         addUserListForm.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
@@ -118,12 +110,12 @@ public class ChatForm {
         groupTextField = new JTextField();
         groupTextField.setPreferredSize(new Dimension(150,20));
 
-        addUserListPanel = new JPanel();
+        JPanel addUserListPanel = new JPanel();
         addUserListPanel.setLayout(new FlowLayout());
         addUserListPanel.setBackground(properties.getChatBackColor());
         addUserListPanel.setPreferredSize(new Dimension(182,400));
 
-        addUserOnlineLabel = new JLabel("USERS:");
+        JLabel addUserOnlineLabel = new JLabel("USERS:");
         addUserOnlineLabel.setForeground(properties.getLabelTextColor());
 
         addUserModel = new DefaultListModel<>();
@@ -138,7 +130,7 @@ public class ChatForm {
         addUserScrollPane.setPreferredSize(new Dimension(150, 225));
         addUserScrollPane.setBorder(border());
 
-        addUser = new JButton("Add");
+        JButton addUser = new JButton("Add");
         addUser.setActionCommand("addUser");
 
         btnConfig(addUser);
@@ -155,7 +147,7 @@ public class ChatForm {
         addUserListForm.setVisible(false);
 
         /**
-         * Метод добавляет слушателя по нажатию кнопки закрытия в окно выбора пользователя
+         * Method adds a listener by clicking the close button in the user selection window.
          */
         addUserListForm.addWindowListener( new WindowAdapter()
         {
@@ -169,7 +161,7 @@ public class ChatForm {
         } );
 
         /**
-         * Метод добавляет слушателя по нажатию кнопки ESC в окно выбора пользователя
+         * Method adds a listener by pressing the ESC button in the user selection window
          */
         KeyStroke escapeKeyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0, false);
         Action escapeAction = new AbstractAction() {
@@ -188,36 +180,25 @@ public class ChatForm {
      * method create a message container
      */
     private void createMessageContainer() {
-
         chatListener = new ChatFormListener(this);
-
         messageContainer = new JPanel();
         messageContainer.setBackground(properties.getChatBackColor());
         messageContainer.setPreferredSize(new Dimension(687,40));
-
         messageField = new JTextField();
-        messageField.setPreferredSize(new Dimension(405,30));
+        messageField.setPreferredSize(new Dimension(500,30));
         messageField.setActionCommand("enterPressed");
         messageField.addActionListener(chatListener);
-
         sendButton = new JButton("Send");
         sendButton.setPreferredSize(new Dimension(80,30));
         sendButton.setActionCommand("sendButton");
         sendButton.addActionListener(chatListener);
-
         addUserBtn = new JButton("Add");
         addUserBtn.setEnabled(false);
-        leaveGroupBtn = new JButton("Leave");
         addUserBtn.setActionCommand("addUserBtn");
-        leaveGroupBtn.setActionCommand("leaveGroupBtn");
-
         btnConfig(addUserBtn);
-        btnConfig(leaveGroupBtn);
-
         messageContainer.add(messageField);
         messageContainer.add(sendButton);
         messageContainer.add(addUserBtn);
-        messageContainer.add(leaveGroupBtn);
     }
 
     /**
@@ -237,13 +218,11 @@ public class ChatForm {
      */
     private void createChatContainer() {
         chatContainer = new JPanel();
-
         chatContainer.setBackground(properties.getChatBackColor());
         chatContainer.setPreferredSize(new Dimension(500,400));
-
         conversationPanel = new JTabbedPane();
-
         conversationPanel.addChangeListener(new ChangeListener() {
+
             public void stateChanged(ChangeEvent e) {
 
                 if (serverConnection.isRenderComplete()){
@@ -260,8 +239,8 @@ public class ChatForm {
                 }else {
                     logger.debug("addUserBtn.setEnabled(true);");
                     addUserBtn.setEnabled(true);
+                    }
                 }
-            }
             }
         });
 
@@ -271,11 +250,10 @@ public class ChatForm {
     }
 
     /**
-     * Метод добавляет новую вкладку в окно чата. Все вкладки индексируются как в массивах
-     * @param index индекс вкладки.
-     * @param tabTitle Имя чата
-     * @param tabID id вкладки, который аналогичен groupID. По нему мы будем определять в какую вкладку
-     * отправлять ссобщение
+     * The method adds a new tab to the chat window. All tabs are indexed as in arrays.
+     * @param index index of new tab
+     * @param tabTitle chat title
+     * @param tabID new tab id
      */
     public void addNewTab(int index, String tabTitle, String tabID, boolean closeable) {
         conversationPanel.addTab(null, createNewTab());
@@ -284,24 +262,23 @@ public class ChatForm {
         conversationPanel.setSelectedIndex(index);
     }
 
+    /**
+     * Class describe a new Tab object
+     */
     public class TabTitle extends JPanel{
-
         private JLabel lbl;
         private JLabel envelope;
 
         private TabTitle(final String title, final int index, boolean closeable){
 
             setOpaque(false);
-
             lbl = new JLabel(title);
             envelope = new JLabel();
             envelope.setPreferredSize(new Dimension(14,9));
             envelope.setIcon(images.getEnvelope());
             envelope.setVisible(false);
-
             lbl.setForeground(properties.getTextColor());
             lbl.setPreferredSize(new Dimension(55,13));
-
             JButton button = new JButton();
             button.setBackground(properties.getBgColor());
             button.setBorderPainted(false);
@@ -326,27 +303,23 @@ public class ChatForm {
                 add(lbl, BorderLayout.CENTER);
             }
         }
-
         public JLabel getLbl() {
             return lbl;
         }
-
         public JLabel getEnvelope() {
             return envelope;
         }
     }
 
-
     /**
-     *
-     * @return возвращает новую вкладку типа JPanel
+     * Method returns a new tab of type JPanel
+     * @return new JPanel object
      */
     private JPanel createNewTab() {
 
         JPanel newTab = new JPanel();
         newTab.setBorder(BorderFactory.createLineBorder(properties.getUserListColor()));
         newTab.setBackground(properties.getChatBackColor());
-
         JTextArea chatArea = new JTextArea();
         chatArea.setFont(new Font(null, Font.BOLD, 12));
         chatArea.setCaretPosition(chatArea.getDocument().getLength());
@@ -355,7 +328,6 @@ public class ChatForm {
         chatArea.setTabSize(10);
         chatArea.setEditable(false);
         chatArea.setLineWrap(true);
-
         JScrollPane jsp = new JScrollPane(chatArea);
         jsp.setPreferredSize(new Dimension(475,342));
         jsp.setBorder(border());
@@ -364,7 +336,7 @@ public class ChatForm {
     }
 
     /**
-     * method create a user list container
+     * Method create a user list container
      */
 
     private void createListContainer() {
@@ -372,31 +344,24 @@ public class ChatForm {
         listContainer = new JPanel();
         listContainer.setBackground(properties.getChatBackColor());
         listContainer.setPreferredSize(new Dimension(182,400));
-
         userOnlineLabel = new JLabel();
         userOnlineLabel.setForeground(properties.getLabelTextColor());
-
         JLabel line = new JLabel();
         line.setPreferredSize(new Dimension(140,10));
         line.setIcon(images.getLine());
-
-        userList = new JList(model);
+        JList userList = new JList(model);
         userList.setForeground(properties.getUserListColor());
-
         userList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         userList.setBackground(properties.getChatBackColor());
-
         scrollPane = new JScrollPane(userList);
         scrollPane.setPreferredSize(new Dimension(170, 370));
         scrollPane.setBorder(border());
-
         listContainer.add(userOnlineLabel);
         listContainer.add(line);
         listContainer.add(scrollPane);
 
-
         /**
-         * Добавление слушателя для двойного щелчка по списку пользователей
+         * Adding a listener for double clicking on the list of users
          */
         userList.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent evt) {
@@ -409,7 +374,7 @@ public class ChatForm {
                     if (serverConnection.isChatFounded(user2)){
                     }else{
                         if (user1.equals(user2)){
-                            new MessageView("Вы не можете создать диалог с собой", chatForm);
+                            new MessageView("You can not create a dialogue with yourself", chatForm);
                         }else {
                             chatListener.privateGroupCreate(user1,user2);
                         }
@@ -479,16 +444,15 @@ public class ChatForm {
         return addUserBtn;
     }
 
-    public JButton getLeaveGroupBtn() {
-        return leaveGroupBtn;
-    }
-
     private Border border() {
         return BorderFactory.createEmptyBorder(0, 0, 0, 0);
     }
 }
 
-class MyTabbedPaneUI extends javax.swing.plaf.basic.BasicTabbedPaneUI {
+    /**
+     * Redefining drawing methods for BasicTabbedPaneUI
+     */
+    class MyTabbedPaneUI extends javax.swing.plaf.basic.BasicTabbedPaneUI {
 
     private WindowProperties properties;
     public MyTabbedPaneUI(WindowProperties properties){
