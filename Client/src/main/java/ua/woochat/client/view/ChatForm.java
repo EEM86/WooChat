@@ -4,7 +4,6 @@ import org.apache.log4j.Logger;
 import ua.woochat.app.Message;
 import ua.woochat.client.listeners.ChatFormListener;
 import ua.woochat.client.model.ServerConnection;
-
 import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.event.ChangeEvent;
@@ -71,7 +70,6 @@ public class ChatForm {
             @Override
             public void windowClosing( WindowEvent e )
             {
-                logger.debug("Сработала кнопка \"закрыть приложение\"");
                 serverConnection.disconnectRequest();
             }
         } );
@@ -455,7 +453,7 @@ public class ChatForm {
     class MyTabbedPaneUI extends javax.swing.plaf.basic.BasicTabbedPaneUI {
 
     private WindowProperties properties;
-    public MyTabbedPaneUI(WindowProperties properties){
+    MyTabbedPaneUI(WindowProperties properties){
         this.properties = properties;
     }
 

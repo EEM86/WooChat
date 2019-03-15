@@ -22,18 +22,12 @@ public class WindowImages {
 
     public WindowImages() {
         try {
-        logoImage = new ImageIcon(getClass().getClassLoader().getResource("logoImage.png"));
-        newUserLogo = new ImageIcon(getClass().getClassLoader().getResource("newUserLogo.png"));
-        closeTabIcon = new ImageIcon(ClassLoader.getSystemClassLoader().getResource("delete.png"));
-        line = new ImageIcon(ClassLoader.getSystemClassLoader().getResource("line.png"));
-        envelope = new ImageIcon(ClassLoader.getSystemClassLoader().getResource("envelope.png"));
-        logo = new ImageIcon(ClassLoader.getSystemClassLoader().getResource("logo.png"));
-        //logoImage = new ImageIcon("Client/src/main/resources/logoImage.png");
-//        newUserLogo = new ImageIcon("Client/src/main/resources/newUserLogo.png");
-//        closeTabIcon = new ImageIcon("Client/src/main/resources/delete.png");
-//        line = new ImageIcon("Client/src/main/resources/line.png");
-//        envelope = new ImageIcon("Client/src/main/resources/envelope.png");
-//        logo = new ImageIcon("Client/src/main/resources/logo.png");
+            logoImage = new ImageIcon(getClass().getClassLoader().getResource("logoImage.png"));
+            newUserLogo = new ImageIcon(getClass().getClassLoader().getResource("newUserLogo.png"));
+            closeTabIcon = new ImageIcon(ClassLoader.getSystemClassLoader().getResource("delete.png"));
+            line = new ImageIcon(ClassLoader.getSystemClassLoader().getResource("line.png"));
+            envelope = new ImageIcon(ClassLoader.getSystemClassLoader().getResource("envelope.png"));
+            logo = new ImageIcon(ClassLoader.getSystemClassLoader().getResource("logo.png"));
         } catch (Exception e) {
             logger.error("Error" + e);
         }

@@ -1,7 +1,6 @@
 package ua.woochat.server.model;
 
 import org.apache.log4j.Logger;
-
 import java.io.*;
 import java.util.Properties;
 
@@ -12,8 +11,6 @@ public class ConfigServer {
     private static ConfigServer configServer;
     private static Properties properties;
     private static final Logger logger = Logger.getLogger(ConfigServer.class);
-
-
     private ConfigServer() {
         properties = new Properties();
     }
@@ -26,7 +23,7 @@ public class ConfigServer {
         return configServer;
     }
 
-    public static void loadServerConfig() {
+    private static void loadServerConfig() {
         try {
             properties.load(ConfigServer.class.getClassLoader().getResourceAsStream("server.properties"));
             File file = new File("serverExtracted.properties");
@@ -68,7 +65,6 @@ public class ConfigServer {
     public static String getTimeOut() {
         try {
             properties.load(new FileInputStream("serverExtracted.properties"));
-            //properties.load(ConfigServer.class.getClassLoader().getResourceAsStream("serverExtracted.properties"));
         } catch (IOException e) {
             logger.error("IOException error " + e);
         }

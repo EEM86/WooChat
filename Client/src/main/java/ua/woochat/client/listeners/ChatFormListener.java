@@ -156,12 +156,11 @@ public class ChatFormListener implements ActionListener {
         Message message = new Message(2, text);
         message.setLogin(name);
         message.setGroupID(chatForm.getConversationPanel().getTitleAt(chatForm.getConversationPanel().getSelectedIndex()));
-        logger.debug("Клиент:ID вкладки c которой отправляю: " +
-                chatForm.getConversationPanel().getTitleAt(chatForm.getConversationPanel().getSelectedIndex()));
+
         try {
             chatForm.getServerConnection().sendToServer(HandleXml.marshallingWriter(Message.class, message));
         } catch (NullPointerException e){
-            System.out.println("Сообщение не отправлено");
+            e.printStackTrace();
         } finally {
             chatForm.getMessageField().setText("");
         }
