@@ -51,7 +51,7 @@ public class Connection implements Runnable {
             try {
                 if (socketIn.ready()) {
                     String text = socketIn.readLine();
-                    logger.debug("Message has been received from: " + socket.getInetAddress() + ":" + socket.getLocalPort() + socket.getPort());
+                    logger.debug("Message has been received from: " + socket.getInetAddress() + ":" + socket.getLocalPort() + " client's port: " + socket.getPort());
                     connectionAgent.receivedMessage(Connection.this, text.trim());
                 }
             } catch (IOException e) {

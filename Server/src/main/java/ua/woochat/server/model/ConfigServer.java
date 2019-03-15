@@ -27,8 +27,7 @@ public class ConfigServer {
         try {
             properties.load(ConfigServer.class.getClassLoader().getResourceAsStream("server.properties"));
             File file = new File("serverExtracted.properties");
-            logger.debug("Server properties was extracted from jar file.");
-            logger.debug("Path to serverExtracted.properties: " + System.getProperty("user.dir") + File.separator + ("serverExtracted.properties"));
+            logger.debug("Server properties was extracted from jar file to: " + System.getProperty("user.dir") + File.separator + ("serverExtracted.properties"));
             properties.store(new FileOutputStream(file), null);
         } catch (IOException e) {
             e.printStackTrace();

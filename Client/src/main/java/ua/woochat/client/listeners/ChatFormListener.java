@@ -47,7 +47,7 @@ public class ChatFormListener implements ActionListener {
         if (e.getActionCommand().equals("addUserBtn")) {
             String group = chatForm.getConversationPanel().getTitleAt(chatForm.getConversationPanel().getSelectedIndex());
 
-            Message msg = new Message(8, "");
+            Message msg = new Message(Message.UNIQUE_ONLINE_USERS_TYPE, "");
             msg.setGroupID(group);
 
             chatForm.getServerConnection().sendToServer(HandleXml.marshallingWriter(Message.class, msg));
@@ -124,7 +124,7 @@ public class ChatFormListener implements ActionListener {
      * @param user2 username with which a private chat is being created
      */
     public void privateGroupCreate(String user1, String user2) {
-        Message message = new Message(6, "");
+        Message message = new Message(Message.PRIVATE_CHAT_TYPE, "");
         ArrayList<String> listUsers = new ArrayList<>();
         listUsers.add(user1);
         listUsers.add(user2);
@@ -139,7 +139,7 @@ public class ChatFormListener implements ActionListener {
      * @param groupName group title
      */
     private void addUserToCurrentGroup(String name, String groupID, String groupName) {
-        Message msg = new Message(7, "Connected" + name + " to " + groupID);
+        Message msg = new Message(Message.PRIVATE_GROUP_TYPE, "Connected" + name + " to " + groupID);
         msg.setLogin(name);
         msg.setGroupID(groupID);
         msg.setGroupTitle(groupName);
@@ -153,7 +153,7 @@ public class ChatFormListener implements ActionListener {
     private void sendMessage(String text) {
 
         String name = chatForm.getServerConnection().connection.getUser().getLogin();
-        Message message = new Message(2, text);
+        Message message = new Message(Message.CHATTING_TYPE, text);
         message.setLogin(name);
         message.setGroupID(chatForm.getConversationPanel().getTitleAt(chatForm.getConversationPanel().getSelectedIndex()));
 
