@@ -23,27 +23,27 @@ public class WindowProperties {
         userListColor  = new Color(230, 196, 221);
     }
 
-    Color getBgColor() {
+    public Color getBgColor() {
         return bgColor;
     }
 
-    Color getTextColor() {
+    public Color getTextColor() {
         return textColor;
     }
 
-    Color getBtnColor() {
+    public Color getBtnColor() {
         return btnColor;
     }
 
-    Color getChatBackColor() {
+    public Color getChatBackColor() {
         return chatBackColor;
     }
 
-    Color getLabelTextColor() {
+    public Color getLabelTextColor() {
         return labelTextColor;
     }
 
-    Color getUserListColor() {
+    public Color getUserListColor() {
         return userListColor;
     }
 }

@@ -2,11 +2,7 @@ package ua.woochat.client.view;
 
 import org.apache.log4j.Logger;
 
-import javax.imageio.ImageIO;
 import javax.swing.*;
-import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.net.URL;
 
 /**
  * Class describe a ImageIcon resources
@@ -33,23 +29,23 @@ public class WindowImages {
         }
     }
 
-     ImageIcon getEnvelope() {
+    public ImageIcon getEnvelope() {
         return envelope;
     }
 
-    ImageIcon getLogo() {
+    public ImageIcon getLogo() {
         return logo;
     }
 
-    ImageIcon getNewUserLogo() {
+    public ImageIcon getNewUserLogo() {
         return newUserLogo;
     }
 
-     ImageIcon getLogoImage() {
+    public ImageIcon getLogoImage() {
         return logoImage;
     }
 
-     ImageIcon getCloseTabIcon() { return closeTabIcon; }
+    public ImageIcon getCloseTabIcon() { return closeTabIcon; }
 
-     ImageIcon getLine() { return line; }
+    public ImageIcon getLine() { return line; }
 }

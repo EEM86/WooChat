@@ -351,10 +351,10 @@ public class ServerConnection implements ConnectionAgent {
      */
     public void changeTabReNewOnlineList(int index){
         logger.debug("Update a list from a groupID tab: "  + chatForm.getConversationPanel().getTitleAt(index));
-        if (renderComplete) {
-            if (onlineState.get(chatForm.getConversationPanel().getTitleAt(index))!=null) {
-                reNewOnlineList(onlineState.get(chatForm.getConversationPanel().getTitleAt(index)));
-            }
+        if ((renderComplete)
+                && (onlineState.get(chatForm.getConversationPanel().getTitleAt(index))!=null)) {
+            reNewOnlineList(onlineState.get(chatForm.getConversationPanel().getTitleAt(index)));
+
         }
     }
 

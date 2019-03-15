@@ -65,7 +65,7 @@ public class LoginFormListener implements ActionListener {
                 new MessageView("Please enter account name!", loginForm.getLoginWindow());
             }
             else{
-                if (password.equals("") | passwordConfirm.equals("")){
+                if (("".equals(password)) | ("".equals("passwordConfirm"))){
                     new MessageView("Password must not be empty", loginForm.getLoginWindow());
                 }
                 else {
@@ -99,7 +99,7 @@ public class LoginFormListener implements ActionListener {
         String account = loginForm.getUserName().getText();
         String password = loginForm.getUserPassword().getText();
 
-        if (account.equals("") || password.equals("")){
+        if (("".equals(account)) || ("".equals(password))){
             new MessageView("Login or password must not be empty", loginForm.getLoginWindow());
         }else{
             sendMessage(account, password, Message.SINGIN_TYPE);

@@ -21,7 +21,7 @@ import java.util.concurrent.TimeUnit;
  */
 public final class Server implements ConnectionAgent {
 
-    final static Logger logger = Logger.getLogger(Server.class);
+    private final static Logger logger = Logger.getLogger(Server.class);
     private static Server server;
 
     private final ScheduledExecutorService ses = Executors.newSingleThreadScheduledExecutor();

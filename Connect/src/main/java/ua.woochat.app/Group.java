@@ -119,7 +119,7 @@ public class Group implements UsersAndGroups {
     }
 
     public void setQueue(Queue<HistoryMessage> queue) {
-        this.queue = queue;;
+        this.queue = queue;
     }
 
     /**
@@ -164,7 +164,6 @@ public class Group implements UsersAndGroups {
      */
     public static Set<Group> groupUser (Set<String> groups) {
         Set<Group> groupSet = new LinkedHashSet<>();
-        String path = new File("").getAbsolutePath();
         File file;
         for (String entry : groups) {
             file = new File("Group" + File.separator + entry + ".xml");

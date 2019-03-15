@@ -42,7 +42,7 @@ public class ChatForm {
     private String user;
     private ChatFormListener chatListener;
 
-    final static Logger logger = Logger.getLogger(ServerConnection.class);
+    private final static Logger logger = Logger.getLogger(ServerConnection.class);
 
     public ChatForm(WindowProperties properties, WindowImages images, String user, ServerConnection serverConnection){
 

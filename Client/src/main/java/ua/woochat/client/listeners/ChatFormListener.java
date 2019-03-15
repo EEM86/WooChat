@@ -1,9 +1,7 @@
 package ua.woochat.client.listeners;
 
-import org.apache.log4j.Logger;
 import ua.woochat.app.HandleXml;
 import ua.woochat.app.Message;
-import ua.woochat.client.model.ServerConnection;
 import ua.woochat.client.view.ChatForm;
 import ua.woochat.client.view.MessageView;
 import javax.swing.*;
@@ -16,7 +14,6 @@ import java.util.ArrayList;
  */
 public class ChatFormListener implements ActionListener {
     private ChatForm chatForm;
-    private final static Logger logger = Logger.getLogger(ServerConnection.class);
 
     public ChatFormListener(ChatForm chatForm) {
         this.chatForm = chatForm;
