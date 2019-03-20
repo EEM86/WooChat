@@ -116,7 +116,7 @@ public class ServerConnection implements ConnectionAgent {
                 }
 
             } else {
-                if (message.getType() == Message.SINGIN_TYPE) {
+                if (message.getType() == Message.REGISTER_TYPE) {
                     loginFormListener.getLoginForm().getLoginWindow().setEnabled(false);
                     new MessageView("User with the same name already exists!",
                             loginFormListener.getLoginForm().getLoginWindow());

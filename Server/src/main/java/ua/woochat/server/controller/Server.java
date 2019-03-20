@@ -444,9 +444,8 @@ public final class Server implements ConnectionAgent {
     }
 
     private boolean verificationName(String login) {
-        String appPath = System.getProperty("user.dir");
-        String userFilesPath= appPath + File.separator + "User";
-        File file = new File(userFilesPath + login.hashCode() + ".xml");
+        File file = new File("User" + File.separator + login.hashCode() + ".xml");
+
         if (file.isFile()) {
             return false;
         }
