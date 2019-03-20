@@ -327,9 +327,7 @@ public final class Server implements ConnectionAgent {
             Message msg = new Message();
             ArrayList<String> newUserList = new ArrayList<>();
 
-            for (String userLogin: result){
-                newUserList.add(userLogin);
-            }
+            newUserList.addAll(result);
 
             msg.setGroupList(newUserList);
             msg.setType(Message.TAB_RENAME_TYPE);
