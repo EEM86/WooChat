@@ -25,10 +25,14 @@ public class ConfigServer {
 
     private static void loadServerConfig() {
         try {
-            properties.load(ConfigServer.class.getClassLoader().getResourceAsStream("server.properties"));
             File file = new File("serverExtracted.properties");
-            logger.debug("Server properties was extracted from jar file to: " + System.getProperty("user.dir") + File.separator + ("serverExtracted.properties"));
-            properties.store(new FileOutputStream(file), null);
+            if (file.exists()) {
+                properties.load(new FileInputStream("serverExtracted.properties"));
+            } else {
+                properties.load(ConfigServer.class.getClassLoader().getResourceAsStream("server.properties"));
+                logger.debug("Server properties was extracted from jar file to: " + System.getProperty("user.dir") + File.separator + ("serverExtracted.properties"));
+                properties.store(new FileOutputStream(file), null);
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }

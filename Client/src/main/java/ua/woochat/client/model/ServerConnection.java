@@ -30,7 +30,7 @@ public class ServerConnection implements ConnectionAgent {
     private final static Logger logger = Logger.getLogger(ServerConnection.class);
 
     public ServerConnection(LoginFormListener loginFormListener){
-
+        ConfigClient.getConfigClient();
         this.loginFormListener = loginFormListener;
         onlineState.put("group000", new ArrayList<>());
 
@@ -352,7 +352,7 @@ public class ServerConnection implements ConnectionAgent {
     public void changeTabReNewOnlineList(int index){
         logger.debug("Update a list from a groupID tab: "  + chatForm.getConversationPanel().getTitleAt(index));
         if ((renderComplete)
-                && (onlineState.get(chatForm.getConversationPanel().getTitleAt(index))!=null)) {
+                && (onlineState.get(chatForm.getConversationPanel().getTitleAt(index))!= null)) {
             reNewOnlineList(onlineState.get(chatForm.getConversationPanel().getTitleAt(index)));
 
         }
