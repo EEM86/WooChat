@@ -10,6 +10,7 @@ import java.util.Set;
 @XmlRootElement
 public class Message implements Serializable {
     private String login;
+    private boolean isAdmin;
     @XmlElement
     private String password;
     private String onlineUsers; //удалить?
@@ -146,5 +147,13 @@ public class Message implements Serializable {
 
     public void setGroupTitle(String groupTitle) {
         this.groupTitle = groupTitle;
+    }
+
+    public boolean isAdmin() {
+        return isAdmin;
+    }
+
+    public void setAdmin(boolean admin) {
+        isAdmin = admin;
     }
 }

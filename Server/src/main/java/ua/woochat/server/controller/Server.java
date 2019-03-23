@@ -148,7 +148,11 @@ public final class Server implements ConnectionAgent {
         else if (message.getType() == Message.SINGIN_TYPE) {
             Message messageSend = new Message(Message.SINGIN_TYPE,"");
             if (verificationSingIn(message.getLogin(), message.getPassword())) {
-                connection.setUser(new User(message.getLogin(), message.getPassword()));
+
+                //connection.setUser(new User(message.getLogin(), message.getPassword()));
+                connection.setUser(new User(verificationAdmin(message.getLogin()), message.getPassword()));
+                messageSend.setAdmin(message.getLogin().equals(ConfigServer.getRootAdmin()));
+                logger.info("admin  " + messageSend.isAdmin());
                 connection.getUser().setGroups(user.getGroups());
                 connectionCreated(connection);
                 messageSend.setLogin(message.getLogin());
@@ -565,4 +569,13 @@ public final class Server implements ConnectionAgent {
         connection.sendToOutStream(HandleXml.marshallingWriter(Message.class, msg));
         System.exit(0);
     }
+
+    private String verificationAdmin(String login) {
+        String newLogin = login;
+        if (login.equals(ConfigServer.getRootAdmin())) {
+            newLogin = "[Admin] " + login;
+        }
+        return newLogin;
+    }
+
 }

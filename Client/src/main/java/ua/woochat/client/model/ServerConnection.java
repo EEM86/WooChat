@@ -93,7 +93,13 @@ public class ServerConnection implements ConnectionAgent {
 
                 connection.setUser(new User(message.getLogin(), message.getPassword()));
                 loginFormListener.getLoginForm().getLoginWindow().setVisible(false);
-                chatWindow(connection.getUser().getLogin(), this);
+
+                String name = connection.getUser().getLogin();
+                if (message.isAdmin()) {
+                    name = "[Admin] " + connection.getUser().getLogin();
+                }
+
+                chatWindow(name, this);
                 chatForm.addNewTab(tabCount++, "WooChat", "group000", false);
 
                 message.setType(Message.UPDATE_USERS_TYPE);
@@ -113,7 +119,7 @@ public class ServerConnection implements ConnectionAgent {
                     if (!entry.getGroupID().equals("group000")) {
                         chatForm.addNewTab(tabCount++, entry.getGroupName(), entry.getGroupID(), true);
                         i = chatForm.getConversationPanel().getSelectedIndex();
-                        historyMessages =  entry.getQueue();
+                        historyMessages = entry.getQueue();
                         if (historyMessages != null) {
                             for (HistoryMessage entry1 : historyMessages) {
                                 sendToChat(entry1.getLogin(), entry1.getMessage(), i, entry1.getTime());
@@ -234,7 +240,7 @@ public class ServerConnection implements ConnectionAgent {
             }
         }
 
-        /*User's chat disconnect response*/
+        /*User's chat disconnect request*/
         else if (message.getType() == Message.QUIT_TYPE) {
             connectionStatus = false;
             disconnectRequest();
@@ -502,7 +508,7 @@ public class ServerConnection implements ConnectionAgent {
                     new MessageView("Server connection lost..", chatForm.getChatForm(), true);
                 }
             }
-        }, 3000);
+        }, 6000);
     }
 }
 
