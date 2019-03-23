@@ -38,7 +38,7 @@ public class Connection implements Runnable {
             socketIn = new BufferedReader(new InputStreamReader(socket.getInputStream(), Charset.forName("UTF-8")));
             socketOut = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), Charset.forName("UTF-8")));
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("socket.close ", e);
         }
     }
 

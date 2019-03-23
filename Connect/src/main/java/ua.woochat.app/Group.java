@@ -147,6 +147,7 @@ public class Group implements UsersAndGroups {
         try {
             file.createNewFile();
         } catch (IOException e) {
+            logger.error("", e);
             e.printStackTrace();
         }
         try {
