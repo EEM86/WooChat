@@ -62,15 +62,15 @@ public class LoginFormListener implements ActionListener {
             String passwordConfirm = loginForm.getNewConfirmPassword().getText();
 
             if (account.equals("")){
-                new MessageView("Please enter account name!", loginForm.getLoginWindow());
+                new MessageView("Please enter account name!", loginForm.getLoginWindow(),false);
             }
             else{
                 if (("".equals(password)) | ("".equals("passwordConfirm"))){
-                    new MessageView("Password must not be empty", loginForm.getLoginWindow());
+                    new MessageView("Password must not be empty", loginForm.getLoginWindow(),false);
                 }
                 else {
                     if (!password.equals(passwordConfirm)){
-                        new MessageView("Passwords do not match", loginForm.getLoginWindow());
+                        new MessageView("Passwords do not match", loginForm.getLoginWindow(),false);
                     }
                     else{
                         sendMessage(account, password, Message.REGISTER_TYPE);
@@ -100,7 +100,7 @@ public class LoginFormListener implements ActionListener {
         String password = loginForm.getUserPassword().getText();
 
         if (("".equals(account)) || ("".equals(password))){
-            new MessageView("Login or password must not be empty", loginForm.getLoginWindow());
+            new MessageView("Login or password must not be empty", loginForm.getLoginWindow(),false);
         }else{
             sendMessage(account, password, Message.SINGIN_TYPE);
         }
@@ -119,10 +119,9 @@ public class LoginFormListener implements ActionListener {
         try {
             serverConnection.sendToServer(str);
         }catch (NullPointerException e){
-            new MessageView("Server is not available", loginForm.getLoginWindow());
+            new MessageView("Server is not available", loginForm.getLoginWindow(),false);
         }
     }
-
     public LoginForm getLoginForm() {
         return loginForm;
     }

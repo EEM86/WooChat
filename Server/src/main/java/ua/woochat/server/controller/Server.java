@@ -281,6 +281,11 @@ public final class Server implements ConnectionAgent {
            sendToAllGroup(message.getGroupID(), HandleXml.marshallingWriter(Message.class, message));
         }
 
+        /* Client ping request */
+        else if (message.getType() == Message.PING_TYPE) {
+            connection.sendToOutStream(HandleXml.marshallingWriter(Message.class, message));
+        }
+
         /* Makes a private chat with one user */
         else if (message.getType() == Message.PRIVATE_CHAT_TYPE) {
             Group group = new Group("group" + getUniqueID(), "Private");

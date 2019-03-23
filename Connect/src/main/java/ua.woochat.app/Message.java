@@ -26,6 +26,7 @@ public class Message implements Serializable {
     public static int PRIVATE_GROUP_TYPE = 7;
     public static int UNIQUE_ONLINE_USERS_TYPE = 8;
     public static int LEAVE_GROUP_TYPE = 9;
+    public static int PING_TYPE = 10;
     public static int EXIT_TYPE = 11;
     public static int TAB_RENAME_TYPE = 12;
     public static int KICK_TYPE = 13;

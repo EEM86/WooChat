@@ -372,7 +372,7 @@ public class ChatForm {
                     if (serverConnection.isChatFounded(user2)){
                     }else{
                         if (user1.equals(user2)){
-                            new MessageView("You can not create a dialogue with yourself", chatForm);
+                            new MessageView("You can not create a dialogue with yourself", chatForm, false);
                         }else {
                             chatListener.privateGroupCreate(user1,user2);
                         }

@@ -47,6 +47,7 @@ public class ChatFormListener implements ActionListener {
             Message msg = new Message(Message.UNIQUE_ONLINE_USERS_TYPE, "");
             msg.setGroupID(group);
 
+            chatForm.getServerConnection().connectionCheck();
             chatForm.getServerConnection().sendToServer(HandleXml.marshallingWriter(Message.class, msg));
 
             chatForm.getChatForm().setEnabled(false);
@@ -67,11 +68,11 @@ public class ChatFormListener implements ActionListener {
         if (e.getActionCommand().equals("addUser")) {
             int idx = chatForm.getAddUserList().getSelectedIndex();
             if (idx == -1){
-                new MessageView("Select a user", chatForm.getAddUserListForm());
+                new MessageView("Select a user", chatForm.getAddUserListForm(),false);
             }else{
                 if(chatForm.getGroupTextField().isEnabled()){
                     if(chatForm.getGroupTextField().getText().equals("")) {
-                         new MessageView("Enter group name", chatForm.getAddUserListForm());
+                         new MessageView("Enter group name", chatForm.getAddUserListForm(),false);
                 }else{
                         String user2 = chatForm.getAddUserModel().get(idx);
                         String groupID = chatForm.getConversationPanel().getTitleAt(chatForm.getConversationPanel().getSelectedIndex());
@@ -121,6 +122,7 @@ public class ChatFormListener implements ActionListener {
      * @param user2 username with which a private chat is being created
      */
     public void privateGroupCreate(String user1, String user2) {
+        chatForm.getServerConnection().connectionCheck();
         Message message = new Message(Message.PRIVATE_CHAT_TYPE, "");
         ArrayList<String> listUsers = new ArrayList<>();
         listUsers.add(user1);
@@ -155,6 +157,7 @@ public class ChatFormListener implements ActionListener {
         message.setGroupID(chatForm.getConversationPanel().getTitleAt(chatForm.getConversationPanel().getSelectedIndex()));
 
         try {
+            chatForm.getServerConnection().connectionCheck();
             chatForm.getServerConnection().sendToServer(HandleXml.marshallingWriter(Message.class, message));
         } catch (NullPointerException e){
             e.printStackTrace();

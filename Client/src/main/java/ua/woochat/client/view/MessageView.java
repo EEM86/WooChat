@@ -13,7 +13,7 @@ public class MessageView {
 
     private JFrame messageWindow;
 
-    public MessageView(String message, JFrame source) {
+    public MessageView(String message, JFrame source, boolean isCloseable) {
 
         WindowProperties properties = new WindowProperties();
         messageWindow = new JFrame("System message");
@@ -40,6 +40,9 @@ public class MessageView {
             @Override
             public void windowClosing( WindowEvent e )
             {
+                if (isCloseable){
+                    System.exit(0);
+                }
                 source.setEnabled(true);
                 messageWindow.setVisible(false);
             }
@@ -48,6 +51,9 @@ public class MessageView {
         KeyStroke escapeKeyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0, false);
         Action escapeAction = new AbstractAction() {
             public void actionPerformed(ActionEvent e) {
+                if (isCloseable){
+                    System.exit(0);
+                }
                 source.setEnabled(true);
                 messageWindow.setVisible(false);
             }
