@@ -44,7 +44,7 @@ public class ServerConnection implements ConnectionAgent {
             Socket socket = new Socket(ConfigClient.getServerIP(), ConfigClient.getPortConnection());
             this.connection = new Connection(this, socket);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("new Socket error ", e);
         }
     }
 
@@ -82,7 +82,7 @@ public class ServerConnection implements ConnectionAgent {
         try {
             message = HandleXml.unMarshallingMessage(text);
         } catch (JAXBException e) {
-            logger.error("unMarshallingMessage " + e);
+            logger.error("unMarshallingMessage error " + e);
         }
 
         /* Creating account or authorisation */
@@ -328,7 +328,7 @@ public class ServerConnection implements ConnectionAgent {
             connection.setSocket(socketChatting);
             logger.debug("Client has changed connection socket to chatting socket:" + socketChatting.getInetAddress() + ":" + socketChatting.getPort());
         } catch (IOException e) {
-            logger.error("Error client socket creation" + e);
+            logger.error("Error client socket creation", e);
         }
     }
 

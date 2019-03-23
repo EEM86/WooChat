@@ -147,14 +147,13 @@ public class Group implements UsersAndGroups {
         try {
             file.createNewFile();
         } catch (IOException e) {
-            logger.error("", e);
-            e.printStackTrace();
+            logger.error("File has not created", e);
         }
         try {
             FileOutputStream stream = new FileOutputStream(file);
             HandleXml.marshalling(Group.class, this, stream);
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            logger.error("File not found exceptions ", e);
         }
 
     }

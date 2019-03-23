@@ -34,7 +34,7 @@ public class ConfigServer {
                 properties.store(new FileOutputStream(file), null);
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("File not found exceptions ", e);
         }
     }
 
@@ -42,7 +42,7 @@ public class ConfigServer {
         try {
             properties.load(new FileInputStream("serverExtracted.properties"));
         } catch (IOException e) {
-            logger.error("IOException error " + e);
+            logger.error("IOException error ", e);
         }
         return properties.getProperty("rootAdmin");
     }
@@ -51,7 +51,7 @@ public class ConfigServer {
         try {
             properties.load(new FileInputStream("serverExtracted.properties"));
         } catch (IOException e) {
-            logger.error("IOException error " + e);
+            logger.error("IOException error ", e);
         }
         return (properties.getProperty("portConnection"));
     }
@@ -60,7 +60,7 @@ public class ConfigServer {
         try {
             properties.load(new FileInputStream("serverExtracted.properties"));
         } catch (IOException e) {
-            logger.error("IOException error " + e);
+            logger.error("IOException error ", e);
         }
         return (properties.getProperty("portChatting"));
     }
@@ -69,7 +69,7 @@ public class ConfigServer {
         try {
             properties.load(new FileInputStream("serverExtracted.properties"));
         } catch (IOException e) {
-            logger.error("IOException error " + e);
+            logger.error("IOException error ", e);
         }
         return (properties.getProperty("timeout"));
     }
@@ -82,7 +82,7 @@ public class ConfigServer {
             logger.debug("Path to server.properties: " + ConfigServer.class.getClassLoader().getResourceAsStream("server.properties").toString());
             properties.store(new FileOutputStream(file), null);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("IOException error ", e);
         }
     }
 }

@@ -1,10 +1,13 @@
 package ua.woochat.app;
 
+import org.apache.log4j.Logger;
+
 import javax.xml.bind.*;
 import java.io.*;
 
 public class HandleXml {
 
+    private final static Logger logger = Logger.getLogger(HandleXml.class);
     /**
      * Method marshalling instance of the class to XML file
      */
@@ -15,9 +18,9 @@ public class HandleXml {
             marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
             marshaller.marshal(user, stream);
         } catch (PropertyException e) {
-            e.printStackTrace();
+            logger.error("Error was encountered while setting a property on marshaller", e);
         } catch (JAXBException e) {
-            e.printStackTrace();
+            logger.error("JAXB exceptions", e);
         }
     }
 
@@ -33,9 +36,9 @@ public class HandleXml {
             //writer = new StringWriter();
             marshaller.marshal(user, writer);
         } catch (PropertyException e) {
-            e.printStackTrace();
+            logger.error("Error was encountered while setting a property on marshaller", e);
         } catch (JAXBException e) {
-            e.printStackTrace();
+            logger.error("JAXB exceptions", e);
         }
         return writer.toString();
     }
@@ -64,9 +67,9 @@ public class HandleXml {
             Unmarshaller unmarshaller = context.createUnmarshaller();
             user = (UsersAndGroups) unmarshaller.unmarshal(new FileInputStream(file));
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            logger.error("File not found exceptions", e);
         } catch (JAXBException e) {
-            e.printStackTrace();
+            logger.error("JAXB exceptions", e);
         }
         System.out.println(user.toString());
         return user;

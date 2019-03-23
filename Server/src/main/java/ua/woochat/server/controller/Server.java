@@ -53,11 +53,11 @@ public final class Server implements ConnectionAgent {
                     logger.debug("Client's socket was accepted: [" + clientConnectionSocket.getInetAddress().getHostAddress()
                             + ":" + clientConnectionSocket.getPort() + "]. Connection success.");
                 } catch (IOException e) {
-                    logger.error("Connection exception " + e);
+                    logger.error("Connection exception ", e);
                 }
             }
         } catch (IOException e) {
-            logger.error("Server socket exception " + e);
+            logger.error("IOException error ", e);
         }
     }
 
@@ -122,7 +122,7 @@ public final class Server implements ConnectionAgent {
         try {
             message = HandleXml.unMarshallingMessage(text);
         } catch (JAXBException e) {
-            logger.error("unMarshallingMessage " + e);
+            logger.error("unMarshallingMessage ", e);
         }
 
         /* Registration block */
@@ -185,7 +185,7 @@ public final class Server implements ConnectionAgent {
                 try {
                     serverConnectSocket.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    logger.error("serverConnectSocket close error ", e);
                 }
             }
 
@@ -213,41 +213,6 @@ public final class Server implements ConnectionAgent {
                     || message.getMessage().startsWith("/help"))) {
 
                 String[] commands = message.getMessage().split(" ");
-     /*           if (commands.length > 1 && commands[1] != null) {
-                    if ((groupsList.contains(message.getGroupID())) && (message.getGroupID().contains(commands[1]))) {
-                        for (Connection findUser : connections) {
-                            if (findUser.getUser().getLogin().equals(commands[1]) && !commands[1].equals(ConfigServer.getRootAdmin())) {
-                                Message msg = new Message(Message.CHATTING_TYPE, "");
-                                msg.setLogin(findUser.getUser().getLogin());
-                                msg.setGroupID(message.getGroupID());
-
-                                if ((message.getMessage().startsWith("/kick")) && (commands.length > 1)) {
-                                    msg.setType(Message.KICK_TYPE);
-                                    logger.debug("Server sends to Client into ServerConnection kick_type message with login and groupID: " + g.getGroupID());
-                                    findUser.sendToOutStream(HandleXml.marshallingWriter(Message.class, msg));
-                                }
-                                else if ((message.getMessage().startsWith("/ban")) && (commands.length > 3)) {
-                                    msg.setType(Message.BAN_TYPE);
-                                    msg.setBanned(true);
-                                    msg.setMessage("You've banned for " + commands[2] + " minutes. Reason: " + commands[commands.length - 1]);
-                                    logger.debug("Cервер забанил юзера " + msg.getLogin() + " на " + commands[2] + " минут");
-                                    findUser.getUser().setBanInterval(Integer.parseInt(commands[2]));
-                                    findUser.sendToOutStream(HandleXml.marshallingWriter(Message.class, msg));
-                                    message.setMessage(findUser.getUser().getLogin() + " was banned.");
-                                    connection.sendToOutStream(HandleXml.marshallingWriter(Message.class, message));
-                                }
-                                else if ((message.getMessage().startsWith("/unban")) && (commands.length > 1)) {
-                                    findUser.getUser().unban();
-                                    msg.setType(Message.BAN_TYPE);
-                                    msg.setBanned(false);
-                                    findUser.sendToOutStream(HandleXml.marshallingWriter(Message.class, msg));
-                                    message.setMessage(findUser.getUser().getLogin() + " was unbanned.");
-                                    connection.sendToOutStream(HandleXml.marshallingWriter(Message.class, message));
-                                }
-                            }
-                        }
-                    }
-                }*/
                 if (commands.length > 1) {
                     for (Group g : groupsList) {
                         if (g.getGroupID().equals(message.getGroupID())) {
@@ -516,7 +481,7 @@ public final class Server implements ConnectionAgent {
                     clientChatSocket.getInetAddress() + " " + clientChatSocket.getLocalPort());
             connection.setSocket(clientChatSocket);
         } catch (IOException e) {
-            logger.error("Error socket creation" + e);
+            logger.error("Error socket creation", e);
         }
     }
 

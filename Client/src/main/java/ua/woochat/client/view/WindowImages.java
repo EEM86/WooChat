@@ -25,7 +25,7 @@ public class WindowImages {
             envelope = new ImageIcon(ClassLoader.getSystemClassLoader().getResource("envelope.png"));
             logo = new ImageIcon(ClassLoader.getSystemClassLoader().getResource("logo.png"));
         } catch (Exception e) {
-            logger.error("Error" + e);
+            logger.error("Error", e);
         }
     }
 

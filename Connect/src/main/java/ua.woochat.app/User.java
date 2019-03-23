@@ -1,5 +1,7 @@
 package ua.woochat.app;
 
+import org.apache.log4j.Logger;
+
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -18,6 +20,7 @@ public class User implements UsersAndGroups {
     private String login;
     @XmlElement
     private String password;
+    private final static Logger logger = Logger.getLogger(User.class);
 
 //    private enum Gender {
 //        MALE, FEMALE
@@ -56,13 +59,13 @@ public class User implements UsersAndGroups {
         try {
             file.createNewFile();
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("File has not been created ", e);
         }
         try {
             FileOutputStream stream = new FileOutputStream(file);
             handleXml.marshalling(User.class, this, stream);
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            logger.error("File not found exceptions ", e);
         }
 
     }

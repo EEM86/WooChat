@@ -40,7 +40,7 @@ public class ConfigClient {
                 properties.store(new FileOutputStream(file), null);
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("File not found exceptions ", e);
         }
     }
 
@@ -48,7 +48,7 @@ public class ConfigClient {
         try {
             properties.load(ConfigClient.class.getClassLoader().getResourceAsStream("client.properties"));
         } catch (IOException e) {
-            logger.error("IOException error " + e);
+            logger.error("IOException error ", e);
         }
         return Integer.parseInt(properties.getProperty("portconnection"));
     }
@@ -57,7 +57,7 @@ public class ConfigClient {
         try {
             properties.load(ConfigClient.class.getClassLoader().getResourceAsStream("client.properties"));
         } catch (IOException e) {
-            logger.error("IOException error " + e);
+            logger.error("IOException error ", e);
         }
         return properties.getProperty("serverip");
     }

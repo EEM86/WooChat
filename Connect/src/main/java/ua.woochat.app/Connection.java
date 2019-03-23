@@ -38,7 +38,7 @@ public class Connection implements Runnable {
             socketIn = new BufferedReader(new InputStreamReader(socket.getInputStream(), Charset.forName("UTF-8")));
             socketOut = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), Charset.forName("UTF-8")));
         } catch (IOException e) {
-            logger.error("socket.close ", e);
+            logger.error("IOException error ", e);
         }
     }
 
@@ -55,7 +55,7 @@ public class Connection implements Runnable {
                     connectionAgent.receivedMessage(Connection.this, text.trim());
                 }
             } catch (IOException e) {
-                logger.error("Error with connection creation " + e);
+                logger.error("Error with connection creation ", e);
                 try {
                     Thread.sleep(1500);
                 } catch (InterruptedException e1) {
@@ -74,7 +74,7 @@ public class Connection implements Runnable {
             socketOut.write(text + "\r\n");
             socketOut.flush();
         } catch (IOException e) {
-            logger.error("Error with socket output stream" + e);
+            logger.error("Error with socket output stream", e);
             disconnect();
         }
     }

@@ -1,5 +1,6 @@
 package ua.woochat.client.listeners;
 
+import org.apache.log4j.Logger;
 import ua.woochat.app.HandleXml;
 import ua.woochat.app.Message;
 import ua.woochat.client.view.ChatForm;
@@ -14,6 +15,7 @@ import java.util.ArrayList;
  */
 public class ChatFormListener implements ActionListener {
     private ChatForm chatForm;
+    private final static Logger logger = Logger.getLogger(ChatFormListener.class);
 
     public ChatFormListener(ChatForm chatForm) {
         this.chatForm = chatForm;
@@ -160,7 +162,7 @@ public class ChatFormListener implements ActionListener {
             chatForm.getServerConnection().connectionCheck();
             chatForm.getServerConnection().sendToServer(HandleXml.marshallingWriter(Message.class, message));
         } catch (NullPointerException e){
-            e.printStackTrace();
+            logger.error("getServerConnection ", e);
         } finally {
             chatForm.getMessageField().setText("");
         }
