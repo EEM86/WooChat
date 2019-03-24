@@ -5,7 +5,6 @@ import ua.woochat.app.Connection;
 import ua.woochat.app.Group;
 import ua.woochat.app.HandleXml;
 import ua.woochat.app.Message;
-import ua.woochat.server.controller.Server;
 import ua.woochat.server.model.Connections;
 
 import java.io.File;

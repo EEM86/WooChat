@@ -8,7 +8,7 @@ import javax.swing.*;
  * Class describe a ImageIcon resources
  */
 public class WindowImages {
-    final static Logger logger = Logger.getLogger(WindowImages.class);
+    private final static Logger logger = Logger.getLogger(WindowImages.class);
     private ImageIcon logoImage;
     private ImageIcon newUserLogo;
     private ImageIcon closeTabIcon;

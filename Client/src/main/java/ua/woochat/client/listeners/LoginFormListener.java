@@ -61,7 +61,7 @@ public class LoginFormListener implements ActionListener {
             String password = loginForm.getNewPassword().getText();
             String passwordConfirm = loginForm.getNewConfirmPassword().getText();
 
-            if (account.equals("")){
+            if (("").equals(account)){
                 new MessageView("Please enter account name!", loginForm.getLoginWindow(),false);
             }
             else{

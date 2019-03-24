@@ -15,7 +15,6 @@ import java.util.Set;
  * This class sends to client information about online users that are not presented in current private group.
  */
 public class UniqueOnlineUsers implements Commands {
-    private final static Logger logger = Logger.getLogger(UniqueOnlineUsers.class);
 
     @Override
     public void execute(Connection curConnection, Message message) {

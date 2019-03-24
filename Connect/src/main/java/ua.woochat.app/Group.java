@@ -13,18 +13,14 @@ import java.util.concurrent.ArrayBlockingQueue;
 
 @XmlRootElement
 public class Group implements UsersAndGroups {
-
-    final static Logger logger = Logger.getLogger(Group.class);
+    private final static Logger logger = Logger.getLogger(Group.class);
     @XmlElement
     private String groupID;
-
     private String groupName;
     @XmlElementWrapper(name="Users-List", nillable = true)
     @XmlElement(name="user")
     private Set<String> usersList = new LinkedHashSet<>();
-
     private Set<String> onlineUsersList = new LinkedHashSet<>();
-
     private Queue<HistoryMessage> queue = null;
 
     public Group() {
@@ -126,11 +122,9 @@ public class Group implements UsersAndGroups {
      * Method adds one history message to the list of history messages
      */
     public void addToListMessage(HistoryMessage historyMessage) {
-        if (queue != null) {
-            if (!queue.offer(historyMessage)) {
-                queue.poll();
-                queue.offer(historyMessage);
-            }
+        if ((queue != null) && (!queue.offer(historyMessage))) {
+            queue.poll();
+            queue.offer(historyMessage);
         }
     }
 

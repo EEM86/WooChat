@@ -14,7 +14,8 @@ import java.util.Properties;
 public class ConfigClient {
     private static final Logger logger = Logger.getLogger(ConfigClient.class);
     private static ConfigClient configClient;
-    private static Properties properties = new Properties();
+    private static Properties properties;
+    private static final String EXTERNAL_PROPERTIES = "clientExtracted.properties";
 
     private ConfigClient() {
         properties = new Properties();
@@ -31,12 +32,12 @@ public class ConfigClient {
 
     private static void loadClientConfig() {
         try {
-            File file = new File("clientExtracted.properties");
+            File file = new File(EXTERNAL_PROPERTIES);
             if (file.exists()) {
-                properties.load(new FileInputStream("clientExtracted.properties"));
+                properties.load(new FileInputStream(EXTERNAL_PROPERTIES));
             } else {
                 properties.load(ConfigClient.class.getClassLoader().getResourceAsStream("client.properties"));
-                logger.debug("Client properties was extracted from jar file to: " + System.getProperty("user.dir") + File.separator + ("clientExtracted.properties"));
+                logger.debug("Client properties was extracted from jar file to: " + System.getProperty("user.dir") + File.separator + (EXTERNAL_PROPERTIES));
                 properties.store(new FileOutputStream(file), null);
             }
         } catch (IOException e) {
@@ -46,7 +47,7 @@ public class ConfigClient {
 
     public static int getPortConnection() {
         try {
-            properties.load(ConfigClient.class.getClassLoader().getResourceAsStream("client.properties"));
+            properties.load(new FileInputStream(EXTERNAL_PROPERTIES));
         } catch (IOException e) {
             logger.error("IOException error ", e);
         }
@@ -55,7 +56,7 @@ public class ConfigClient {
 
     public static String getServerIP() {
         try {
-            properties.load(ConfigClient.class.getClassLoader().getResourceAsStream("client.properties"));
+            properties.load(new FileInputStream(EXTERNAL_PROPERTIES));
         } catch (IOException e) {
             logger.error("IOException error ", e);
         }

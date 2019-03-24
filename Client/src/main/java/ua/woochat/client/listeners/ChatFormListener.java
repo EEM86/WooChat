@@ -37,7 +37,7 @@ public class ChatFormListener implements ActionListener {
 
         if (e.getActionCommand().equals("enterPressed")) {
             String message = chatForm.getMessageField().getText();
-            if (message.equals("")){}
+            if (("").equals(message)){}
             else {
                 sendMessage(message);
             }

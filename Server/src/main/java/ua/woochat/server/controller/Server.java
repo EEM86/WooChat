@@ -33,7 +33,6 @@ public final class Server implements ConnectionAgent {
     private Connection connection;
     private static ServerSocket serverConnectSocket;
     private ServerSocket serverChattingSocket;
-    private Socket clientConnectionSocket;
     private static boolean socketListensForConnections = true;
 
     private Server() {
@@ -49,7 +48,7 @@ public final class Server implements ConnectionAgent {
             Connections.getGroupsList().add(groupMain);
             while (socketListensForConnections) {
                 try {
-                    clientConnectionSocket = serverConnectSocket.accept();
+                    Socket clientConnectionSocket = serverConnectSocket.accept();
                     connection = new Connection(this, clientConnectionSocket);
                     logger.debug("Client's socket was accepted: [" + clientConnectionSocket.getInetAddress().getHostAddress()
                             + ":" + clientConnectionSocket.getPort() + "]. Connection success.");
@@ -77,8 +76,8 @@ public final class Server implements ConnectionAgent {
         return serverConnectSocket;
     }
 
-    private static void setSocketListensForConnections(boolean socketListensForConnections) {
-        socketListensForConnections = socketListensForConnections;
+    private static void setSocketListensForConnections(boolean value) {
+        socketListensForConnections = value;
     }
 
     @Override
@@ -137,7 +136,7 @@ public final class Server implements ConnectionAgent {
                 || (message.getType() == Message.SIGNIN_TYPE)
                 && (connection.getUser() != null)) {
                 connectionCreated(connection);
-                if (connection.getUser().getLogin().equals(ConfigServer.getRootAdmin())) {
+                if (AdminCommands.isConnectionAdmin(connection)) {
                     Message.administrator = connection.getUser().getLogin();
                 }
                 moveToChattingSocket();

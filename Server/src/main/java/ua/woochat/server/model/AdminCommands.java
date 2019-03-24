@@ -22,7 +22,6 @@ public class AdminCommands {
     public final static String UNBAN = "/unban";
     public final static String HELP = "/help";
 
-    private final static Logger logger = Logger.getLogger(AdminCommands.class);
     private final static AdminCommands ADMIN_COMMANDS = new AdminCommands();
     private Map<String, Commands> adminCommandsMap = new HashMap<>();
 

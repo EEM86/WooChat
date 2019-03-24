@@ -6,7 +6,6 @@ import ua.woochat.server.controller.Server;
 import ua.woochat.server.model.AdminCommands;
 import ua.woochat.server.model.ConfigServer;
 import ua.woochat.server.model.Connections;
-import ua.woochat.server.model.ServerCommands;
 
 import java.util.Map;
 import java.util.Set;
