@@ -41,6 +41,7 @@ public class LeavePrivateGroup implements Commands {
                 Connections.sendToAllGroup(g.getGroupID(), HandleXml.marshallingWriter(Message.class, message));
                 message.setGroupList(new ArrayList<>(g.getUsersList()));
                 message.setType(Message.UPDATE_USERS_TYPE);
+                message.setAdminName(Message.administrator);
                 Connections.sendToAllGroup(g.getGroupID(), HandleXml.marshallingWriter(Message.class, message));
             }
         }

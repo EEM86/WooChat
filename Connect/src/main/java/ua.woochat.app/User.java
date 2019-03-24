@@ -22,11 +22,6 @@ public class User implements UsersAndGroups {
     private String password;
     private final static Logger logger = Logger.getLogger(User.class);
 
-//    private enum Gender {
-//        MALE, FEMALE
-//    }
-
-//    private Gender gender;
     private boolean admin;
     private boolean isBanned;
     private long lastActivity;
@@ -82,14 +77,6 @@ public class User implements UsersAndGroups {
     public String getPassword() {
         return password;
     }
-
-//    public Gender getGender() {
-//        return gender;
-//    }
-//
-//    public void setGender(Gender gender) {
-//        this.gender = gender;
-//    }
 
     public boolean isAdmin() {
         return admin;

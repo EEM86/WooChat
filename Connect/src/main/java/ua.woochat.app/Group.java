@@ -122,7 +122,10 @@ public class Group implements UsersAndGroups {
      * Method adds one history message to the list of history messages
      */
     public void addToListMessage(HistoryMessage historyMessage) {
-        if ((queue != null) && (!queue.offer(historyMessage))) {
+/*        if (queue == null) {
+            queue = new ArrayBlockingQueue<HistoryMessage>(20);
+        }*/
+        if (!queue.offer(historyMessage)) {
             queue.poll();
             queue.offer(historyMessage);
         }
