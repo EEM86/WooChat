@@ -130,33 +130,6 @@ public final class Server implements ConnectionAgent {
         }
     }
 
-    public static void sendToAll(String text) {
-        for (Connection entry: Connections.getConnections()) {
-            for (Group g : Connections.getGroupsList()) {
-                for (String s : g.getUsersList()) {
-                    if (entry.getUser().getLogin().equals(s)) {
-                        entry.sendToOutStream(text);
-                    }
-                }
-            }
-        }
-    }
-
-    public static void sendToAllGroup(String groupID, String text) {
-        for (Group g: Connections.getGroupsList()) {
-            if (groupID.equals(g.getGroupID())) {
-                for (String line: g.getUsersList()) {
-                    for (Connection entry: Connections.getConnections()) {
-                        if (entry.getUser().getLogin().equals(line)) {
-                            logger.info("Method sendToAllGroup is working now. Who is in this group now: " + line + ", message: " + text);
-                            entry.sendToOutStream(text);
-                        }
-                    }
-                }
-            }
-        }
-    }
-
     /**
      * Method moves connection to another socket where chatting starts.
      */
@@ -232,7 +205,7 @@ public final class Server implements ConnectionAgent {
         logger.debug("Sending to all info about connection closed from " + curConnection.getUser().getLogin());
         Message msg = new Message(Message.EXIT_TYPE, " has disconnected.");
         msg.setLogin(curConnection.getUser().getLogin());
-        sendToAll(HandleXml.marshallingWriter(Message.class, msg));
+        Connections.sendToAll(HandleXml.marshallingWriter(Message.class, msg));
         curConnection.disconnect();
     }
 

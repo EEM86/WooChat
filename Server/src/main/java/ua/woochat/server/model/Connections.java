@@ -104,4 +104,40 @@ public class Connections {
         messageSend.setGroupListUser(groupSet);
         connection.sendToOutStream(HandleXml.marshallingWriter(Message.class, messageSend));
     }
+
+    /**
+     * Sends message to all connections
+     * @param text message
+     */
+    public static void sendToAll(String text) {
+        for (Connection entry: Connections.getConnections()) {
+            for (Group g : Connections.getGroupsList()) {
+                for (String s : g.getUsersList()) {
+                    if (entry.getUser().getLogin().equals(s)) {
+                        entry.sendToOutStream(text);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Sends message to all users in a group
+     * @param groupID current group
+     * @param text message
+     */
+    public static void sendToAllGroup(String groupID, String text) {
+        for (Group g: Connections.getGroupsList()) {
+            if (groupID.equals(g.getGroupID())) {
+                for (String line: g.getUsersList()) {
+                    for (Connection entry: Connections.getConnections()) {
+                        if (entry.getUser().getLogin().equals(line)) {
+                            logger.info("Method sendToAllGroup is working now. Who is in this group now: " + line + ", message: " + text);
+                            entry.sendToOutStream(text);
+                        }
+                    }
+                }
+            }
+        }
+    }
 }

@@ -13,6 +13,6 @@ public class UpdateUsersList implements Commands {
     @Override
     public void execute(Connection curConnection, Message message) {
         message.setGroupList(Connections.getOnlineUsersLogins());
-        Server.sendToAllGroup(message.getGroupID(), HandleXml.marshallingWriter(Message.class, message));
+        Connections.sendToAllGroup(message.getGroupID(), HandleXml.marshallingWriter(Message.class, message));
     }
 }

@@ -33,15 +33,15 @@ public class Chatting implements Commands{
     public void execute(Connection curConnection, Message message) {
         String context = message.getMessage();
 
-            if (context.equals(stopServer) && message.getLogin().equals(ConfigServer.getRootAdmin())) {
+            if (context.equals(stopServer) && isAdmin(message)) {
                 doStopCommand(curConnection, message);
-            } else if (isSetCommand(message) && message.getLogin().equals(ConfigServer.getRootAdmin())) {
+            } else if (isSetCommand(message) && isAdmin(message)) {
                 doSetCommand(message);
-            } else if (context.equals(relaunchServer) && message.getLogin().equals(ConfigServer.getRootAdmin())) {
+            } else if (context.equals(relaunchServer) && isAdmin(message)) {
                 Server.relaunchServer(curConnection);
-            } else if (isKickBanCommand(message) && message.getLogin().equals(ConfigServer.getRootAdmin())) {
+            } else if (isKickBanCommand(message) && isAdmin(message)) {
                 doKickBanCommand(curConnection, message);
-            } else if (message.getMessage().equals(helpCommand) && message.getLogin().equals(ConfigServer.getRootAdmin())) {
+            } else if (message.getMessage().equals(helpCommand) && isAdmin(message)) {
                 doHelpCommand(curConnection, message);
         } else {
             for (Group entry: Connections.getGroupsList()) {
@@ -50,12 +50,16 @@ public class Chatting implements Commands{
                     HistoryMessage historyMessage = new HistoryMessage(message.getLogin(), message.getMessage());
                     entry.addToListMessage(historyMessage);
                     entry.saveGroup();
-                    Server.sendToAllGroup(entry.getGroupID(), HandleXml.marshallingWriter(Message.class, message));
+                    Connections.sendToAllGroup(entry.getGroupID(), HandleXml.marshallingWriter(Message.class, message));
                 }
             }
             logger.debug("Who wrote from server side: " + curConnection.getUser().getLogin() + "\n");
             Server.updateUserActivity(curConnection);
         }
+    }
+
+    public boolean isAdmin(Message message) {
+        return message.getLogin().equals(ConfigServer.getRootAdmin());
     }
 
     /**

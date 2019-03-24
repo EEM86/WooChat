@@ -34,5 +34,6 @@ public class ServerCommands {
         chatCommandsMap.put(Message.UNIQUE_ONLINE_USERS_TYPE, new UniqueOnlineUsers());
         chatCommandsMap.put(Message.LEAVE_GROUP_TYPE, new LeavePrivateGroup());
         chatCommandsMap.put(Message.EXIT_TYPE, new Exit());
+        chatCommandsMap.put(Message.PING_TYPE, new Ping());
     }
 }

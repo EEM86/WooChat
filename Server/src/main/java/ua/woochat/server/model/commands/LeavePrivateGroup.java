@@ -39,10 +39,10 @@ public class LeavePrivateGroup implements Commands {
                     }
                 }
                 message.setType(Message.CHATTING_TYPE);
-                Server.sendToAllGroup(g.getGroupID(), HandleXml.marshallingWriter(Message.class, message));
+                Connections.sendToAllGroup(g.getGroupID(), HandleXml.marshallingWriter(Message.class, message));
                 message.setGroupList(new ArrayList<>(g.getUsersList()));
                 message.setType(Message.UPDATE_USERS_TYPE);
-                Server.sendToAllGroup(g.getGroupID(), HandleXml.marshallingWriter(Message.class, message));
+                Connections.sendToAllGroup(g.getGroupID(), HandleXml.marshallingWriter(Message.class, message));
             }
         }
     }
