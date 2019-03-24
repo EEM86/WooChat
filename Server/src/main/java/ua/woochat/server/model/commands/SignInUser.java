@@ -18,14 +18,9 @@ public class SignInUser implements Commands {
     public void execute(Connection curConnection, Message message) {
         Message messageSend = new Message(Message.SIGNIN_TYPE,"");
         if (verificationSingIn(message.getLogin(), message.getPassword())) {
-            //verifyAdmin(user, message);
             if (user.getLogin().equals(ConfigServer.getRootAdmin())) {
-                //message.setAdmin(user.getLogin());
                 Message.administrator = user.getLogin();
             }
-            //logger.info("admin1 " + message.getAdmin());
-            logger.info("admin1 " + Message.administrator);
-            //Message.admin = "FFFFFFFFFFFF";
             curConnection.setUser(user);
             curConnection.getUser().setGroups(curConnection.getUser().getGroups());
 
@@ -57,14 +52,4 @@ public class SignInUser implements Commands {
         return false;
     }
 
-//    private boolean isAdmin(User user) {
-//        return user.getLogin().equals(ConfigServer.getRootAdmin()) ? true : false;
-//    }
-
-//    private void verifyAdmin(User curUser, Message curMessage) {
-//        if (isAdmin(curUser)) {
-//            user.setLogin("[Admin]" + user.getLogin());
-//            curMessage.setAdmin(true);
-//        }
-//    }
 }

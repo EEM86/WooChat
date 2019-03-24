@@ -12,13 +12,9 @@ import ua.woochat.server.model.Connections;
 public class UpdateUsersList implements Commands {
     @Override
     public void execute(Connection curConnection, Message message) {
-        setRootAdmin(message);
         message.setGroupList(Connections.getOnlineUsersLogins());
         message.setAdminName(Message.administrator);
         Connections.sendToAllGroup(message.getGroupID(), HandleXml.marshallingWriter(Message.class, message));
     }
 
-    private void setRootAdmin(Message message) {
-        message.setRootAdmin(AdminCommands.ADMINLOGIN);
-    }
 }

@@ -225,7 +225,6 @@ public final class Server implements ConnectionAgent {
         Message msg = new Message(Message.EXIT_TYPE, " has disconnected.");
         msg.setAdminName(Message.administrator);
         msg.setLogin(curConnection.getUser().getLogin());
-        logger.info("messssss" + msg.getAdminName());
         Connections.sendToAll(HandleXml.marshallingWriter(Message.class, msg));
         curConnection.disconnect();
     }

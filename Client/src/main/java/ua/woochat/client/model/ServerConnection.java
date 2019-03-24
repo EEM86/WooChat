@@ -31,7 +31,6 @@ public class ServerConnection implements ConnectionAgent {
     private HashMap<String, ArrayList<String>> onlineState = new HashMap<>();
     private boolean renderComplete;
     private boolean connectionStatus;
-    private String admin;
 
     private final static Logger logger = Logger.getLogger(ServerConnection.class);
     private final ScheduledExecutorService ses = Executors.newSingleThreadScheduledExecutor();
@@ -142,13 +141,7 @@ public class ServerConnection implements ConnectionAgent {
 
         /* User list update */
         else if (message.getType() == Message.UPDATE_USERS_TYPE) {
-            admin = message.getAdminName();
-
-            if (!("").equals(admin)){
-                chatForm.getAdminName().setText("Admin: " + admin);
-            }else {
-                chatForm.getAdminName().setText("Admin: offline");
-            }
+            Message.administrator = message.getAdminName();
 
             connectionStatus = false;
             if (message.getGroupID().equals("group000")){
@@ -211,6 +204,7 @@ public class ServerConnection implements ConnectionAgent {
         else if (message.getType() == Message.EXIT_TYPE) {
             connectionStatus = false;
             logger.debug("Login of user who disconnect: "  + message.getLogin());
+
             Message.administrator = message.getAdminName();
             removeCurrentUserFromOnline(message.getLogin());
         }
@@ -311,6 +305,11 @@ public class ServerConnection implements ConnectionAgent {
      * Method renew online list of all tabs
      */
     private void reNewAllTabs(){
+        if (!("").equals(Message.administrator) && (Message.administrator != null)){
+            chatForm.getAdminName().setText("Admin: " + Message.administrator);
+        }else {
+            chatForm.getAdminName().setText("Admin: offline");
+        }
         for (int i = 0; i < tabCount; i++) {
             String tabTitle = chatForm.getConversationPanel().getTitleAt(i);
             for(Map.Entry<String, ArrayList<String>> entry: onlineState.entrySet()){

@@ -28,7 +28,6 @@ public class Message implements Serializable {
     private String adminName;
     @XmlElement
     private String password;
-    private String onlineUsers; //удалить?
     private String groupID;
     private String groupTitle;
     private boolean isBanned;
@@ -65,12 +64,6 @@ public class Message implements Serializable {
         this.groupID = groupID;
     }
 
-//    public Message(String login, int type, String message) {
-//        this.login = login;
-//        this.type = type;
-//        this.message = message;
-//    }
-
     @XmlElement
     public String getLogin() {
         return login;
@@ -93,15 +86,6 @@ public class Message implements Serializable {
     public void setType(int type) {
         this.type = type;
     }
-
-    @XmlElement
-    public String getOnlineUsers() {
-        return onlineUsers;
-    }
-
-//    public void setOnlineUsers(String onlineUsers) {
-//        this.onlineUsers = onlineUsers;
-//    }
 
     public void setMessage(String message) {
         this.message = message;
@@ -154,14 +138,6 @@ public class Message implements Serializable {
     public void setGroupTitle(String groupTitle) {
         this.groupTitle = groupTitle;
     }
-
-/*    public boolean isAdmin() {
-        return isAdmin;
-    }
-
-    public void setAdmin(boolean admin) {
-        isAdmin = admin;
-    }*/
 
     public String getAdminName() {
         return adminName;
