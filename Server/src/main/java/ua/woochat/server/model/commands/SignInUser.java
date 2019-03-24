@@ -1,5 +1,6 @@
 package ua.woochat.server.model.commands;
 
+import org.apache.log4j.Logger;
 import ua.woochat.app.*;
 import ua.woochat.server.model.ConfigServer;
 import ua.woochat.server.model.Connections;
@@ -11,12 +12,20 @@ import java.io.File;
  */
 public class SignInUser implements Commands {
     private User user = null;
+    private final static Logger logger = Logger.getLogger(SignInUser.class);
 
     @Override
     public void execute(Connection curConnection, Message message) {
         Message messageSend = new Message(Message.SIGNIN_TYPE,"");
         if (verificationSingIn(message.getLogin(), message.getPassword())) {
             //verifyAdmin(user, message);
+            if (user.getLogin().equals(ConfigServer.getRootAdmin())) {
+                //message.setAdmin(user.getLogin());
+                Message.administrator = user.getLogin();
+            }
+            //logger.info("admin1 " + message.getAdmin());
+            logger.info("admin1 " + Message.administrator);
+            //Message.admin = "FFFFFFFFFFFF";
             curConnection.setUser(user);
             curConnection.getUser().setGroups(curConnection.getUser().getGroups());
 
@@ -36,6 +45,8 @@ public class SignInUser implements Commands {
 
         if (file.isFile()) {
             user = (User) HandleXml.unMarshalling(file, User.class);
+            user.setAdmin(user.getLogin().equals(ConfigServer.getRootAdmin()));
+
             if (Connections.getUserByLogin(curLogin) != null) {
                 return false;
             }

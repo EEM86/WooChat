@@ -97,6 +97,7 @@ public class User implements UsersAndGroups {
 
     public void setAdmin(boolean admin) {
         this.admin = admin;
+        saveUser();
     }
 
     public void addGroup(String groupID) {
@@ -117,6 +118,7 @@ public class User implements UsersAndGroups {
     @XmlElementWrapper(nillable = true)
     public void setGroups(Set<String> groups) {
         this.groups = groups;
+        saveUser();
     }
 
     public boolean isBan() {
@@ -160,6 +162,7 @@ public class User implements UsersAndGroups {
 
     public void setLastActivity(long lastActivity) {
         this.lastActivity = lastActivity;
+        saveUser();
     }
 
     /**

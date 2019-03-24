@@ -10,7 +10,9 @@ import java.util.Set;
 @XmlRootElement
 public class Message implements Serializable {
     private String login;
-    private boolean isAdmin;
+    //private boolean isAdmin;
+    public static String administrator;
+    private String adminName;
     @XmlElement
     private String password;
     private String onlineUsers; //удалить?
@@ -155,11 +157,20 @@ public class Message implements Serializable {
         this.groupTitle = groupTitle;
     }
 
-    public boolean isAdmin() {
+/*    public boolean isAdmin() {
         return isAdmin;
     }
 
     public void setAdmin(boolean admin) {
         isAdmin = admin;
+    }*/
+
+    public String getAdminName() {
+        return adminName;
+    }
+
+    @XmlElement
+    public void setAdminName(String admin) {
+        this.adminName = admin;
     }
 }

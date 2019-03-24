@@ -203,9 +203,14 @@ public final class Server implements ConnectionAgent {
 
     public static void requestDisconnect(Connection curConnection) {
         Connections.removeConnection(curConnection);
+        if (curConnection.getUser().getLogin().equals(ConfigServer.getRootAdmin())) {
+            Message.administrator = "";
+        }
         logger.debug("Sending to all info about connection closed from " + curConnection.getUser().getLogin());
         Message msg = new Message(Message.EXIT_TYPE, " has disconnected.");
+        msg.setAdminName(Message.administrator);
         msg.setLogin(curConnection.getUser().getLogin());
+        logger.info("messssss" + msg.getAdminName());
         Connections.sendToAll(HandleXml.marshallingWriter(Message.class, msg));
         curConnection.disconnect();
     }
