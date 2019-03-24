@@ -213,7 +213,7 @@ public class ServerConnection implements ConnectionAgent {
         else if (message.getType() == Message.TAB_RENAME_TYPE) {
             connectionStatus = false;
             tabRename(message.getGroupTitle(), message.getGroupID());
-            onlineState.put(message.getGroupID(),message.getGroupList());
+            onlineState.put(message.getGroupID(), message.getGroupList());
             reNewAllTabs();
         }
 

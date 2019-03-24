@@ -6,9 +6,8 @@ import ua.woochat.server.controller.Server;
 import ua.woochat.server.model.AdminCommands;
 import ua.woochat.server.model.ConfigServer;
 import ua.woochat.server.model.Connections;
-
 import java.util.Map;
-import java.util.Set;
+
 /**
  * This class handles chatting between users.
  * Also this class defines and executes admin commands.

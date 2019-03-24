@@ -1,6 +1,5 @@
 package ua.woochat.server.model.commands;
 
-import org.apache.log4j.Logger;
 import ua.woochat.app.*;
 import ua.woochat.server.model.ConfigServer;
 import ua.woochat.server.model.Connections;
@@ -12,7 +11,6 @@ import java.io.File;
  */
 public class SignInUser implements Commands {
     private User user = null;
-    private final static Logger logger = Logger.getLogger(SignInUser.class);
 
     @Override
     public void execute(Connection curConnection, Message message) {

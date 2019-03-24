@@ -1,6 +1,5 @@
 package ua.woochat.server.model;
 
-import org.apache.log4j.Logger;
 import ua.woochat.app.Connection;
 import ua.woochat.app.Message;
 import ua.woochat.server.model.commands.Commands;

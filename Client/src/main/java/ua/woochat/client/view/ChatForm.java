@@ -1,7 +1,6 @@
 package ua.woochat.client.view;
 
 import org.apache.log4j.Logger;
-import ua.woochat.app.Message;
 import ua.woochat.client.listeners.ChatFormListener;
 import ua.woochat.client.model.ServerConnection;
 import javax.swing.*;
@@ -373,12 +372,11 @@ public class ChatForm {
                     String user1 = serverConnection.connection.getUser().getLogin();
                     String user2 = model.get(index);
 
-                    if (serverConnection.isChatFounded(user2)){
-                    }else{
-                        if (user1.equals(user2)){
+                    if (!serverConnection.isChatFounded(user2)) {
+                        if (user1.equals(user2)) {
                             new MessageView("You can not create a dialogue with yourself", chatForm, false);
-                        }else {
-                            chatListener.privateGroupCreate(user1,user2);
+                        } else {
+                            chatListener.privateGroupCreate(user1, user2);
                         }
                     }
                 }

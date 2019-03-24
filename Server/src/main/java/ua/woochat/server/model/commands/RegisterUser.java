@@ -33,7 +33,6 @@ public class RegisterUser implements Commands {
 
     private boolean verify(String login) {
         File file = new File("User" + File.separator + login.hashCode() + ".xml");
-        if (file.isFile()) { return false; }
-        return true;
+        return file.isFile();
     }
 }

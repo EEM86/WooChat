@@ -3,7 +3,6 @@ package ua.woochat.server.model.commands;
 import ua.woochat.app.Connection;
 import ua.woochat.app.HandleXml;
 import ua.woochat.app.Message;
-import ua.woochat.server.model.AdminCommands;
 import ua.woochat.server.model.Connections;
 
 /**
