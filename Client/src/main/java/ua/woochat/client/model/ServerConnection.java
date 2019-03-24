@@ -31,6 +31,7 @@ public class ServerConnection implements ConnectionAgent {
     private HashMap<String, ArrayList<String>> onlineState = new HashMap<>();
     private boolean renderComplete;
     private boolean connectionStatus;
+    private String admin;
 
     private final static Logger logger = Logger.getLogger(ServerConnection.class);
     private final ScheduledExecutorService ses = Executors.newSingleThreadScheduledExecutor();
@@ -95,9 +96,6 @@ public class ServerConnection implements ConnectionAgent {
                 loginFormListener.getLoginForm().getLoginWindow().setVisible(false);
 
                 String name = connection.getUser().getLogin();
-/*                if (message.isAdmin()) {
-                    name = "[Admin] " + connection.getUser().getLogin();
-                }*/
 
                 chatWindow(name, this);
                 chatForm.addNewTab(tabCount++, "WooChat", "group000", false);
@@ -144,9 +142,14 @@ public class ServerConnection implements ConnectionAgent {
 
         /* User list update */
         else if (message.getType() == Message.UPDATE_USERS_TYPE) {
-            //logger.info("admin " + message.getAdmin());
-            logger.info("admin " + message.getAdminName());
-            //logger.info("admin " + Message.admin);
+            admin = message.getAdminName();
+
+            if (!("").equals(admin)){
+                chatForm.getAdminName().setText("Admin: " + admin);
+            }else {
+                chatForm.getAdminName().setText("Admin: offline");
+            }
+
             connectionStatus = false;
             if (message.getGroupID().equals("group000")){
                 onlineState.put("group000",message.getGroupList());
@@ -275,6 +278,7 @@ public class ServerConnection implements ConnectionAgent {
         for(Map.Entry<String, ArrayList<String>> entry: onlineState.entrySet()) {
             temp = entry.getValue();
             logger.debug("Find user in group:" + entry.getKey());
+
             for (String user: temp ){
                 logger.debug("Before remove:" + temp.toString());
                 if(user.equals(login)){
@@ -511,7 +515,7 @@ public class ServerConnection implements ConnectionAgent {
                     new MessageView("Server connection lost..", chatForm.getChatForm(), true);
                 }
             }
-        }, 10000);
+        }, 30000);
     }
 }
 

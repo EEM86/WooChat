@@ -33,6 +33,7 @@ public class ChatForm {
     private JScrollPane addUserScrollPane;
     private JList addUserList;
     private JLabel userOnlineLabel;
+    private JLabel adminName;
     private JButton sendButton;
     private JButton addUserBtn;
     private JTabbedPane conversationPanel;
@@ -344,6 +345,8 @@ public class ChatForm {
         listContainer.setPreferredSize(new Dimension(182,400));
         userOnlineLabel = new JLabel();
         userOnlineLabel.setForeground(properties.getLabelTextColor());
+        adminName = new JLabel("Admin: offline");
+        adminName.setForeground(properties.getLabelTextColor());
         JLabel line = new JLabel();
         line.setPreferredSize(new Dimension(140,10));
         line.setIcon(images.getLine());
@@ -356,6 +359,7 @@ public class ChatForm {
         scrollPane.setBorder(border());
         listContainer.add(userOnlineLabel);
         listContainer.add(line);
+        listContainer.add(adminName);
         listContainer.add(scrollPane);
 
         /**
@@ -444,6 +448,10 @@ public class ChatForm {
 
     private Border border() {
         return BorderFactory.createEmptyBorder(0, 0, 0, 0);
+    }
+
+    public JLabel getAdminName() {
+        return adminName;
     }
 }
 

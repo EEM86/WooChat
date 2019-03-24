@@ -2,6 +2,7 @@ package ua.woochat.server.controller;
 
 import org.apache.log4j.Logger;
 import ua.woochat.app.*;
+import ua.woochat.server.model.AdminCommands;
 import ua.woochat.server.model.ConfigServer;
 import ua.woochat.server.model.ServerCommands;
 import ua.woochat.server.model.commands.Commands;
@@ -115,19 +116,33 @@ public final class Server implements ConnectionAgent {
         connection = data;
         try {
             message = HandleXml.unMarshallingMessage(text);
+
             Map<Integer, Commands> chatCommandsMap = ServerCommands.getCommandsMap();
             Commands currentCommand = chatCommandsMap.get(message.getType());
             if (currentCommand != null) {
-                currentCommand.execute(data, message);
-                if ((message.getType() == Message.REGISTER_TYPE || message.getType() == Message.SIGNIN_TYPE ) &&
-                        (connection.getUser() != null)) {
-                        connectionCreated(connection);
-                        moveToChattingSocket();
-                        Connections.updateListOfGroups(connection);
-                }
+                currentCommand.execute(connection, message);
+                handleNewConnection();
             }
         } catch (JAXBException e) {
             logger.error("unMarshallingMessage ", e);
+        }
+    }
+
+    /**
+     * This method creates new connection and moves it to a chatting port.
+     * Also checks admin and prints him help commands.
+     */
+    public void handleNewConnection() {
+        if ((message.getType() == Message.REGISTER_TYPE)
+                || (message.getType() == Message.SIGNIN_TYPE)
+                && (connection.getUser() != null)) {
+                connectionCreated(connection);
+                moveToChattingSocket();
+                Connections.updateListOfGroups(connection);
+            if (AdminCommands.isConnectionAdmin(connection)) {
+                message.setGroupID("group000");
+                AdminCommands.printHelpAdmin(connection, message);
+            }
         }
     }
 
@@ -195,7 +210,7 @@ public final class Server implements ConnectionAgent {
      * @param connect current connection
      */
     public static void updateUserActivity(Connection connect){
-        if (connect != null) {
+        if (connect.getUser() != null) {
             logger.debug("SERVER: Update user's activity: " + connect.getUser().getLogin());
             connect.getUser().setLastActivity(System.currentTimeMillis());
         }
