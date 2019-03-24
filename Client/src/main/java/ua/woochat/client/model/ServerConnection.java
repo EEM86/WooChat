@@ -31,6 +31,7 @@ public class ServerConnection implements ConnectionAgent {
     private HashMap<String, ArrayList<String>> onlineState = new HashMap<>();
     private boolean renderComplete;
     private boolean connectionStatus;
+    private String admin;
 
     private final static Logger logger = Logger.getLogger(ServerConnection.class);
     private final ScheduledExecutorService ses = Executors.newSingleThreadScheduledExecutor();
@@ -144,6 +145,14 @@ public class ServerConnection implements ConnectionAgent {
 
         /* User list update */
         else if (message.getType() == Message.UPDATE_USERS_TYPE) {
+            admin = "Jon Snow";
+
+            if (!admin.equals("")){
+                chatForm.getAdminName().setText("Admin: " + admin);
+            }else {
+                chatForm.getAdminName().setText("Admin: offline");
+            }
+
             connectionStatus = false;
             if (message.getGroupID().equals("group000")){
                 onlineState.put("group000",message.getGroupList());
@@ -304,6 +313,7 @@ public class ServerConnection implements ConnectionAgent {
      * Method renew online list of all tabs
      */
     private void reNewAllTabs(){
+
         for (int i = 0; i < tabCount; i++) {
             String tabTitle = chatForm.getConversationPanel().getTitleAt(i);
             for(Map.Entry<String, ArrayList<String>> entry: onlineState.entrySet()){
