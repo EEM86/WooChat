@@ -32,6 +32,8 @@ public class PrivateChat implements Commands {
                 }
             }
         }
+        Connections.addGroupToGroupsList(group);
+        Connections.getGroupsList().stream().forEach(x -> logger.debug("Group in groups list: " + x.getGroupID()));
     }
 
     /**

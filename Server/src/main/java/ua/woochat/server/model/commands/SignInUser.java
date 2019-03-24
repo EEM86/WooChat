@@ -16,6 +16,7 @@ public class SignInUser implements Commands {
     public void execute(Connection curConnection, Message message) {
         Message messageSend = new Message(Message.SIGNIN_TYPE,"");
         if (verificationSingIn(message.getLogin(), message.getPassword())) {
+            //verifyAdmin(user, message);
             curConnection.setUser(user);
             curConnection.getUser().setGroups(curConnection.getUser().getGroups());
 
@@ -30,12 +31,12 @@ public class SignInUser implements Commands {
         }
     }
 
-    private boolean verificationSingIn(String login, String password) {
-        File file = new File("User" + File.separator + login.hashCode() + ".xml");
+    private boolean verificationSingIn(String curLogin, String password) {
+        File file = new File("User" + File.separator + curLogin.hashCode() + ".xml");
 
         if (file.isFile()) {
             user = (User) HandleXml.unMarshalling(file, User.class);
-            if (Connections.getUserByLogin(login) != null) {
+            if (Connections.getUserByLogin(curLogin) != null) {
                 return false;
             }
             if (password.equals(user.getPassword())) {
@@ -44,4 +45,15 @@ public class SignInUser implements Commands {
         }
         return false;
     }
+
+//    private boolean isAdmin(User user) {
+//        return user.getLogin().equals(ConfigServer.getRootAdmin()) ? true : false;
+//    }
+
+//    private void verifyAdmin(User curUser, Message curMessage) {
+//        if (isAdmin(curUser)) {
+//            user.setLogin("[Admin]" + user.getLogin());
+//            curMessage.setAdmin(true);
+//        }
+//    }
 }

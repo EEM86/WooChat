@@ -193,14 +193,6 @@ public class Group implements UsersAndGroups {
         return historyMessages;
     }
 
-    public static void getGroupHistory(Connection curConnection) {
-        Message messageSend = new Message(Message.SIGNIN_TYPE,"update");
-        Set<Group> groupSet = groupUser(curConnection.getUser().getGroups());
-        //Connections.getGroupsList().addAll(groupSet);
-        messageSend.setGroupListUser(groupSet);
-        curConnection.sendToOutStream(HandleXml.marshallingWriter(Message.class, messageSend));
-    }
-
     /**
      * Method group to String
      * @return String for group

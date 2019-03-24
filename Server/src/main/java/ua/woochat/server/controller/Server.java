@@ -122,7 +122,7 @@ public final class Server implements ConnectionAgent {
                 if (message.getType() == Message.REGISTER_TYPE || message.getType() == Message.SIGNIN_TYPE ) {
                     connectionCreated(connection);
                     moveToChattingSocket();
-                    Group.getGroupHistory(connection);
+                    Connections.updateListOfGroups(connection);
                 }
             }
         } catch (JAXBException e) {
@@ -221,8 +221,10 @@ public final class Server implements ConnectionAgent {
      * @param connect current connection
      */
     public static void updateUserActivity(Connection connect){
-        logger.debug("SERVER: Update user's activity: " + connect.getUser().getLogin());
-        connect.getUser().setLastActivity(System.currentTimeMillis());
+        if (connect != null) {
+            logger.debug("SERVER: Update user's activity: " + connect.getUser().getLogin());
+            connect.getUser().setLastActivity(System.currentTimeMillis());
+        }
     }
 
     public static void requestDisconnect(Connection curConnection) {
@@ -262,13 +264,4 @@ public final class Server implements ConnectionAgent {
             }
         }
     }
-
-    private String verificationAdmin(String login) {
-        String newLogin = login;
-        if (login.equals(ConfigServer.getRootAdmin())) {
-            newLogin = "[Admin] " + login;
-        }
-        return newLogin;
-    }
-
 }

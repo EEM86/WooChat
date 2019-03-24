@@ -249,8 +249,8 @@ public class ServerConnection implements ConnectionAgent {
         /*Server status check*/
         else if (message.getType() == Message.PING_TYPE) {
             connectionStatus = false;
-            }
         }
+    }
 
     /**
      * Method sets the buttons enable
@@ -508,7 +508,7 @@ public class ServerConnection implements ConnectionAgent {
                     new MessageView("Server connection lost..", chatForm.getChatForm(), true);
                 }
             }
-        }, 6000);
+        }, 10000);
     }
 }
 

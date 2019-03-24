@@ -1,8 +1,7 @@
 package ua.woochat.server.model;
 
-import ua.woochat.app.Connection;
-import ua.woochat.app.Group;
-import ua.woochat.app.User;
+import org.apache.log4j.Logger;
+import ua.woochat.app.*;
 
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
@@ -12,11 +11,16 @@ import java.util.Set;
  This class works with all connections on the server.
 */
 public class Connections {
+    private final static Logger logger = Logger.getLogger(Connections.class);
     private static Set<Connection> connections = new LinkedHashSet<>();
     private static Set<Group> groupsList = new LinkedHashSet<>();
 
     public static void addConnection(Connection connection) {
         connections.add(connection);
+    }
+
+    public static void addGroupToGroupsList(Group group) {
+        groupsList.add(group);
     }
 
     public static void removeConnection(Connection connection) {
@@ -90,5 +94,14 @@ public class Connections {
             }
         }
         return result;
+    }
+
+    public static void updateListOfGroups(Connection connection) {
+        Message messageSend = new Message(Message.SIGNIN_TYPE,"update");
+        Set<Group> groupSet = Group.groupUser(connection.getUser().getGroups());
+        getGroupsList().addAll(groupSet);
+        logger.debug("GroupsList after user connected: " + Connections.getGroupsList().toString());
+        messageSend.setGroupListUser(groupSet);
+        connection.sendToOutStream(HandleXml.marshallingWriter(Message.class, messageSend));
     }
 }
