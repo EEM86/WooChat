@@ -12,6 +12,7 @@ public class Help implements Commands {
 
     @Override
     public void execute(Connection curConnection, Message message) {
+        message.setType(Message.CHATTING_TYPE);
         message.setLogin("WooChat");
         message.setMessage("****************** Admin Commands *******************");
         curConnection.sendToOutStream(HandleXml.marshallingWriter(Message.class, message));

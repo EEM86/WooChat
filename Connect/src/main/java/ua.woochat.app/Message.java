@@ -9,16 +9,6 @@ import java.util.Set;
 
 @XmlRootElement
 public class Message implements Serializable {
-    private String login;
-    private boolean isAdmin;
-    @XmlElement
-    private String password;
-    private String onlineUsers; //удалить?
-    private String groupID;
-    private String groupTitle;
-    private boolean isBanned;
-
-    private int type;
     public final static int REGISTER_TYPE = 0;  // сделать через enum?
     public final static int SIGNIN_TYPE = 1;
     public final static int CHATTING_TYPE = 2;
@@ -33,10 +23,28 @@ public class Message implements Serializable {
     public final static int KICK_TYPE = 13;
     public final static int BAN_TYPE = 99;
     public final static int QUIT_TYPE = 23;
-
+    private String login;
+    private boolean isAdmin;
+    @XmlElement
+    private String password;
+    private String onlineUsers; //удалить?
+    private String groupID;
+    private String groupTitle;
+    private boolean isBanned;
+    private int type;
     private String message;
     private ArrayList<String> groupList = new ArrayList<>();
     private Set<Group> groupListUser = new HashSet<>();
+    private String rootAdmin;
+
+    public String getRootAdmin() {
+        return rootAdmin;
+    }
+
+    @XmlElement
+    public void setRootAdmin(String rootAdmin) {
+        this.rootAdmin = rootAdmin;
+    }
 
     public Message() {
     }

@@ -6,6 +6,9 @@ import ua.woochat.app.Message;
 import ua.woochat.server.model.Connections;
 import ua.woochat.server.model.commands.Commands;
 
+/**
+ * This class unbans user.
+ */
 public class Unban implements Commands {
     @Override
     public void execute(Connection curConnection, Message message) {

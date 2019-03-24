@@ -8,7 +8,6 @@ import ua.woochat.server.model.commands.Commands;
 
 /**
  * Sets properties to server config file serverExtracted.properties.
- * @param message an instance of Message object for transmitting information between client and server.
  */
 public class SetCommand implements Commands {
     private final static Logger logger = Logger.getLogger(SetCommand.class);

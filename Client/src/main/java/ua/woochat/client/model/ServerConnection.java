@@ -145,7 +145,7 @@ public class ServerConnection implements ConnectionAgent {
 
         /* User list update */
         else if (message.getType() == Message.UPDATE_USERS_TYPE) {
-            admin = "Jon Snow";
+            admin = message.getRootAdmin();
 
             if (!admin.equals("")){
                 chatForm.getAdminName().setText("Admin: " + admin);

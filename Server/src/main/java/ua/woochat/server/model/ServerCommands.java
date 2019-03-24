@@ -12,14 +12,13 @@ import java.util.Map;
  * This class creates server commands map.
  */
 public class ServerCommands {
+    public static ServerCommands getInstance() {
+        return CHATTING_COMMANDS;
+    }
 
     private final static Logger logger = Logger.getLogger(ServerCommands.class);
     private final static ServerCommands CHATTING_COMMANDS = new ServerCommands();
     private Map<Integer, Commands> chatCommandsMap = new HashMap<>();
-
-    public static ServerCommands getInstance() {
-        return CHATTING_COMMANDS;
-    }
 
     public static Map<Integer, Commands> getCommandsMap() {
         return CHATTING_COMMANDS != null ? CHATTING_COMMANDS.chatCommandsMap : null;

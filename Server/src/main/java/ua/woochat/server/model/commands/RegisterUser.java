@@ -4,6 +4,7 @@ import ua.woochat.app.Connection;
 import ua.woochat.app.HandleXml;
 import ua.woochat.app.Message;
 import ua.woochat.app.User;
+import ua.woochat.server.model.AdminCommands;
 import ua.woochat.server.model.ConfigServer;
 import ua.woochat.server.model.Connections;
 
