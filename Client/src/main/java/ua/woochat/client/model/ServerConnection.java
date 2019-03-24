@@ -80,7 +80,7 @@ public class ServerConnection implements ConnectionAgent {
         }
 
         /* Creating account or authorisation */
-        if ((message.getType() == Message.REGISTER_TYPE) || (message.getType() == Message.SINGIN_TYPE)) {
+        if ((message.getType() == Message.REGISTER_TYPE) || (message.getType() == Message.SIGNIN_TYPE)) {
             if (message.getMessage().startsWith("true")) {
                 int chattingPort = Integer.parseInt(message.getMessage().substring(message.getMessage().indexOf('=') + 1));
                 moveToChattingSocket(chattingPort);

@@ -136,6 +136,7 @@ public class Group implements UsersAndGroups {
 
     /**
      * Method saves group in XML file
+     * ToDo delete groups without users
      */
     public void saveGroup() {
         File file = new File("Group" + File.separator + this.getGroupID() + ".xml");
@@ -190,6 +191,14 @@ public class Group implements UsersAndGroups {
             historyMessages = group.getQueue();
         }
         return historyMessages;
+    }
+
+    public static void getGroupHistory(Connection curConnection) {
+        Message messageSend = new Message(Message.SIGNIN_TYPE,"update");
+        Set<Group> groupSet = groupUser(curConnection.getUser().getGroups());
+        //Connections.getGroupsList().addAll(groupSet);
+        messageSend.setGroupListUser(groupSet);
+        curConnection.sendToOutStream(HandleXml.marshallingWriter(Message.class, messageSend));
     }
 
     /**
