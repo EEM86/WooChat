@@ -119,10 +119,11 @@ public final class Server implements ConnectionAgent {
             Commands currentCommand = chatCommandsMap.get(message.getType());
             if (currentCommand != null) {
                 currentCommand.execute(data, message);
-                if (message.getType() == Message.REGISTER_TYPE || message.getType() == Message.SIGNIN_TYPE ) {
-                    connectionCreated(connection);
-                    moveToChattingSocket();
-                    Connections.updateListOfGroups(connection);
+                if ((message.getType() == Message.REGISTER_TYPE || message.getType() == Message.SIGNIN_TYPE ) &&
+                        (connection.getUser() != null)) {
+                        connectionCreated(connection);
+                        moveToChattingSocket();
+                        Connections.updateListOfGroups(connection);
                 }
             }
         } catch (JAXBException e) {
