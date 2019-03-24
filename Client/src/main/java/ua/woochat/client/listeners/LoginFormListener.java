@@ -102,7 +102,7 @@ public class LoginFormListener implements ActionListener {
         if (("".equals(account)) || ("".equals(password))){
             new MessageView("Login or password must not be empty", loginForm.getLoginWindow(),false);
         }else{
-            sendMessage(account, password, Message.SINGIN_TYPE);
+            sendMessage(account, password, Message.SIGNIN_TYPE);
         }
     }
 
