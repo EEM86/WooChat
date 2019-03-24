@@ -514,7 +514,7 @@ public class ServerConnection implements ConnectionAgent {
                     new MessageView("Server connection lost..", chatForm.getChatForm(), true);
                 }
             }
-        }, 30000);
+        }, 30000000);
     }
 }
 

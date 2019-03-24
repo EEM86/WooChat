@@ -137,6 +137,9 @@ public final class Server implements ConnectionAgent {
                 || (message.getType() == Message.SIGNIN_TYPE)
                 && (connection.getUser() != null)) {
                 connectionCreated(connection);
+                if (connection.getUser().getLogin().equals(ConfigServer.getRootAdmin())) {
+                    Message.administrator = connection.getUser().getLogin();
+                }
                 moveToChattingSocket();
                 Connections.updateListOfGroups(connection);
             if (AdminCommands.isConnectionAdmin(connection)) {

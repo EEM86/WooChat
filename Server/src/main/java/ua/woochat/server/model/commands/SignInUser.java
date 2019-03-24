@@ -18,9 +18,6 @@ public class SignInUser implements Commands {
     public void execute(Connection curConnection, Message message) {
         Message messageSend = new Message(Message.SIGNIN_TYPE,"");
         if (verificationSingIn(message.getLogin(), message.getPassword())) {
-            if (user.getLogin().equals(ConfigServer.getRootAdmin())) {
-                Message.administrator = user.getLogin();
-            }
             curConnection.setUser(user);
             curConnection.getUser().setGroups(curConnection.getUser().getGroups());
 
