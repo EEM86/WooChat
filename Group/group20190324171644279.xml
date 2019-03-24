@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<group>
+    <groupID>group20190324171644279</groupID>
+    <Users-List>
+        <user>ff</user>
+        <user>qq</user>
+    </Users-List>
+    <Title-group>Private</Title-group>
+    <History-Message>
+        <login>ff</login>
+        <message>34</message>
+        <time>2019-03-24T17:16:45.542+02:00</time>
+    </History-Message>
+    <History-Message>
+        <login>qq</login>
+        <message>dd</message>
+        <time>2019-03-24T17:16:47.133+02:00</time>
+    </History-Message>
+    <History-Message>
+        <login>ff</login>
+        <message>dfg</message>
+        <time>2019-03-24T17:16:55.407+02:00</time>
+    </History-Message>
+    <History-Message>
+        <login>qq</login>
+        <message>fdg</message>
+        <time>2019-03-24T17:19:18.827+02:00</time>
+    </History-Message>
+    <History-Message>
+        <login>ff</login>
+        <message>Ho</message>
+        <time>2019-03-24T17:24:12.839+02:00</time>
+    </History-Message>
+    <History-Message>
+        <login>qq</login>
+        <message>/kick ff</message>
+        <time>2019-03-24T17:25:58.576+02:00</time>
+    </History-Message>
+    <History-Message>
+        <login>qq</login>
+        <message>/ban ff</message>
+        <time>2019-03-24T17:26:07.949+02:00</time>
+    </History-Message>
+</group>

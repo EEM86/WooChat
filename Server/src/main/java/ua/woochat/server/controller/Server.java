@@ -195,7 +195,7 @@ public final class Server implements ConnectionAgent {
      * @param connect current connection
      */
     public static void updateUserActivity(Connection connect){
-        if (connect != null) {
+        if (connect.getUser() != null) {
             logger.debug("SERVER: Update user's activity: " + connect.getUser().getLogin());
             connect.getUser().setLastActivity(System.currentTimeMillis());
         }
