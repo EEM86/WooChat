@@ -135,12 +135,12 @@ public final class Server implements ConnectionAgent {
         if ((message.getType() == Message.REGISTER_TYPE)
                 || (message.getType() == Message.SIGNIN_TYPE)
                 && (connection.getUser() != null)) {
-                connectionCreated(connection);
-                if (AdminCommands.isConnectionAdmin(connection)) {
-                    Message.administrator = connection.getUser().getLogin();
-                }
-                moveToChattingSocket();
-                Connections.updateListOfGroups(connection);
+            connectionCreated(connection);
+            if (AdminCommands.isConnectionAdmin(connection)) {
+                Message.administrator = connection.getUser().getLogin();
+            }
+            moveToChattingSocket();
+            Connections.updateListOfGroups(connection);
             if (AdminCommands.isConnectionAdmin(connection)) {
                 message.setGroupID("group000");
                 AdminCommands.printHelpAdmin(connection, message);
