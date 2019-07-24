@@ -60,6 +60,4 @@ public class AdminCommands {
         Help help = new Help();
         help.execute(connection, message);
     }
-
-
 }

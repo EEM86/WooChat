@@ -81,7 +81,7 @@ public class ServerConnection implements ConnectionAgent {
         connection = data;
         try {
             message = HandleXml.unMarshallingMessage(text);
-        } catch (JAXBException e) {
+        } catch (Exception e) {
             logger.error("unMarshallingMessage error " + e);
         }
 
