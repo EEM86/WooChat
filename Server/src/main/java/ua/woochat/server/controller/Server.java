@@ -122,7 +122,7 @@ public final class Server implements ConnectionAgent {
                 currentCommand.execute(connection, message);
                 handleNewConnection();
             }
-        } catch (JAXBException e) {
+        } catch (Exception e) {
             logger.error("unMarshallingMessage ", e);
         }
     }
@@ -233,6 +233,7 @@ public final class Server implements ConnectionAgent {
 
     /**
      * Method just closes the program. Only admin can start this method.
+     * @param curConnection current client connection
      */
     public static void relaunchServer(Connection curConnection) {
         Message msg = new Message(Message.QUIT_TYPE, "");

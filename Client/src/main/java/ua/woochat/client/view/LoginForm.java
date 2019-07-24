@@ -6,9 +6,9 @@ import java.awt.*;
 
 /**
  * Class describes the login form of WooChat application
- * @autor Yevhen Yermolenko
- * @autor Maryia Romanovych
- * @autor Sergey Skidan
+ * @author Yevhen Yermolenko
+ * @author Maryia Romanovych
+ * @author Sergey Skidan
  */
 
 public class LoginForm {

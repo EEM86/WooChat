@@ -19,3 +19,5 @@ A server-client application for real-time messaging.
 6. User inactivity period (1 hour as default) is saved into server.properties config file. Admin can change this parameter.
 7. Admin can stop server, changes its configs: ports, timeout inactivity. He can type </help> in the chat and get further clues.
 8. XML is used for communication between Server and Client.
+
+P.S. To create an admin account you can register with such login --> ff

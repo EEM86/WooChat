@@ -6,9 +6,9 @@ import ua.woochat.client.view.WindowProperties;
 
 /**
  * Main WooChat client application class
- * @autor Yevhen Yermolenko
- * @autor Mariia Romanovych
- * @autor Sergey Skidan
+ * @author Yevhen Yermolenko
+ * @author Mariia Romanovych
+ * @author Sergey Skidan
  * @version 0.9
 */
 

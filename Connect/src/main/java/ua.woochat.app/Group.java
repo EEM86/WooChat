@@ -120,6 +120,7 @@ public class Group implements UsersAndGroups {
 
     /**
      * Method adds one history message to the list of history messages
+     * @param historyMessage chat history
      */
     public void addToListMessage(HistoryMessage historyMessage) {
 /*        if (queue == null) {
@@ -158,6 +159,7 @@ public class Group implements UsersAndGroups {
 
     /**
      * Method creates a list of user's groups from files in the list of strings
+     * @param groups chat groups
      * @return groupSet list of user groups
      */
     public static Set<Group> groupUser (Set<String> groups) {
@@ -178,9 +180,10 @@ public class Group implements UsersAndGroups {
 
     /**
      * Method creates a list of historical messages for one group
+     * @param group chat group
      * @return historyMessages list of historical messages
      */
-    public static Queue<HistoryMessage> groupSingIn(Group group) {  //переделать, чтобы выводило нужное сообщение, когда пользователь уже подключен к чату
+    public static Queue<HistoryMessage> groupSingIn(Group group) {
         File file = new File("Group" + File.separator + group.getGroupID() + ".xml");
         Queue<HistoryMessage> historyMessages = null;
         if (file.isFile()) {

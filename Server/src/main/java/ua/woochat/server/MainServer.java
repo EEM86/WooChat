@@ -10,6 +10,7 @@ public class MainServer {
 
     /**
      * Main method for Server
+     * @param args arguments for main method
      */
     public static void main(String[] args) {
         Server.startServer();

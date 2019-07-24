@@ -12,9 +12,9 @@ import java.awt.event.*;
 
 /**
  * Class describes the main window of WooChat application
- * @autor Yevhen Yermolenko
- * @autor Maryia Romanovych
- * @autor Sergey Skidan
+ * @author Yevhen Yermolenko
+ * @author Maryia Romanovych
+ * @author Sergey Skidan
  */
 
 public class ChatForm {
@@ -252,10 +252,11 @@ public class ChatForm {
      * @param index index of new tab
      * @param tabTitle chat title
      * @param tabID new tab id
+     * @param closeable true if tab is closeable
      */
     public void addNewTab(int index, String tabTitle, String tabID, boolean closeable) {
         conversationPanel.addTab(null, createNewTab());
-        conversationPanel.setTabComponentAt(index,new TabTitle(tabTitle,index, closeable));
+        conversationPanel.setTabComponentAt(index,new TabTitle(tabTitle, index, closeable));
         conversationPanel.setTitleAt(index,tabID);
         conversationPanel.setSelectedIndex(index);
     }
