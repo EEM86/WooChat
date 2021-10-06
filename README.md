@@ -20,4 +20,4 @@ A server-client application for real-time messaging.
 7. Admin can stop server, changes its configs: ports, timeout inactivity. He can type </help> in the chat and get further clues.
 8. XML is used for communication between Server and Client.
 
-P.S. To create an admin account you can register with such login --> ff
+Please note: To create an admin account you can register with such login --> ff
